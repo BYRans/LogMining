@@ -1,20 +1,11 @@
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
-
-
-
-
-
-
-
-
-
 import java.util.Set;
-
 
 //import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -38,43 +29,50 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.queryparser.classic.QueryParser;
 
 public class Search {
+	public static String lucenePath = "C:/Users/Administrator/Desktop/luceneFile/";
+	public static String termSetPath = "C:/Users/Administrator/Desktop/Analyze/termSet.txt";
+	public static String queryString = "exception";
+	public static String field = "message";
+	public static int hits = 10;
 
 	public static void main(String[] args) throws Exception {
-		String lucenePath = "C:/Users/Administrator/Desktop/luceneFile/";
-		String queryString = "exception";
-		String field = "message";
-		int hits = 10;
 		search(lucenePath, queryString, field, hits);
 	}
 
-	public static void search(String lucenePath, String queryString, String field, int hits) {
+	public static void search(String lucenePath, String queryString,
+			String field, int hits) {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
 			directory = FSDirectory.open(new File(lucenePath));
 			reader = IndexReader.open(directory);
-//			Terms terms = SlowCompositeReaderWrapper.wrap(reader).terms("message"); 
-//			
-//			Set<String> uniqueTerms = new HashSet<String>();
-//			while (terms.next()) {
-//			        final Term term = terms.term();
-//			        if (term.field().equals("field_name")) {
-//			                uniqueTerms.add(term.text());
-//			        }
-//			}
-//			
 			Terms msgTerm = MultiFields.getTerms(reader, "message");
 			TermsEnum msgEnum = msgTerm.iterator(null);
+			int termID = 0;
 			while (msgEnum.next() != null) {
 				String term = msgEnum.term().utf8ToString();
-				DocsEnum termDocs = msgEnum.docs(null, null, DocsEnum.FLAG_FREQS);
+				DocsEnum termDocs = msgEnum.docs(null, null,
+						DocsEnum.FLAG_FREQS);
 				int termCount = 0;
 				while (termDocs.nextDoc() != DocsEnum.NO_MORE_DOCS) {
 					termCount += termDocs.freq();
 				}
-				System.out.println(term + "\t" + termCount);
+				if (termCount > 2) {
+					try {
+						BufferedWriter writer = new BufferedWriter(
+								new FileWriter(new File(termSetPath), true));
+						writer.write(++termID + "\t" + termCount + "\t" + term);
+						writer.newLine();
+						writer.flush();
+						writer.close();
+
+					} catch (Exception e) {
+
+					}
+					System.out.println(term + "\t" + termCount);
+				}
 			}
-			
+
 			IndexSearcher searcher = new IndexSearcher(reader);
 			QueryParser parser = new QueryParser(field, new StandardAnalyzer());
 
@@ -86,8 +84,7 @@ public class Search {
 				System.out.println(tds.totalHits + " total matching documents");
 				for (int j = 0; j < sds.length; j++) {
 					System.out.println(sds[j]);
-					
-					
+
 				}
 				int[] docCount = new int[hits];
 				int i = 0;
@@ -96,14 +93,6 @@ public class Search {
 					i++;
 					System.out.println("sd.doc " + sd.doc);
 					Document document = searcher.doc(sd.doc);
-					
-					
-//					System.out.print(document.get("timeStamp")+" ");
-//					System.out.print(document.get("processID")+" ");
-//					System.out.print(document.get("level")+" ");
-//					System.out.print(document.get("source")+" ");
-//					System.out.println(document.get("message")+" ");
-//					System.out.println("******************");
 				}
 				List<Integer> list = new ArrayList<Integer>();
 

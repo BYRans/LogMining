@@ -24,17 +24,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LogMining {
+	public static String filePath = "C:/Users/Administrator/Desktop/Analyze/";
+	public static String lucenePath = "C:/Users/Administrator/Desktop/luceneFile/";
+	
 	public static void main(String[] args) throws Exception {
 		IndexWriter writer = null;
 		try {
-			String filePath = "C:/Users/Administrator/Desktop/Analyze/";
-			String lucenePath = "C:/Users/Administrator/Desktop/luceneFile/";
-			
-			List<String> sw = new LinkedList<String>();
-			sw.add("src");
+			List<String> sw = new LinkedList<String>();// custom stopWords set
+			sw.add("at");
 			CharArraySet stopWords = new CharArraySet(sw, true);
 			StandardAnalyzer analyzer = new StandardAnalyzer(stopWords);
-			
+
 			Directory directory = FSDirectory.open(new File(lucenePath));
 			IndexWriterConfig iwc = new IndexWriterConfig(
 					Version.LUCENE_4_10_2, analyzer);
@@ -52,28 +52,17 @@ public class LogMining {
 					document = new Document();
 					document.add(new TextField("timeStamp", recordArr[0] + " "
 							+ recordArr[1], Field.Store.YES));
-					System.out.println("timeStamp:" + recordArr[0] + " "
-							+ recordArr[1]);
-
 					document.add(new TextField("processID", recordArr[2],
 							Field.Store.YES));
-					System.out.println("processID:" + recordArr[2]);
-
 					document.add(new TextField("level", recordArr[3],
 							Field.Store.YES));
-					System.out.println("level:" + recordArr[3]);
-
 					document.add(new TextField("source", recordArr[4],
 							Field.Store.YES));
-					System.out.println("source:" + recordArr[4]);
 					String message = "";
 					for (int j = 5; j < recordArr.length; j++)
 						message += recordArr[j] + " ";
 					document.add(new TextField("message", message,
 							Field.Store.YES));
-					System.out.println("message:" + message);
-					System.out.println("**************************");
-
 					writer.addDocument(document);
 				}
 			}
