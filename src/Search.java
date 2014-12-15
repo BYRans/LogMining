@@ -1,20 +1,40 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+
+
+
+
+
+
+
+
+
+
+import java.util.Set;
 
 
 //import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.SlowCompositeReaderWrapper;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.queryparser.classic.QueryParser;
 
 public class Search {
@@ -28,13 +48,32 @@ public class Search {
 	}
 
 	public static void search(String lucenePath, String queryString, String field, int hits) {
-
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-
 			directory = FSDirectory.open(new File(lucenePath));
 			reader = IndexReader.open(directory);
+//			Terms terms = SlowCompositeReaderWrapper.wrap(reader).terms("message"); 
+//			
+//			Set<String> uniqueTerms = new HashSet<String>();
+//			while (terms.next()) {
+//			        final Term term = terms.term();
+//			        if (term.field().equals("field_name")) {
+//			                uniqueTerms.add(term.text());
+//			        }
+//			}
+//			
+			Terms msgTerm = MultiFields.getTerms(reader, "message");
+			TermsEnum msgEnum = msgTerm.iterator(null);
+			while (msgEnum.next() != null) {
+				String term = msgEnum.term().utf8ToString();
+				DocsEnum termDocs = msgEnum.docs(null, null, DocsEnum.FLAG_FREQS);
+				int termCount = 0;
+				while (termDocs.nextDoc() != DocsEnum.NO_MORE_DOCS) {
+					termCount += termDocs.freq();
+				}
+				System.out.println(term + "\t" + termCount);
+			}
 			
 			IndexSearcher searcher = new IndexSearcher(reader);
 			QueryParser parser = new QueryParser(field, new StandardAnalyzer());
@@ -57,12 +96,14 @@ public class Search {
 					i++;
 					System.out.println("sd.doc " + sd.doc);
 					Document document = searcher.doc(sd.doc);
-					System.out.print(document.get("timeStamp")+" ");
-					System.out.print(document.get("processID")+" ");
-					System.out.print(document.get("level")+" ");
-					System.out.print(document.get("source")+" ");
-					System.out.println(document.get("message")+" ");
-					System.out.println("******************");
+					
+					
+//					System.out.print(document.get("timeStamp")+" ");
+//					System.out.print(document.get("processID")+" ");
+//					System.out.print(document.get("level")+" ");
+//					System.out.print(document.get("source")+" ");
+//					System.out.println(document.get("message")+" ");
+//					System.out.println("******************");
 				}
 				List<Integer> list = new ArrayList<Integer>();
 

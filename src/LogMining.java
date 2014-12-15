@@ -1,4 +1,5 @@
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Index;
@@ -17,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,7 +29,12 @@ public class LogMining {
 		try {
 			String filePath = "C:/Users/Administrator/Desktop/Analyze/";
 			String lucenePath = "C:/Users/Administrator/Desktop/luceneFile/";
-			StandardAnalyzer analyzer = new StandardAnalyzer();
+			
+			List<String> sw = new LinkedList<String>();
+			sw.add("src");
+			CharArraySet stopWords = new CharArraySet(sw, true);
+			StandardAnalyzer analyzer = new StandardAnalyzer(stopWords);
+			
 			Directory directory = FSDirectory.open(new File(lucenePath));
 			IndexWriterConfig iwc = new IndexWriterConfig(
 					Version.LUCENE_4_10_2, analyzer);
