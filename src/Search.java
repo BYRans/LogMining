@@ -20,7 +20,6 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 public class Search {
 
 	public static void main(String[] args) throws Exception {
-
 		String lucenePath = "C:/Users/Administrator/Desktop/luceneFile/";
 		String queryString = "exception";
 		String field = "message";
