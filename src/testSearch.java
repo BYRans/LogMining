@@ -1,265 +1,158 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+//import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.DocsAndPositionsEnum;
+import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.SlowCompositeReaderWrapper;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.queryparser.classic.QueryParser;
 
-/** Simple command-line based search demo. */
 public class testSearch {
+	public static String lucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String termSetPath = "C:/Users/Administrator/Desktop/LogMining/termSet.txt";
+	public static String queryString = "exception";
+	public static String field = "message";
+	public static int hits = 10;
 
-  private testSearch() {}
+	public static void main(String[] args) throws Exception {
+		search(lucenePath, queryString, field, hits);
+	}
 
-  /** Simple command-line based search demo. */
-  public static void main(String[] args) throws Exception {
+	public static void search(String lucenePath, String queryString,
+			String field, int hits) {
+		Directory directory = null;
+		IndexReader reader = null;
+		try {
+			directory = FSDirectory.open(new File(lucenePath));
+			reader = IndexReader.open(directory);
+			Terms msgTerm = MultiFields.getTerms(reader, "message");
+			TermsEnum msgEnum = msgTerm.iterator(null);
+			int termID = 0;
+			while (msgEnum.next() != null) {
+				String term = msgEnum.term().utf8ToString();
+				DocsEnum termDocs = msgEnum.docs(null, null,
+						DocsEnum.FLAG_FREQS);
+				int termCount = 0;
+				while (termDocs.nextDoc() != DocsEnum.NO_MORE_DOCS) {
+					termCount += termDocs.freq();
+				}
+				if (termCount > 2) {
+					try {
+						BufferedWriter writer = new BufferedWriter(
+								new FileWriter(new File(termSetPath), true));
+						writer.write(++termID + "\t" + termCount + "\t" + term);
+						writer.newLine();
+						writer.flush();
+						writer.close();
 
-    String index = "C:/Users/Administrator/Desktop/luceneFile/";
-    String field = "message";
-    String queries = null;
-    int repeat = 1;
-    boolean raw = false;
-    String queryString = "exception";
-    int hitsPerPage = 1;
-    
-    
-    IndexReader reader = DirectoryReader.open(FSDirectory.open(new File(index)));
-    IndexSearcher searcher = new IndexSearcher(reader);
-    // :Post-Release-Update-Version.LUCENE_XY:
-    Analyzer analyzer = new StandardAnalyzer();
+					} catch (Exception e) {
 
-    BufferedReader in = null;
-    if (queries != null) {
-      in = new BufferedReader(new InputStreamReader(new FileInputStream(queries), StandardCharsets.UTF_8));
-    } else {
-      in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-    }
-    // :Post-Release-Update-Version.LUCENE_XY:
-    QueryParser parser = new QueryParser(field, analyzer);
-    while (true) {
-      if (queries == null && queryString == null) {                        // prompt the user
-        System.out.println("Enter query: ");
-      }
+					}
+					System.out.println(term + "\t" + termCount);
+				}
+			}
 
-      String line = queryString != null ? queryString : in.readLine();
+			IndexSearcher searcher = new IndexSearcher(reader);
+			QueryParser parser = new QueryParser(field, new StandardAnalyzer());
 
-      if (line == null || line.length() == -1) {
-        break;
-      }
+			Query query;
+			try {
+				query = parser.parse(queryString);
+				TopDocs tds = searcher.search(query, hits);
+				ScoreDoc[] sds = tds.scoreDocs;
+				System.out.println(tds.totalHits + " total matching documents");
+				for (int j = 0; j < sds.length; j++) {
+					System.out.println(sds[j]);
+				}
+				for (ScoreDoc sd : sds) {
+					// Document document = searcher.doc(sd.doc);
+					Terms termVector = reader.getTermVector(sd.doc, "message");
+					if (termVector != null && termVector.size() > 0) {
+						TermsEnum termsEnum = termVector.iterator(null); // 取该field的terms
+						BytesRef term = null;
+						HashMap<Integer, String> posAndTerMap = new HashMap<Integer, String>();// 把terms及偏移量存到hashMap中,<position,term>.
+						int termIndex = 0;
+						while ((term = termsEnum.next()) != null) {// 迭代term
+							DocsAndPositionsEnum positionEnum = termsEnum
+									.docsAndPositions(null, null);// 该term在该document下的偏移量？？哪有该document的标示？
+							positionEnum.nextDoc();
+							// int position=positionEnum.nextPosition();
 
-      line = line.trim();
-      if (line.length() == 0) {
-        break;
-      }
-      
-      Query query = parser.parse(line);
-      System.out.println("Searching for: " + query.toString(field));
-            
-      if (repeat > 0) {                           // repeat & time as benchmark
-        Date start = new Date();
-        for (int i = 0; i < repeat; i++) {
-          searcher.search(query, null, 100);
-        }
-        Date end = new Date();
-        System.out.println("Time: "+(end.getTime()-start.getTime())+"ms");
-      }
+							int freq = positionEnum.freq();// 该term在该文档出现多少次，出现几次就有几个偏移量。
+							for (int i = 0; i < freq; i++) {
+								int position = positionEnum.nextPosition();
+								posAndTerMap.put(position, term.utf8ToString());
+							}
+						}
+						Object[] key_arr = posAndTerMap.keySet().toArray();// 按position排序
+						Arrays.sort(key_arr);
+						for (Object key : key_arr) {
+							String value = posAndTerMap.get(key);
+							System.out.print(value + " ");
+						}
+						System.out.println();
+					}
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
-      doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
-
-      if (queryString != null) {
-        break;
-      }
-    }
-    reader.close();
-  }
-
-  /**
-   * This demonstrates a typical paging search scenario, where the search engine presents 
-   * pages of size n to the user. The user can then go to the next page if interested in
-   * the next hits.
-   * 
-   * When the query is executed for the first time, then only enough results are collected
-   * to fill 5 result pages. If the user wants to page beyond this limit, then the query
-   * is executed another time and all hits are collected.
-   * 
-   */
-  public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, 
-                                     int hitsPerPage, boolean raw, boolean interactive) throws IOException {
- 
-    // Collect enough docs to show 5 pages
-    TopDocs results = searcher.search(query,hitsPerPage);
-    ScoreDoc[] hits = results.scoreDocs;
-    
-    int numTotalHits = results.totalHits;
-    System.out.println(numTotalHits + " total matching documents");
-
-    int start = 0;
-    int end = Math.min(numTotalHits, hitsPerPage);
-        
-    while (true) {
-      if (end > hits.length) {
-        System.out.println("Only results 1 - " + hits.length +" of " + numTotalHits + " total matching documents collected.");
-        System.out.println("Collect more (y/n) ?");
-        String line = in.readLine();
-        if (line.length() == 0 || line.charAt(0) == 'n') {
-          break;
-        }
-
-        hits = searcher.search(query, numTotalHits).scoreDocs;
-      }
-      
-      end = Math.min(hits.length, start + hitsPerPage);
-      
-      for (int i = start; i < end; i++) {
-        if (raw) {                              // output raw format
-          System.out.println("doc="+hits[i].doc+" score="+hits[i].score);
-          continue;
-        }
-
-        Document doc = searcher.doc(hits[i].doc);
-        String path = doc.get("path");
-        if (path != null) {
-          System.out.println((i+1) + ". " + path);
-          String title = doc.get("title");
-          if (title != null) {
-            System.out.println("   Title: " + doc.get("title"));
-          }
-        } else {
-          System.out.println((i+1) + ". " + "No path for this document");
-        }
-                  
-      }
-
-      if (!interactive || end == 0) {
-        break;
-      }
-
-      if (numTotalHits >= end) {
-        boolean quit = false;
-        while (true) {
-          System.out.print("Press ");
-          if (start - hitsPerPage >= 0) {
-            System.out.print("(p)revious page, ");  
-          }
-          if (start + hitsPerPage < numTotalHits) {
-            System.out.print("(n)ext page, ");
-          }
-          System.out.println("(q)uit or enter number to jump to a page.");
-          
-          String line = in.readLine();
-          if (line.length() == 0 || line.charAt(0)=='q') {
-            quit = true;
-            break;
-          }
-          if (line.charAt(0) == 'p') {
-            start = Math.max(0, start - hitsPerPage);
-            break;
-          } else if (line.charAt(0) == 'n') {
-            if (start + hitsPerPage < numTotalHits) {
-              start+=hitsPerPage;
-            }
-            break;
-          } else {
-            int page = Integer.parseInt(line);
-            if ((page - 1) * hitsPerPage < numTotalHits) {
-              start = (page - 1) * hitsPerPage;
-              break;
-            } else {
-              System.out.println("No such page");
-            }
-          }
-        }
-        if (quit) break;
-        end = Math.min(numTotalHits, start + hitsPerPage);
-      }
-    }
-  }
+	public static void displayToken(String str, Analyzer analyzer) {
+		try {
+			// 将一个字符串创建成Token流
+			str = "hello kim,I am dennisit,我是 中国人,my email is dennisit@163.com, and my QQ is 1325103287";
+			TokenStream stream = analyzer
+					.tokenStream("", new StringReader(str));
+			// 保存相应词汇
+			CharTermAttribute cta = stream
+					.addAttribute(CharTermAttribute.class);
+			while (stream.incrementToken()) {
+				System.out.print("[" + cta + "]");
+			}
+			System.out.println();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

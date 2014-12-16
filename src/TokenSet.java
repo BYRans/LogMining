@@ -28,23 +28,25 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.queryparser.classic.QueryParser;
 
-public class Search {
-	public static String lucenePath = "C:/Users/Administrator/Desktop/luceneFile/";
-	public static String termSetPath = "C:/Users/Administrator/Desktop/Analyze/termSet.txt";
-	public static String queryString = "exception";
-	public static String field = "message";
-	public static int hits = 10;
-
+public class TokenSet {
+	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String TermSetPath = "C:/Users/Administrator/Desktop/LogMining/tokenSet.txt";
+	public static Integer TermFrequent = 0;//判定低频词阙值
+	
+	public static int Hits = 10;
+	public static String QueryString = "exception";
+	public static String Field = "message";
+	
 	public static void main(String[] args) throws Exception {
-		search(lucenePath, queryString, field, hits);
+		buildTokenSet();
+//		search(LucenePath, QueryString, Field, Hits);//查询功能
 	}
 
-	public static void search(String lucenePath, String queryString,
-			String field, int hits) {
+	public static void buildTokenSet() {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(lucenePath));
+			directory = FSDirectory.open(new File(LucenePath));
 			reader = IndexReader.open(directory);
 			Terms msgTerm = MultiFields.getTerms(reader, "message");
 			TermsEnum msgEnum = msgTerm.iterator(null);
@@ -57,25 +59,43 @@ public class Search {
 				while (termDocs.nextDoc() != DocsEnum.NO_MORE_DOCS) {
 					termCount += termDocs.freq();
 				}
-				if (termCount > 2) {
+				if (termCount > TermFrequent) {
 					try {
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(new File(termSetPath), true));
+								new FileWriter(new File(TermSetPath), true));
 						writer.write(++termID + "\t" + termCount + "\t" + term);
 						writer.newLine();
 						writer.flush();
 						writer.close();
 
 					} catch (Exception e) {
-
+						
 					}
 					System.out.println(term + "\t" + termCount);
 				}
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 
+	public static void search(String filePath, String queryString,
+			String field, int hits) {
+		Directory directory = null;
+		IndexReader reader = null;
+		try {
+			directory = FSDirectory.open(new File(filePath));
+			reader = IndexReader.open(directory);
 			IndexSearcher searcher = new IndexSearcher(reader);
 			QueryParser parser = new QueryParser(field, new StandardAnalyzer());
-
 			Query query;
 			try {
 				query = parser.parse(queryString);
@@ -92,7 +112,8 @@ public class Search {
 					docCount[i] = sd.doc;
 					i++;
 					System.out.println("sd.doc " + sd.doc);
-					Document document = searcher.doc(sd.doc);
+					// Document document = searcher.doc(sd.doc);
+					// System.out.println(document.get("message")+" ");
 				}
 				List<Integer> list = new ArrayList<Integer>();
 

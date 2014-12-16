@@ -23,9 +23,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LogMining {
-	public static String filePath = "C:/Users/Administrator/Desktop/Analyze/";
-	public static String lucenePath = "C:/Users/Administrator/Desktop/luceneFile/";
+public class DatasetFilter {
+	public static String filePath = "C:/Users/Administrator/Desktop/LogMining/Analyze/";
+	public static String lucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
 	
 	public static void main(String[] args) throws Exception {
 		IndexWriter writer = null;
@@ -61,8 +61,8 @@ public class LogMining {
 					String message = "";
 					for (int j = 5; j < recordArr.length; j++)
 						message += recordArr[j] + " ";
-					document.add(new TextField("message", message,
-							Field.Store.YES));
+					document.add(new Field("message", message,
+							Field.Store.YES, Field.Index.ANALYZED,Field.TermVector.WITH_POSITIONS_OFFSETS));
 					writer.addDocument(document);
 				}
 			}
@@ -78,49 +78,11 @@ public class LogMining {
 					e.printStackTrace();
 				}
 			}
+			System.out.println("success.");
 		}
 	}
 
-	// // 2. query
-	// String querystr = args.length > 0 ? args[0] : "193398817";
-	//
-	// // the "title" arg specifies the default field to use
-	// // when no field is explicitly specified in the query.
-	// Query q = new QueryParser(Version.LUCENE_4_10_2, "isbn", analyzer)
-	// .parse(querystr);
-	//
-	// // 3. search
-	// int hitsPerPage = 10;
-	// IndexReader reader = DirectoryReader.open(directory);
-	// IndexSearcher searcher = new IndexSearcher(reader);
-	// TopScoreDocCollector collector = TopScoreDocCollector.create(
-	// hitsPerPage, true);
-	// searcher.search(q, collector);
-	// ScoreDoc[] hits = collector.topDocs().scoreDocs;
-	//
-	// // 4. display results
-	// System.out.println("Found " + hits.length + " hits.");
-	// for (int i = 0; i < hits.length; ++i) {
-	// int docId = hits[i].doc;
-	// Document d = searcher.doc(docId);
-	// System.out.println((i + 1) + ". " + d.get("isbn") + "\t"
-	// + d.get("title"));
-	// }
-	// // reader can only be closed when there
-	// // is no need to access the documents any more.
-	// reader.close();
-	// }
-	//
-	// private static void addDoc(IndexWriter w, String title, String isbn)
-	// throws IOException {
-	// Document doc = new Document();
-	// doc.add(new TextField("title", title, Field.Store.YES));
-	//
-	// // use a string field for isbn because we don't want it tokenized
-	// doc.add(new StringField("isbn", isbn, Field.Store.YES));
-	// w.addDocument(doc);
-	// }
-
+	//读日志文件
 	public static List<String> getContent(File file) throws Exception {
 		Pattern p = Pattern
 				.compile(
