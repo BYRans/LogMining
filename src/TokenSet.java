@@ -31,7 +31,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 public class TokenSet {
 	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
 	public static String TermSetPath = "C:/Users/Administrator/Desktop/LogMining/tokenSet.txt";
-	public static Integer TermFrequent = 0;//判定低频词阙值
+	public static Integer TermFrequent = 2;//判定低频词阙值
 	
 	public static int Hits = 10;
 	public static String QueryString = "exception";

@@ -21,7 +21,7 @@ public class Vectorization {
 	public static String TokenSetPath = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
 	public static String VectorPath = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
 	public static HashMap<String, String> TokenSetMap = new HashMap<String, String>();
-	
+
 	static {
 		try {
 			File termSetFile = new File(TokenSetPath);
@@ -29,6 +29,10 @@ public class Vectorization {
 					new FileInputStream(termSetFile), "UTF-8"));
 			String curLine = br.readLine();
 			while (curLine != null) {
+				if ("".equals(curLine.trim())){
+					curLine = br.readLine();
+					continue;
+				}
 				String[] termArr = curLine.split("\t");
 				TokenSetMap.put(termArr[2], termArr[0]);
 				curLine = br.readLine();
@@ -48,7 +52,7 @@ public class Vectorization {
 			reader = IndexReader.open(directory);
 			int docCount = reader.maxDoc();
 			for (int i = 0; i < docCount; i++) {
-//				Document document = reader.document(i);
+				// Document document = reader.document(i);
 				Terms termVector = reader.getTermVector(i, "message");
 				if (termVector != null && termVector.size() > 0) {
 					TermsEnum termsEnum = termVector.iterator(null); // 取该field的terms
@@ -66,25 +70,27 @@ public class Vectorization {
 					}
 					Object[] key_arr = posAndTerMap.keySet().toArray();// 按position排序
 					Arrays.sort(key_arr);
-					String docContent="";
-					String docVectorContent="";
+					String docContent = "";
+					String docVectorContent = "";
 					for (Object key : key_arr) {
 						String value = posAndTerMap.get(key);
 						docContent += value + " ";
-						docVectorContent += TokenSetMap.get(value) + ",";
+						String token = TokenSetMap.get(value);
+						if (token != null)
+							docVectorContent += TokenSetMap.get(value) + ",";
 					}
 					try {
 						BufferedWriter writer = new BufferedWriter(
 								new FileWriter(new File(VectorPath), true));
 						writer.write(docContent);
 						writer.newLine();
-						writer.newLine();
 						writer.write(docVectorContent);
+						writer.newLine();
 						writer.newLine();
 						writer.flush();
 						writer.close();
 					} catch (Exception e) {
-						
+
 					}
 					System.out.println(docContent);
 					System.out.println(docVectorContent);
