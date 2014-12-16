@@ -90,7 +90,7 @@ public class Vectorization {
 						writer.flush();
 						writer.close();
 					} catch (Exception e) {
-
+						e.printStackTrace();
 					}
 					System.out.println(docContent);
 					System.out.println(docVectorContent);
