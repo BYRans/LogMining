@@ -44,7 +44,7 @@ public class Vectorization {
 	}
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		System.out.println("Running...");
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
@@ -82,8 +82,8 @@ public class Vectorization {
 					try {
 						BufferedWriter writer = new BufferedWriter(
 								new FileWriter(new File(VectorPath), true));
-						writer.write(docContent);
-						writer.newLine();
+//						writer.write(docContent);
+//						writer.newLine();
 						writer.write(docVectorContent);
 						writer.newLine();
 						writer.newLine();
@@ -94,6 +94,7 @@ public class Vectorization {
 					}
 					System.out.println(docContent);
 					System.out.println(docVectorContent);
+					
 				}
 			}
 		} catch (IOException e) {
@@ -107,5 +108,6 @@ public class Vectorization {
 				}
 			}
 		}
+		System.out.println("Completed.");
 	}
 }

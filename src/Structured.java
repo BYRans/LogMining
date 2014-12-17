@@ -23,11 +23,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class DatasetFilter {
+public class Structured {
 	public static String filePath = "C:/Users/Administrator/Desktop/LogMining/Analyze/";
 	public static String lucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
 	
 	public static void main(String[] args) throws Exception {
+		System.out.println("Running...");
 		IndexWriter writer = null;
 		try {
 			List<String> sw = new LinkedList<String>();// custom stopWords set
@@ -78,7 +79,7 @@ public class DatasetFilter {
 					e.printStackTrace();
 				}
 			}
-			System.out.println("success.");
+			System.out.println("Completed.");
 		}
 	}
 

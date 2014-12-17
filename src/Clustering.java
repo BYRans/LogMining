@@ -41,11 +41,11 @@ public class Clustering {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("Running...");
 		HashMap<String, HashSet> labelSetMap = new HashMap<String, HashSet>();
 		HashSet<String> vectorSet = null;
 
 		for (int i = 0; i < labelVectorList.size(); i++) {
-			System.out.println("i-->"+i);
 			String[] LVArr = labelVectorList.get(i);
 			HashSet<String> arrSet = new HashSet<String>();
 			for (int j = 1; j < LVArr.length; j++)
@@ -94,8 +94,7 @@ public class Clustering {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		System.out.println("completed.");
+		System.out.println("Completed.");
 	}
 
 	public static boolean labelCompare(HashSet<String> set,

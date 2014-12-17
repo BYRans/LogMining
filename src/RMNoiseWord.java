@@ -2,21 +2,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
 //import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.DocsAndPositionsEnum;
 import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
@@ -29,30 +22,33 @@ import org.apache.lucene.search.DocIdSetIterator;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.queryparser.classic.QueryParser;
 
-public class testSearch {
-	public static String lucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
-	public static String termSetPath = "C:/Users/Administrator/Desktop/LogMining/termSet.txt";
-	public static String queryString = "exception";
-	public static String field = "message";
-	public static int hits = 10;
+public class RMNoiseWord {
+	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String TermSetPath = "C:/Users/Administrator/Desktop/LogMining/tokenSet.txt";
+	public static String AllTokenSetPath = "C:/Users/Administrator/Desktop/LogMining/allTokenSet.txt";
+	public static Integer TermFrequent = 2;// åˆ¤å®šä½é¢‘è¯é˜™å€¼
+
+	public static int Hits = 10;
+	public static String QueryString = "exception";
+	public static String Field = "message";
 
 	public static void main(String[] args) throws Exception {
-		search(lucenePath, queryString, field, hits);
+		System.out.println("Running...");
+		buildTokenSet();
+		// search(LucenePath, QueryString, Field, Hits);//æŸ¥è¯¢åŠŸèƒ½
 	}
 
-	public static void search(String lucenePath, String queryString,
-			String field, int hits) {
+	public static void buildTokenSet() {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(lucenePath));
+			directory = FSDirectory.open(new File(LucenePath));
 			reader = IndexReader.open(directory);
 			Terms msgTerm = MultiFields.getTerms(reader, "message");
 			TermsEnum msgEnum = msgTerm.iterator(null);
@@ -65,25 +61,58 @@ public class testSearch {
 				while (termDocs.nextDoc() != DocsEnum.NO_MORE_DOCS) {
 					termCount += termDocs.freq();
 				}
-				if (termCount > 2) {
+				try {
+					BufferedWriter writer = new BufferedWriter(new FileWriter(
+							new File(AllTokenSetPath), true));
+					writer.write(termCount + "\t" + term);
+					writer.newLine();
+					writer.flush();
+					writer.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				if (termCount > TermFrequent) {
 					try {
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(new File(termSetPath), true));
+								new FileWriter(new File(TermSetPath), true));
 						writer.write(++termID + "\t" + termCount + "\t" + term);
 						writer.newLine();
 						writer.flush();
 						writer.close();
-
 					} catch (Exception e) {
-
+						e.printStackTrace();
 					}
-					System.out.println(term + "\t" + termCount);
 				}
 			}
 
+			System.out.println("è¯é¢‘é˜™å€¼:" + TermFrequent + "\n" + "æ€»åˆ†è¯æ•°:"
+					+ msgTerm.size() + "\n" + "å»é™¤å¹²æ‰°è¯æ•°:"
+					+ (msgTerm.size() - termID) + "\n" + "æœ‰æ•ˆè¯æ•°ï¼š" + termID
+					+"\n"+ "å¹²æ‰°è¯æ•°/æ€»åˆ†è¯æ•° = "
+					+ ((float) (msgTerm.size() - termID) / msgTerm.size()));
+			System.out.println("Completed.");
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	public static void search(String filePath, String queryString,
+			String field, int hits) {
+		Directory directory = null;
+		IndexReader reader = null;
+		try {
+			directory = FSDirectory.open(new File(filePath));
+			reader = IndexReader.open(directory);
 			IndexSearcher searcher = new IndexSearcher(reader);
 			QueryParser parser = new QueryParser(field, new StandardAnalyzer());
-
 			Query query;
 			try {
 				query = parser.parse(queryString);
@@ -92,35 +121,21 @@ public class testSearch {
 				System.out.println(tds.totalHits + " total matching documents");
 				for (int j = 0; j < sds.length; j++) {
 					System.out.println(sds[j]);
-				}
-				for (ScoreDoc sd : sds) {
-					// Document document = searcher.doc(sd.doc);
-					Terms termVector = reader.getTermVector(sd.doc, "message");
-					if (termVector != null && termVector.size() > 0) {
-						TermsEnum termsEnum = termVector.iterator(null); // È¡¸ÃfieldµÄterms
-						BytesRef term = null;
-						HashMap<Integer, String> posAndTerMap = new HashMap<Integer, String>();// °Ñterms¼°Æ«ÒÆÁ¿´æµ½hashMapÖĞ,<position,term>.
-						int termIndex = 0;
-						while ((term = termsEnum.next()) != null) {// µü´úterm
-							DocsAndPositionsEnum positionEnum = termsEnum
-									.docsAndPositions(null, null);// ¸ÃtermÔÚ¸ÃdocumentÏÂµÄÆ«ÒÆÁ¿£¿£¿ÄÄÓĞ¸ÃdocumentµÄ±êÊ¾£¿
-							positionEnum.nextDoc();
-							// int position=positionEnum.nextPosition();
 
-							int freq = positionEnum.freq();// ¸ÃtermÔÚ¸ÃÎÄµµ³öÏÖ¶àÉÙ´Î£¬³öÏÖ¼¸´Î¾ÍÓĞ¼¸¸öÆ«ÒÆÁ¿¡£
-							for (int i = 0; i < freq; i++) {
-								int position = positionEnum.nextPosition();
-								posAndTerMap.put(position, term.utf8ToString());
-							}
-						}
-						Object[] key_arr = posAndTerMap.keySet().toArray();// °´positionÅÅĞò
-						Arrays.sort(key_arr);
-						for (Object key : key_arr) {
-							String value = posAndTerMap.get(key);
-							System.out.print(value + " ");
-						}
-						System.out.println();
-					}
+				}
+				int[] docCount = new int[hits];
+				int i = 0;
+				for (ScoreDoc sd : sds) {
+					docCount[i] = sd.doc;
+					i++;
+					System.out.println("sd.doc " + sd.doc);
+					// Document document = searcher.doc(sd.doc);
+					// System.out.println(document.get("message")+" ");
+				}
+				List<Integer> list = new ArrayList<Integer>();
+
+				for (int j = 0; j < docCount.length; j++) {
+					list.add(docCount[j]);
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
@@ -135,24 +150,6 @@ public class testSearch {
 					e.printStackTrace();
 				}
 			}
-		}
-	}
-
-	public static void displayToken(String str, Analyzer analyzer) {
-		try {
-			// ½«Ò»¸ö×Ö·û´®´´½¨³ÉTokenÁ÷
-			str = "hello kim,I am dennisit,ÎÒÊÇ ÖĞ¹úÈË,my email is dennisit@163.com, and my QQ is 1325103287";
-			TokenStream stream = analyzer
-					.tokenStream("", new StringReader(str));
-			// ±£´æÏàÓ¦´Ê»ã
-			CharTermAttribute cta = stream
-					.addAttribute(CharTermAttribute.class);
-			while (stream.incrementToken()) {
-				System.out.print("[" + cta + "]");
-			}
-			System.out.println();
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 }

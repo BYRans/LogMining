@@ -10,10 +10,11 @@ import java.util.HashSet;
 import java.util.List;
 
 public class Tagging {
-	public static String VectorPath = "C:/Users/Administrator/Desktop/LogMining/VectorTest.txt";
+	public static String VectorPath = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
 	public static String LabelVectorPath = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
 
 	public static void main(String[] args) {
+		System.out.println("Running...");
 		List<String> labelVectorList = new ArrayList<String>();
 		try {
 			File vectorFile = new File(VectorPath);
@@ -55,6 +56,6 @@ public class Tagging {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		System.out.println("Completed.");
 	}
 }
