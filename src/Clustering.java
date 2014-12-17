@@ -16,7 +16,7 @@ import java.util.Set;
 public class Clustering {
 	public static String LabelVectorPath = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
 	public static String LabelSetPath = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
-	public static double Similarity = 0.5;
+	public static double Similarity = 0.75;
 	public static List<String[]> labelVectorList = new ArrayList<String[]>();
 	static {
 		try {
@@ -44,40 +44,31 @@ public class Clustering {
 		HashMap<String, HashSet> labelSetMap = new HashMap<String, HashSet>();
 		HashSet<String> vectorSet = null;
 
-		String label = labelVectorList.get(0)[0];
-		for (int i = 1; i < labelVectorList.get(0).length; i++) {// 第一条数据
-			vectorSet = new HashSet<String>();
-			vectorSet.add(labelVectorList.get(0)[i]);
-		}
-		labelSetMap.put(label, vectorSet);
-
-		for (int i = 1; i < labelVectorList.size(); i++) {
+		for (int i = 0; i < labelVectorList.size(); i++) {
 			System.out.println("i-->"+i);
 			String[] LVArr = labelVectorList.get(i);
 			HashSet<String> arrSet = new HashSet<String>();
 			for (int j = 1; j < LVArr.length; j++)
 				// 数组第一个值是Label，故i=1
 				arrSet.add(LVArr[j]);
-
 			
 			Iterator iter = labelSetMap.keySet().iterator();  
 			boolean isMatch = false;
 			while (iter.hasNext()) {
 				String key = (String)iter.next(); 
-				HashSet<String> val = (HashSet<String>)labelSetMap.get(key);
-				boolean similar = labelCompare(val, arrSet);
-				System.out.println(similar);
+				vectorSet = (HashSet<String>)labelSetMap.get(key);
+				boolean similar = labelCompare(vectorSet, arrSet);
 				if (similar) {
-					for (String str : arrSet) {
-						val.add(str);
-					}
-					labelSetMap.put(key, val);
+//					for (String str : arrSet) {//是否合并相似的label
+//						vectorSet.add(str);
+//					}
+					labelSetMap.put(key, vectorSet);
 					isMatch = true;
+					break;
 				} 
 			}
 			if(!isMatch)
 				labelSetMap.put(LVArr[0], arrSet);
-			
 		}
 
 		// 把Label Set写入文件
@@ -104,6 +95,7 @@ public class Clustering {
 			e.printStackTrace();
 		}
 
+		System.out.println("completed.");
 	}
 
 	public static boolean labelCompare(HashSet<String> set,
@@ -111,15 +103,11 @@ public class Clustering {
 		boolean similar = false;
 		int count = 0;
 		for (String str : arrSet) {
-			System.out.println(str);
 			if (set.contains(str))
 				count++;
 		}
-		
-		System.out.println(count / set.size());
-		System.out.println(count / arrSet.size());
-		if (count / set.size() >= Similarity
-				&& count / arrSet.size() >= Similarity)
+		if (((double)count / set.size()) >= Similarity
+				&& ((double)count / arrSet.size()) >= Similarity)
 			similar = true;
 		return similar;
 	}
