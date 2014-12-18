@@ -29,8 +29,7 @@ public class Clustering {
 					line = vReader.readLine();
 					continue;
 				}
-				String[] labelVectorArr = line.substring(0, line.length() - 1)
-						.split("\t|,");
+				String[] labelVectorArr = line.split("\t|,");
 				labelVectorList.add(labelVectorArr);
 				line = vReader.readLine();
 			}
@@ -87,8 +86,6 @@ public class Clustering {
 				}
 				writer.newLine();
 			}
-			
-			
 			writer.flush();
 			writer.close();
 		} catch (Exception e) {

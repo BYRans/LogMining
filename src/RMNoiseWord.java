@@ -84,12 +84,33 @@ public class RMNoiseWord {
 					}
 				}
 			}
-
+			
 			System.out.println("词频阙值:" + TermFrequent + "\n" + "总分词数:"
 					+ msgTerm.size() + "\n" + "去除干扰词数:"
-					+ (msgTerm.size() - termID) + "\n" + "有效词数：" + termID
-					+"\n"+ "干扰词数/总分词数 = "
+					+ (msgTerm.size() - termID) + "\n" + "有效词数:" + termID
+					+ "\n" + "干扰词数/总分词数 = "
 					+ ((float) (msgTerm.size() - termID) / msgTerm.size()));
+			try {
+				BufferedWriter writer = new BufferedWriter(new FileWriter(
+						new File(TermSetPath), true));
+				writer.write("****************************");
+				writer.newLine();
+				writer.write("词频阙值:" + TermFrequent);
+				writer.newLine();
+				writer.write("总分词数:" + msgTerm.size());
+				writer.newLine();
+				writer.write("去除干扰词数:" + (msgTerm.size() - termID));
+				writer.newLine();
+				writer.write("有效词数：" + termID);
+				writer.newLine();
+				writer.write("干扰词数/总分词数 = "
+						+ ((float) (msgTerm.size() - termID) / msgTerm.size()));
+				writer.newLine();
+				writer.flush();
+				writer.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			System.out.println("Completed.");
 		} catch (IOException e) {
 			e.printStackTrace();

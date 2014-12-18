@@ -92,9 +92,6 @@ public class Vectorization {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					System.out.println(docContent);
-					System.out.println(docVectorContent);
-					
 				}
 			}
 		} catch (IOException e) {
