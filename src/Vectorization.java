@@ -29,12 +29,13 @@ public class Vectorization {
 					new FileInputStream(termSetFile), "UTF-8"));
 			String curLine = br.readLine();
 			while (curLine != null) {
-				if ("".equals(curLine.trim())){
+				if ("".equals(curLine.trim())) {
 					curLine = br.readLine();
 					continue;
 				}
 				String[] termArr = curLine.split("\t");
-				TokenSetMap.put(termArr[2], termArr[0]);
+				if (termArr.length >= 3)
+					TokenSetMap.put(termArr[2], termArr[0]);
 				curLine = br.readLine();
 			}
 			br.close();
@@ -82,8 +83,8 @@ public class Vectorization {
 					try {
 						BufferedWriter writer = new BufferedWriter(
 								new FileWriter(new File(VectorPath), true));
-//						writer.write(docContent);
-//						writer.newLine();
+						// writer.write(docContent);
+						// writer.newLine();
 						writer.write(docVectorContent);
 						writer.newLine();
 						writer.newLine();
