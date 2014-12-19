@@ -17,11 +17,14 @@ import java.util.Set;
 public class LogMergeByLCS {
 	public static String LabelVectorPath = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
 	public static String LabelSetPath = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
-	public static double Similarity = 0.75;
+	public static double Similarity = 0.8;
 	public static List<String[]> labelVectorList = new ArrayList<String[]>();
 	public static int lcs = 0;
+	public static String similarLabels = "";
 	public static List<String> LabelSetList = new LinkedList<String>();
-
+	public static boolean[] flag;
+	
+	
 	static {
 		try {
 			File LabelVectorFile = new File(LabelVectorPath);
@@ -50,19 +53,24 @@ public class LogMergeByLCS {
 			for (int j = 0; j < labelVectorList.size(); j++) {
 				String[] colStr = labelVectorList.get(j);
 				LCSAlgorithm(rowStr, colStr);
-				double rowStr_lcs = (double) lcs/ (rowStr.length - 1);// 因为数组第一个是Label，本应去掉，但没去掉，计算长度时就不计算label。
-				double colStr_lcs = (double) lcs/ (colStr.length - 1);
-				
+				double rowStr_lcs = (double) lcs / (rowStr.length - 1);// 因为数组第一个是Label，本应去掉，但没去掉，计算长度时就不计算label。
+				double colStr_lcs = (double) lcs / (colStr.length - 1);
+				System.out.println(lcs + " " + rowStr_lcs + "  " + colStr_lcs);
 				if (rowStr_lcs >= Similarity && colStr_lcs >= Similarity) {
 					LCSArr[i][j] = 1;
 				} else {
 					LCSArr[i][j] = 0;
-					System.out.println( lcs +" "+rowStr_lcs + "  " + colStr_lcs);
 				}
 			}
 		}
+		String[] vertexs = new String[labelVectorList.size()];
+		for (int i = 0; i < labelVectorList.size(); i++) {
+			String[] LVArr = labelVectorList.get(i);
+			vertexs[i] = LVArr[0];
+		}
+		DFSTraverse(LCSArr.length,vertexs,LCSArr);
 
-		int[] flagArr = new int[LCSArr.length];
+		/*int[] flagArr = new int[LCSArr.length];
 		for (int i = 0; i < LCSArr.length; i++) {
 			if (flagArr[i] == 1)
 				continue;
@@ -71,12 +79,12 @@ public class LogMergeByLCS {
 				if (LCSArr[i][j] == 1) {
 					String[] LVArr = labelVectorList.get(j);
 					similarLabels += LVArr[0] + ",";
-//					System.out.println(similarLabels);
+					// System.out.println(similarLabels);
 					flagArr[j] = 1;
 				}
 			}
 			LabelSetList.add(similarLabels);
-		}
+		}*/
 
 		// 把Label Set写入文件
 		try {
@@ -98,6 +106,7 @@ public class LogMergeByLCS {
 		System.out.println("Completed.");
 	}
 
+	// 最长公共子串
 	public static void LCSAlgorithm(String[] x, String[] y) {
 		lcs = 0;// lcs是全局变量，所以每次调用LCS算法都要重新初始化一下lcs。
 		int[][] b = getLength(x, y);
@@ -136,4 +145,29 @@ public class LogMergeByLCS {
 			Display(b, x, i, j - 1);
 		}
 	}
+
+	// 图的深度遍历操作(递归)
+	public static void DFSTraverse(int nodeCount,String[] vertexs,int[][] edges) {
+		flag = new boolean[nodeCount];
+		for (int i = 0; i < nodeCount; i++) {
+			similarLabels = "";
+			if (flag[i] == false) {// 当前顶点没有被访问
+				DFS(i,nodeCount,vertexs,edges);
+				LabelSetList.add(similarLabels);
+				System.out.println("!!!!!!!!");
+			}
+		}
+	}
+
+	// 图的深度优先递归算法
+	public static void DFS(int i,int nodeCount,String[] vertexs,int[][] edges) {
+		flag[i] = true;// 第i个顶点被访问
+		similarLabels += vertexs[i] + ",";
+		for (int j = 0; j < nodeCount; j++) {
+			if (flag[j] == false && edges[i][j] == 1) {
+				DFS(j,nodeCount,vertexs,edges);
+			}
+		}
+	}
+
 }
