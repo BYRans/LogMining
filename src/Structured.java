@@ -24,8 +24,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Structured {
-	public static String filePath = "C:/Users/Administrator/Desktop/LogMining/Analyze/";
-	public static String lucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String FilePath = "C:/Users/Administrator/Desktop/LogMining/Analyze/";
+	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
 	
 	public static void main(String[] args) throws Exception {
 		System.out.println("Running...");
@@ -36,14 +36,14 @@ public class Structured {
 			CharArraySet stopWords = new CharArraySet(sw, true);
 			StandardAnalyzer analyzer = new StandardAnalyzer(stopWords);
 
-			Directory directory = FSDirectory.open(new File(lucenePath));
+			Directory directory = FSDirectory.open(new File(LucenePath));
 			IndexWriterConfig iwc = new IndexWriterConfig(
 					Version.LUCENE_4_10_2, analyzer);
 			iwc.setUseCompoundFile(false);
 			writer = new IndexWriter(directory, iwc);
 			Document document = null;
 			List<String> list = new ArrayList<String>();
-			File f = new File(filePath);
+			File f = new File(FilePath);
 			File[] fileList = f.listFiles();
 
 			for (File file : fileList) {

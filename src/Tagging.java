@@ -19,6 +19,7 @@ public class Tagging {
 	public static String LabelVectorPath = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
 	public static String LabelRawDataPath = "C:/Users/Administrator/Desktop/LogMining/LabelRawData.txt";
 	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String LabelDocIdsPath = "C:/Users/Administrator/Desktop/LogMining/LabelDocIds.txt";
 
 	public static void main(String[] args) {
 		System.out.println("Running...");
@@ -57,10 +58,25 @@ public class Tagging {
 			e1.printStackTrace();
 		}
 
+		// ************new start************
+		// 把Label docIds写入文件
+		try {
+			BufferedWriter dWriter = new BufferedWriter(new FileWriter(
+					new File(LabelDocIdsPath), true));
+			for (int i = 0; i < docIdList.size(); i++) {
+				dWriter.write("L" + i + "\t" + docIdList.get(i));
+				dWriter.newLine();
+			}
+			dWriter.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// ************new end************
+
 		// 把Label Vector写入文件
 		try {
-			BufferedWriter LVWriter = new BufferedWriter(new FileWriter(new File(
-					LabelVectorPath), true));
+			BufferedWriter LVWriter = new BufferedWriter(new FileWriter(
+					new File(LabelVectorPath), true));
 			for (int i = 0; i < labelVectorList.size(); i++) {
 				LVWriter.write("L" + i + "\t" + labelVectorList.get(i));
 				LVWriter.newLine();

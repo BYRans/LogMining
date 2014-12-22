@@ -17,14 +17,16 @@ import java.util.Set;
 public class LogMergeByLCS {
 	public static String LabelVectorPath = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
 	public static String LabelSetPath = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
+	public static String LabelSetDocIdsPath = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
+	public static String LabelDocIdsPath = "C:/Users/Administrator/Desktop/LogMining/LabelDocIds.txt";
 	public static double Similarity = 0.8;
 	public static List<String[]> labelVectorList = new ArrayList<String[]>();
+	public static HashMap<String, String> labelDocIdsMap = new HashMap<String, String>();
 	public static int lcs = 0;
 	public static String similarLabels = "";
 	public static List<String> LabelSetList = new LinkedList<String>();
 	public static boolean[] flag;
-	
-	
+
 	static {
 		try {
 			File LabelVectorFile = new File(LabelVectorPath);
@@ -41,6 +43,25 @@ public class LogMergeByLCS {
 				line = vReader.readLine();
 			}
 			vReader.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+			File LabelDocIdsFile = new File(LabelDocIdsPath);
+			BufferedReader dReader = new BufferedReader(new InputStreamReader(
+					new FileInputStream(LabelDocIdsFile), "UTF-8"));
+			String line = dReader.readLine();
+			while (line != null) {
+				if ("".equals(line.trim())) {
+					line = dReader.readLine();
+					continue;
+				}
+				String[] labelDocIdsArr = line.split("\t");
+				labelDocIdsMap.put(labelDocIdsArr[0], labelDocIdsArr[1]);
+				line = dReader.readLine();
+			}
+			dReader.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
@@ -68,23 +89,7 @@ public class LogMergeByLCS {
 			String[] LVArr = labelVectorList.get(i);
 			vertexs[i] = LVArr[0];
 		}
-		DFSTraverse(LCSArr.length,vertexs,LCSArr);
-
-		/*int[] flagArr = new int[LCSArr.length];
-		for (int i = 0; i < LCSArr.length; i++) {
-			if (flagArr[i] == 1)
-				continue;
-			String similarLabels = "";
-			for (int j = 0; j < LCSArr[i].length; j++) {
-				if (LCSArr[i][j] == 1) {
-					String[] LVArr = labelVectorList.get(j);
-					similarLabels += LVArr[0] + ",";
-					// System.out.println(similarLabels);
-					flagArr[j] = 1;
-				}
-			}
-			LabelSetList.add(similarLabels);
-		}*/
+		DFSTraverse(LCSArr.length, vertexs, LCSArr);
 
 		// 把Label Set写入文件
 		try {
@@ -103,6 +108,30 @@ public class LogMergeByLCS {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		// ***********new start
+		// 把Label docIds写入文件
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
+					LabelSetDocIdsPath), true));
+
+			for (int i = 0; i < LabelSetList.size(); i++) {
+				String[] labelsArr = LabelSetList.get(i).split(",");
+				String docIds = "";
+				for (int j = 0; j < labelsArr.length; j++) {
+					docIds += labelDocIdsMap.get(labelsArr[j]);
+				}
+				writer.write("Label_" + i + "\t" + docIds);
+				writer.newLine();
+				writer.newLine();
+			}
+			writer.flush();
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// new end******************
+
 		System.out.println("Completed.");
 	}
 
@@ -147,12 +176,13 @@ public class LogMergeByLCS {
 	}
 
 	// 图的深度遍历操作(递归)
-	public static void DFSTraverse(int nodeCount,String[] vertexs,int[][] edges) {
+	public static void DFSTraverse(int nodeCount, String[] vertexs,
+			int[][] edges) {
 		flag = new boolean[nodeCount];
 		for (int i = 0; i < nodeCount; i++) {
 			similarLabels = "";
 			if (flag[i] == false) {// 当前顶点没有被访问
-				DFS(i,nodeCount,vertexs,edges);
+				DFS(i, nodeCount, vertexs, edges);
 				LabelSetList.add(similarLabels);
 				System.out.println("!!!!!!!!");
 			}
@@ -160,12 +190,12 @@ public class LogMergeByLCS {
 	}
 
 	// 图的深度优先递归算法
-	public static void DFS(int i,int nodeCount,String[] vertexs,int[][] edges) {
+	public static void DFS(int i, int nodeCount, String[] vertexs, int[][] edges) {
 		flag[i] = true;// 第i个顶点被访问
 		similarLabels += vertexs[i] + ",";
 		for (int j = 0; j < nodeCount; j++) {
 			if (flag[j] == false && edges[i][j] == 1) {
-				DFS(j,nodeCount,vertexs,edges);
+				DFS(j, nodeCount, vertexs, edges);
 			}
 		}
 	}
