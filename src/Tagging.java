@@ -37,8 +37,9 @@ public class Tagging {
 					continue;
 				}
 				boolean isExist = false;
+				String vectorStr = vLine.split("\t")[1];
 				for (int i = 0; i < labelVectorList.size(); i++) {
-					if (vLine.equals(labelVectorList.get(i))) {// 如果两个向量完全匹配，则判定为同一Label
+					if (vectorStr.equals(labelVectorList.get(i))) {// 如果两个向量完全匹配，则判定为同一Label
 						isExist = true;
 						String docIds = docIdList.get(i);
 						docIds += lineCount + ",";
@@ -47,7 +48,7 @@ public class Tagging {
 					}
 				}
 				if (!isExist) {
-					labelVectorList.add(vLine);
+					labelVectorList.add(vectorStr);
 					docIdList.add(lineCount + ",");
 				}
 				vLine = vReader.readLine();

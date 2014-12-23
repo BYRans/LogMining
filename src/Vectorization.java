@@ -85,7 +85,11 @@ public class Vectorization {
 								new FileWriter(new File(VectorPath), true));
 						// writer.write(docContent);
 						// writer.newLine();
-						writer.write(docVectorContent);
+
+						// **************new start
+						writer.write(i + "\t" + docVectorContent);
+						// new end*****************
+
 						writer.newLine();
 						writer.newLine();
 						writer.flush();

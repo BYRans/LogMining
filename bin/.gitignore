@@ -1,1 +1,7 @@
-/config
+/Clustering.class
+/LogMergeByLCS.class
+/RMNoiseWord.class
+/Structured.class
+/Tagging.class
+/Vectorization.class
+/FeatureExtraction.class

@@ -68,6 +68,7 @@ public class LogMergeByLCS {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("Running...");
 		int[][] LCSArr = new int[labelVectorList.size()][labelVectorList.size()];
 		for (int i = 0; i < labelVectorList.size(); i++) {
 			String[] rowStr = labelVectorList.get(i);
@@ -76,7 +77,6 @@ public class LogMergeByLCS {
 				LCSAlgorithm(rowStr, colStr);
 				double rowStr_lcs = (double) lcs / (rowStr.length - 1);// 因为数组第一个是Label，本应去掉，但没去掉，计算长度时就不计算label。
 				double colStr_lcs = (double) lcs / (colStr.length - 1);
-				System.out.println(lcs + " " + rowStr_lcs + "  " + colStr_lcs);
 				if (rowStr_lcs >= Similarity && colStr_lcs >= Similarity) {
 					LCSArr[i][j] = 1;
 				} else {
@@ -136,7 +136,7 @@ public class LogMergeByLCS {
 	}
 
 	// 最长公共子串
-	public static void LCSAlgorithm(String[] x, String[] y) {
+	public static void LCSAlgorithm(String[] x, String[] y) {// 取最长公共子串的算法会忽略掉第一个字符，这里第一个字符设置的是Li
 		lcs = 0;// lcs是全局变量，所以每次调用LCS算法都要重新初始化一下lcs。
 		int[][] b = getLength(x, y);
 		Display(b, x, x.length - 1, y.length - 1);
@@ -179,12 +179,12 @@ public class LogMergeByLCS {
 	public static void DFSTraverse(int nodeCount, String[] vertexs,
 			int[][] edges) {
 		flag = new boolean[nodeCount];
+		
 		for (int i = 0; i < nodeCount; i++) {
 			similarLabels = "";
 			if (flag[i] == false) {// 当前顶点没有被访问
 				DFS(i, nodeCount, vertexs, edges);
 				LabelSetList.add(similarLabels);
-				System.out.println("!!!!!!!!");
 			}
 		}
 	}
