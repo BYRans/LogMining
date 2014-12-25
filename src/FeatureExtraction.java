@@ -13,8 +13,10 @@ public class FeatureExtraction {
 	public static String LabelSetDocIdsPath = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
 	public static String VectorPath = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
 	public static String FeaturePath = "C:/Users/Administrator/Desktop/LogMining/Feature.txt";
+	public static String TokenSetPath = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
 	public static List<String[]> LabelDocIdsList = new ArrayList<String[]>();
 	public static HashMap<String, String> DocIdVectorMap = new HashMap<String, String>();
+	public static HashMap<String, String> TokenMap = new HashMap<String, String>();
 	public static String feature = "";
 
 	static {
@@ -55,6 +57,25 @@ public class FeatureExtraction {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+
+		try {
+			File TokenSetFile = new File(TokenSetPath);
+			BufferedReader tReader = new BufferedReader(new InputStreamReader(
+					new FileInputStream(TokenSetFile), "UTF-8"));
+			String line = tReader.readLine();
+			while (line != null) {
+				if ("".equals(line.trim())) {
+					line = tReader.readLine();
+					continue;
+				}
+				String[] tokenArr = line.split("\t");
+				TokenMap.put(tokenArr[0], tokenArr[2]);
+				line = tReader.readLine();
+			}
+			tReader.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	public static void main(String[] args) {
@@ -69,13 +90,26 @@ public class FeatureExtraction {
 				LCSAlgorithm(fArr, coArr);
 			}
 
+			String tokenFeature = "";
 			// 把Label Set写入文件
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
 						new File(FeaturePath), true));
-				if (feature.length() > 2)//去掉"P,"
+				if (feature.length() > 2)// 去掉"P,"
 					feature = feature.substring(2);
-				writer.write(LabelDocIdsList.get(i)[0] + "\t" + feature);
+
+				String[] feArr = feature.split(",");
+				for (int j = 0; j < feArr.length; j++) {
+					String temp = TokenMap.get(feArr[j]);
+					if (temp != null)
+						tokenFeature += temp + ",";
+				}
+
+				writer.write(LabelDocIdsList.get(i)[0] + ":");
+				writer.newLine();
+				writer.write(tokenFeature);
+				writer.newLine();
+				writer.write(feature);
 				writer.newLine();
 				writer.newLine();
 				writer.flush();
@@ -83,10 +117,9 @@ public class FeatureExtraction {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
-			System.out.println(LabelDocIdsList.get(i)[0] + ":" + feature);
+			System.out.println(LabelDocIdsList.get(i)[0] + ":\n" + tokenFeature
+					+ "\n" + feature+ "\n");
 		}
-
 		System.out.println("Completed.");
 	}
 

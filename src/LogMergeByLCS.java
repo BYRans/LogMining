@@ -23,7 +23,7 @@ public class LogMergeByLCS {
 	public static String LabelVectorPath = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
 	public static String LabelSetPath = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
 	public static String LabelSetDocIdsPath = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
-	public static String LucenePath = "C:/Documents and Settings/js4/×ÀÃæ/LogMining/luceneFile/";
+	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
 	public static String LabelDocIdsPath = "C:/Users/Administrator/Desktop/LogMining/LabelDocIds.txt";
 	public static double Similarity = 0.8;
 	public static List<String[]> labelVectorList = new ArrayList<String[]>();

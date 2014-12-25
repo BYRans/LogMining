@@ -30,8 +30,8 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 
 public class RMNoiseWord {
 	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
-	public static String TermSetPath = "C:/Users/Administrator/Desktop/LogMining/tokenSet.txt";
-	public static String AllTokenSetPath = "C:/Users/Administrator/Desktop/LogMining/allTokenSet.txt";
+	public static String TermSetPath = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
+	public static String AllTokenSetPath = "C:/Users/Administrator/Desktop/LogMining/AllTokenSet.txt";
 	public static Integer TermFrequent = 2;// 判定低频词阙值
 
 	public static int Hits = 10;
@@ -92,7 +92,7 @@ public class RMNoiseWord {
 					+ ((float) (msgTerm.size() - termID) / msgTerm.size()));
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File(TermSetPath), true));
+						new File(AllTokenSetPath), true));
 				writer.write("****************************");
 				writer.newLine();
 				writer.write("词频阙值:" + TermFrequent);

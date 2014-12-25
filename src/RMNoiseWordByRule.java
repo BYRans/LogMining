@@ -30,9 +30,9 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.queryparser.classic.QueryParser;
 
 public class RMNoiseWordByRule {
-	public static String LucenePath = "C:/Documents and Settings/js4/×ÀÃæ/LogMining/luceneFile/";
-	public static String TermSetPath = "C:/Documents and Settings/js4/×ÀÃæ/LogMining/tokenSet.txt";
-	public static String AllTokenSetPath = "C:/Documents and Settings/js4/×ÀÃæ/LogMining/allTokenSet.txt";
+	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String TokenSetPath = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
+	public static String AllTokenSetPath = "C:/Users/Administrator/Desktop/LogMining/AllTokenSet.txt";
 
 	public static int Hits = 10;
 	public static String QueryString = "exception";
@@ -80,7 +80,7 @@ public class RMNoiseWordByRule {
 				if ((!isNumber)&&(!isIP)) {
 					try {
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(new File(TermSetPath), true));
+								new FileWriter(new File(TokenSetPath), true));
 						writer.write(++termID + "\t" + termCount + "\t" + term);
 						writer.newLine();
 						writer.flush();
