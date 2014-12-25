@@ -37,12 +37,19 @@ public class Tagging {
 					continue;
 				}
 				boolean isExist = false;
-				String vectorStr = vLine.split("\t")[1];
+				String[] lineArr = vLine.split("\t");
+				String vectorStr = "";
+				if (lineArr.length > 1)
+					vectorStr = lineArr[1];
+				else{
+					System.out.println("wrong data docId(lineCount): "+lineArr[0]);
+				}
+				
 				for (int i = 0; i < labelVectorList.size(); i++) {
 					if (vectorStr.equals(labelVectorList.get(i))) {// 如果两个向量完全匹配，则判定为同一Label
 						isExist = true;
 						String docIds = docIdList.get(i);
-						docIds += lineCount + ",";
+						docIds += lineArr[0] + ",";
 						docIdList.set(i, docIds);
 						break;
 					}
@@ -59,20 +66,18 @@ public class Tagging {
 			e1.printStackTrace();
 		}
 
-		// ************new start************
 		// 把Label docIds写入文件
 		try {
-			BufferedWriter dWriter = new BufferedWriter(new FileWriter(
+			BufferedWriter DLWriter = new BufferedWriter(new FileWriter(
 					new File(LabelDocIdsPath), true));
 			for (int i = 0; i < docIdList.size(); i++) {
-				dWriter.write("L" + i + "\t" + docIdList.get(i));
-				dWriter.newLine();
+				DLWriter.write("L" + i + "\t" + docIdList.get(i));
+				DLWriter.newLine();
 			}
-			dWriter.close();
+			DLWriter.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// ************new end************
 
 		// 把Label Vector写入文件
 		try {
@@ -103,7 +108,7 @@ public class Tagging {
 					LRWriter.newLine();
 					for (int j = 0; j < docArr.length; j++) {
 						document = reader.document(Integer.valueOf(docArr[j]));
-						LRWriter.write(document.get("message"));
+						LRWriter.write("MESSAGE:" + document.get("message")+" <-- SOURCE:" + document.get("source"));
 						LRWriter.newLine();
 						LRWriter.newLine();
 					}

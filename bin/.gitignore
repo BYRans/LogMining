@@ -1,7 +1,2 @@
-/Clustering.class
-/LogMergeByLCS.class
-/RMNoiseWord.class
-/Structured.class
-/Tagging.class
-/Vectorization.class
-/FeatureExtraction.class
+/RMNoiseWordByRule.class
+/OutputWrongData.class
