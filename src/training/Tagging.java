@@ -1,3 +1,4 @@
+package training;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,18 +16,18 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 public class Tagging {
-	public static String VectorPath = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
-	public static String LabelVectorPath = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
-	public static String LabelRawDataPath = "C:/Users/Administrator/Desktop/LogMining/LabelRawData.txt";
-	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
-	public static String LabelDocIdsPath = "C:/Users/Administrator/Desktop/LogMining/LabelDocIds.txt";
+	public static String VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
+	public static String LABEL_VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
+	public static String LABEL_RAW_DATA_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelRawData.txt";
+	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String LABEL_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelDocIds.txt";
 
 	public static void main(String[] args) {
 		System.out.println("Running...");
-		List<String> labelVectorList = new ArrayList<String>();
+		List<String> LABEL_VECTOR_LIST = new ArrayList<String>();
 		List<String> docIdList = new ArrayList<String>();
 		try {
-			File vectorFile = new File(VectorPath);
+			File vectorFile = new File(VECTOR_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(vectorFile), "UTF-8"));
 			String vLine = vReader.readLine();
@@ -45,8 +46,8 @@ public class Tagging {
 					System.out.println("wrong data docId(lineCount): "+lineArr[0]);
 				}
 				
-				for (int i = 0; i < labelVectorList.size(); i++) {
-					if (vectorStr.equals(labelVectorList.get(i))) {// 如果两个向量完全匹配，则判定为同一Label
+				for (int i = 0; i < LABEL_VECTOR_LIST.size(); i++) {
+					if (vectorStr.equals(LABEL_VECTOR_LIST.get(i))) {// 如果两个向量完全匹配，则判定为同一Label
 						isExist = true;
 						String docIds = docIdList.get(i);
 						docIds += lineArr[0] + ",";
@@ -55,7 +56,7 @@ public class Tagging {
 					}
 				}
 				if (!isExist) {
-					labelVectorList.add(vectorStr);
+					LABEL_VECTOR_LIST.add(vectorStr);
 					docIdList.add(lineCount + ",");
 				}
 				vLine = vReader.readLine();
@@ -69,7 +70,7 @@ public class Tagging {
 		// 把Label docIds写入文件
 		try {
 			BufferedWriter DLWriter = new BufferedWriter(new FileWriter(
-					new File(LabelDocIdsPath), true));
+					new File(LABEL_DOCIDS_PATH), true));
 			for (int i = 0; i < docIdList.size(); i++) {
 				DLWriter.write("L" + i + "\t" + docIdList.get(i));
 				DLWriter.newLine();
@@ -82,9 +83,9 @@ public class Tagging {
 		// 把Label Vector写入文件
 		try {
 			BufferedWriter LVWriter = new BufferedWriter(new FileWriter(
-					new File(LabelVectorPath), true));
-			for (int i = 0; i < labelVectorList.size(); i++) {
-				LVWriter.write("L" + i + "\t" + labelVectorList.get(i));
+					new File(LABEL_VECTOR_PATH), true));
+			for (int i = 0; i < LABEL_VECTOR_LIST.size(); i++) {
+				LVWriter.write("L" + i + "\t" + LABEL_VECTOR_LIST.get(i));
 				LVWriter.newLine();
 			}
 			LVWriter.close();
@@ -95,13 +96,13 @@ public class Tagging {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(LucenePath));
+			directory = FSDirectory.open(new File(LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			Document document = null;
 
 			try {
 				BufferedWriter LRWriter = new BufferedWriter(new FileWriter(
-						new File(LabelRawDataPath), true));
+						new File(LABEL_RAW_DATA_PATH), true));
 				for (int i = 0; i < docIdList.size(); i++) {
 					String[] docArr = docIdList.get(i).split(",");
 					LRWriter.write("==============L" + i + "=============");

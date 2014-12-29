@@ -1,3 +1,4 @@
+package training;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,14 +19,14 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 
 public class OutputWrongData {
-	public static String LucenePath = "C:/Documents and Settings/js4/桌面/LogMining/luceneFile/";
-	public static String TokenSetPath = "C:/Documents and Settings/js4/桌面/LogMining/TokenSet.txt";
-	public static String VectorPath = "C:/Documents and Settings/js4/桌面/LogMining/Vector.txt";
-	public static HashMap<String, String> TokenSetMap = new HashMap<String, String>();
+	public static String LUCENE_PATH = "C:/Documents and Settings/js4/桌面/LogMining/luceneFile/";
+	public static String TOKEN_SET_PATH = "C:/Documents and Settings/js4/桌面/LogMining/TokenSet.txt";
+	public static String VECTOR_PATH = "C:/Documents and Settings/js4/桌面/LogMining/Vector.txt";
+	public static HashMap<String, String> TOKEN_SET_MAP = new HashMap<String, String>();
 
 	static {
 		try {
-			File termSetFile = new File(TokenSetPath);
+			File termSetFile = new File(TOKEN_SET_PATH);
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new FileInputStream(termSetFile), "UTF-8"));
 			String curLine = br.readLine();
@@ -35,7 +36,7 @@ public class OutputWrongData {
 					continue;
 				}
 				String[] termArr = curLine.split("\t");
-				TokenSetMap.put(termArr[2], termArr[0]);
+				TOKEN_SET_MAP.put(termArr[2], termArr[0]);
 				curLine = br.readLine();
 			}
 			br.close();
@@ -49,7 +50,7 @@ public class OutputWrongData {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(LucenePath));
+			directory = FSDirectory.open(new File(LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			int docCount = reader.maxDoc();
 			for (int i = 0; i < docCount; i++) {
@@ -76,9 +77,9 @@ public class OutputWrongData {
 					for (Object key : key_arr) {
 						String value = posAndTerMap.get(key);
 						docContent += value + " ";
-						String token = TokenSetMap.get(value);
+						String token = TOKEN_SET_MAP.get(value);
 						if (token != null)
-							docVectorContent += TokenSetMap.get(value) + ",";
+							docVectorContent += TOKEN_SET_MAP.get(value) + ",";
 					}
 
 					if ("".equals(docVectorContent)) {

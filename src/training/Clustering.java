@@ -1,3 +1,4 @@
+package training;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,13 +15,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class Clustering {
-	public static String LabelVectorPath = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
-	public static String LabelSetPath = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
-	public static double Similarity = 0.75;
-	public static List<String[]> labelVectorList = new ArrayList<String[]>();
+	public static String LABEL_VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
+	public static String LABEL_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
+	public static double SIMILARITY = 0.75;
+	public static List<String[]> LABEL_VECTOR_LIST = new ArrayList<String[]>();
 	static {
 		try {
-			File LabelVectorFile = new File(LabelVectorPath);
+			File LabelVectorFile = new File(LABEL_VECTOR_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelVectorFile), "UTF-8"));
 			String line = vReader.readLine();
@@ -30,7 +31,7 @@ public class Clustering {
 					continue;
 				}
 				String[] labelVectorArr = line.split("\t|,");
-				labelVectorList.add(labelVectorArr);
+				LABEL_VECTOR_LIST.add(labelVectorArr);
 				line = vReader.readLine();
 			}
 			vReader.close();
@@ -44,8 +45,8 @@ public class Clustering {
 		HashMap<String, HashSet> labelSetMap = new HashMap<String, HashSet>();
 		HashSet<String> vectorSet = null;
 
-		for (int i = 0; i < labelVectorList.size(); i++) {
-			String[] LVArr = labelVectorList.get(i);
+		for (int i = 0; i < LABEL_VECTOR_LIST.size(); i++) {
+			String[] LVArr = LABEL_VECTOR_LIST.get(i);
 			HashSet<String> arrSet = new HashSet<String>();
 			for (int j = 1; j < LVArr.length; j++)
 				// 数组第一个值是Label，故i=1
@@ -73,7 +74,7 @@ public class Clustering {
 		// 把Label Set写入文件
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-					LabelSetPath), true));
+					LABEL_SET_PATH), true));
 			
 			Iterator iter = labelSetMap.entrySet().iterator();
 			while (iter.hasNext()) {
@@ -102,8 +103,8 @@ public class Clustering {
 			if (set.contains(str))
 				count++;
 		}
-		if (((double)count / set.size()) >= Similarity
-				&& ((double)count / arrSet.size()) >= Similarity)
+		if (((double)count / set.size()) >= SIMILARITY
+				&& ((double)count / arrSet.size()) >= SIMILARITY)
 			similar = true;
 		return similar;
 	}

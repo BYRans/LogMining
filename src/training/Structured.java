@@ -1,3 +1,4 @@
+package training;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
@@ -24,26 +25,22 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Structured {
-	public static String FilePath = "C:/Users/Administrator/Desktop/LogMining/Analyze/";
-	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String FILE_PATH = "C:/Users/Administrator/Desktop/LogMining/Analyze/";
+	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
 	
 	public static void main(String[] args) throws Exception {
 		System.out.println("Running...");
 		IndexWriter writer = null;
 		try {
-			List<String> sw = new LinkedList<String>();// custom stopWords set
-			sw.add("at");
-			CharArraySet stopWords = new CharArraySet(sw, true);
-			StandardAnalyzer analyzer = new StandardAnalyzer(stopWords);
 
-			Directory directory = FSDirectory.open(new File(LucenePath));
+			Directory directory = FSDirectory.open(new File(LUCENE_PATH));
 			IndexWriterConfig iwc = new IndexWriterConfig(
-					Version.LUCENE_4_10_2, analyzer);
+					Version.LUCENE_4_10_2, new StandardAnalyzer());
 			iwc.setUseCompoundFile(false);
 			writer = new IndexWriter(directory, iwc);
 			Document document = null;
 			List<String> list = new ArrayList<String>();
-			File f = new File(FilePath);
+			File f = new File(FILE_PATH);
 			File[] fileList = f.listFiles();
 
 			for (File file : fileList) {
@@ -51,6 +48,7 @@ public class Structured {
 				for (int i = 0; i < list.size(); i++) {
 					String[] recordArr = list.get(i).split(" |,|: ");
 					document = new Document();
+					document.add(new TextField("id",i+"", Field.Store.YES));
 					document.add(new TextField("timeStamp", recordArr[0] + " "
 							+ recordArr[1], Field.Store.YES));
 					document.add(new TextField("processID", recordArr[2],

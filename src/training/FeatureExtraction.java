@@ -1,3 +1,4 @@
+package training;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -10,18 +11,18 @@ import java.util.HashMap;
 import java.util.List;
 
 public class FeatureExtraction {
-	public static String LabelSetDocIdsPath = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
-	public static String VectorPath = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
-	public static String FeaturePath = "C:/Users/Administrator/Desktop/LogMining/Feature.txt";
-	public static String TokenSetPath = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
-	public static List<String[]> LabelDocIdsList = new ArrayList<String[]>();
-	public static HashMap<String, String> DocIdVectorMap = new HashMap<String, String>();
-	public static HashMap<String, String> TokenMap = new HashMap<String, String>();
-	public static String feature = "";
+	public static String LABEL_SET_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
+	public static String VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
+	public static String FEATURE_PATH = "C:/Users/Administrator/Desktop/LogMining/FEATURE.txt";
+	public static String TOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
+	public static List<String[]> LABEL_DCOIDS_LIST = new ArrayList<String[]>();
+	public static HashMap<String, String> DOCID_VECTOR_MAP = new HashMap<String, String>();
+	public static HashMap<String, String> TOKEN_MAP = new HashMap<String, String>();
+	public static String FEATURE = "";
 
 	static {
 		try {
-			File LabelVectorFile = new File(VectorPath);
+			File LabelVectorFile = new File(VECTOR_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelVectorFile), "UTF-8"));
 			String line = vReader.readLine();
@@ -31,7 +32,7 @@ public class FeatureExtraction {
 					continue;
 				}
 				String[] DocIdVectorArr = line.split("\t");
-				DocIdVectorMap.put(DocIdVectorArr[0], DocIdVectorArr[1]);
+				DOCID_VECTOR_MAP.put(DocIdVectorArr[0], DocIdVectorArr[1]);
 				line = vReader.readLine();
 			}
 			vReader.close();
@@ -40,7 +41,7 @@ public class FeatureExtraction {
 		}
 
 		try {
-			File LabelDocIdsFile = new File(LabelSetDocIdsPath);
+			File LabelDocIdsFile = new File(LABEL_SET_DOCIDS_PATH);
 			BufferedReader dReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelDocIdsFile), "UTF-8"));
 			String line = dReader.readLine();
@@ -50,7 +51,7 @@ public class FeatureExtraction {
 					continue;
 				}
 				String[] labelDocIdsArr = line.split("\t");
-				LabelDocIdsList.add(labelDocIdsArr);
+				LABEL_DCOIDS_LIST.add(labelDocIdsArr);
 				line = dReader.readLine();
 			}
 			dReader.close();
@@ -59,7 +60,7 @@ public class FeatureExtraction {
 		}
 
 		try {
-			File TokenSetFile = new File(TokenSetPath);
+			File TokenSetFile = new File(TOKEN_SET_PATH);
 			BufferedReader tReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(TokenSetFile), "UTF-8"));
 			String line = tReader.readLine();
@@ -69,7 +70,7 @@ public class FeatureExtraction {
 					continue;
 				}
 				String[] tokenArr = line.split("\t");
-				TokenMap.put(tokenArr[0], tokenArr[2]);
+				TOKEN_MAP.put(tokenArr[0], tokenArr[2]);
 				line = tReader.readLine();
 			}
 			tReader.close();
@@ -80,36 +81,36 @@ public class FeatureExtraction {
 
 	public static void main(String[] args) {
 		System.out.println("Running...");
-		for (int i = 0; i < LabelDocIdsList.size(); i++) {
-			String[] docIdArr = LabelDocIdsList.get(i)[1].split(",");
-			feature = "P," + DocIdVectorMap.get(docIdArr[0]);// 取最长公共子串的算法会忽略掉第一个字符，所以加个P,日志合并一步第一个字符设置的是Li
+		for (int i = 0; i < LABEL_DCOIDS_LIST.size(); i++) {
+			String[] docIdArr = LABEL_DCOIDS_LIST.get(i)[1].split(",");
+			FEATURE = "P," + DOCID_VECTOR_MAP.get(docIdArr[0]);// 取最长公共子串的算法会忽略掉第一个字符，所以加个P,日志合并一步第一个字符设置的是Li
 			for (int j = 1; j < docIdArr.length; j++) {
-				String[] fArr = feature.split(",");
-				String temp = "P," + DocIdVectorMap.get(docIdArr[j]);
-				String[] coArr = temp.split(",");
+				String[] fArr = FEATURE.split(",");
+				String tmp = "P," + DOCID_VECTOR_MAP.get(docIdArr[j]);
+				String[] coArr = tmp.split(",");
 				LCSAlgorithm(fArr, coArr);
 			}
 
-			String tokenFeature = "";
+			String tokenFEATURE = "";
 			// 把Label Set写入文件
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File(FeaturePath), true));
-				if (feature.length() > 2)// 去掉"P,"
-					feature = feature.substring(2);
+						new File(FEATURE_PATH), true));
+				if (FEATURE.length() > 2)// 去掉"P,"
+					FEATURE = FEATURE.substring(2);
 
-				String[] feArr = feature.split(",");
+				String[] feArr = FEATURE.split(",");
 				for (int j = 0; j < feArr.length; j++) {
-					String temp = TokenMap.get(feArr[j]);
-					if (temp != null)
-						tokenFeature += temp + ",";
+					String tmp = TOKEN_MAP.get(feArr[j]);
+					if (tmp != null)
+						tokenFEATURE += tmp + ",";
 				}
 
-				writer.write(LabelDocIdsList.get(i)[0] + ":");
+				writer.write(LABEL_DCOIDS_LIST.get(i)[0] + ":");
 				writer.newLine();
-				writer.write(tokenFeature);
+				writer.write(tokenFEATURE);
 				writer.newLine();
-				writer.write(feature);
+				writer.write(FEATURE);
 				writer.newLine();
 				writer.newLine();
 				writer.flush();
@@ -117,15 +118,15 @@ public class FeatureExtraction {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println(LabelDocIdsList.get(i)[0] + ":\n" + tokenFeature
-					+ "\n" + feature+ "\n");
+			System.out.println(LABEL_DCOIDS_LIST.get(i)[0] + ":\n" + tokenFEATURE
+					+ "\n" + FEATURE+ "\n");
 		}
 		System.out.println("Completed.");
 	}
 
 	// 最长公共子串
 	public static void LCSAlgorithm(String[] x, String[] y) {
-		feature = "P,";
+		FEATURE = "P,";
 		int[][] b = getLength(x, y);
 		Display(b, x, x.length - 1, y.length - 1);
 	}
@@ -155,7 +156,7 @@ public class FeatureExtraction {
 			return;
 		if (b[i][j] == 1) {
 			Display(b, x, i - 1, j - 1);
-			feature += x[i] + ",";
+			FEATURE += x[i] + ",";
 		} else if (b[i][j] == 0) {
 			Display(b, x, i - 1, j);
 		} else if (b[i][j] == -1) {

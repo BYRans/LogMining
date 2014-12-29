@@ -1,3 +1,5 @@
+package training;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,28 +17,31 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 public class LogMergeByLCS {
-	public static String LabelVectorPath = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
-	public static String LabelSetPath = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
-	public static String LabelSetDocIdsPath = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
-	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
-	public static String LabelDocIdsPath = "C:/Users/Administrator/Desktop/LogMining/LabelDocIds.txt";
-	public static double Similarity = 0.8;
-	public static List<String[]> labelVectorList = new ArrayList<String[]>();
-	public static HashMap<String, String> labelDocIdsMap = new HashMap<String, String>();
-	public static int lcs = 0;
-	public static String similarLabels = "";
-	public static List<String> LabelSetList = new LinkedList<String>();
-	public static boolean[] flag;
+	public static String LABEL_VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
+	public static String LABEL_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
+	public static String TIMESTAMP_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/TimeStampLabel.txt";
+	public static String LABEL_SET_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
+	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String LABEL_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelDocIds.txt";
+	public static double SIMILARITY = 0.6;
+	public static List<String[]> LABEL_VECTOR_LIST = new ArrayList<String[]>();
+	public static HashMap<String, String> LABEL_DOCIDS_MAP = new HashMap<String, String>();
+	public static int LCS = 0;
+	public static String SIMILAR_LABELS = "";
+	public static List<String> LABEL_SET_LIST = new LinkedList<String>();
+	public static boolean[] FLAG;
 
 	static {
 		// 读Label vector文件
 		try {
-			File LabelVectorFile = new File(LabelVectorPath);
+			File LabelVectorFile = new File(LABEL_VECTOR_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelVectorFile), "UTF-8"));
 			String line = vReader.readLine();
@@ -46,7 +51,7 @@ public class LogMergeByLCS {
 					continue;
 				}
 				String[] labelVectorArr = line.split("\t|,");
-				labelVectorList.add(labelVectorArr);
+				LABEL_VECTOR_LIST.add(labelVectorArr);
 				line = vReader.readLine();
 			}
 			vReader.close();
@@ -56,7 +61,7 @@ public class LogMergeByLCS {
 
 		// 读label docIds文件
 		try {
-			File LabelDocIDsFile = new File(LabelDocIdsPath);
+			File LabelDocIDsFile = new File(LABEL_DOCIDS_PATH);
 			BufferedReader dReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelDocIDsFile), "UTF-8"));
 			String line = dReader.readLine();
@@ -66,7 +71,7 @@ public class LogMergeByLCS {
 					continue;
 				}
 				String[] labelDocIdsArr = line.split("\t");
-				labelDocIdsMap.put(labelDocIdsArr[0], labelDocIdsArr[1]);
+				LABEL_DOCIDS_MAP.put(labelDocIdsArr[0], labelDocIdsArr[1]);
 				line = dReader.readLine();
 			}
 			dReader.close();
@@ -77,24 +82,25 @@ public class LogMergeByLCS {
 
 	public static void main(String[] args) {
 		System.out.println("Running...");
-		int[][] LCSArr = new int[labelVectorList.size()][labelVectorList.size()];
-		for (int i = 0; i < labelVectorList.size(); i++) {
-			String[] rowStr = labelVectorList.get(i);
-			for (int j = 0; j < labelVectorList.size(); j++) {
-				String[] colStr = labelVectorList.get(j);
+		int[][] LCSArr = new int[LABEL_VECTOR_LIST.size()][LABEL_VECTOR_LIST
+				.size()];
+		for (int i = 0; i < LABEL_VECTOR_LIST.size(); i++) {
+			String[] rowStr = LABEL_VECTOR_LIST.get(i);
+			for (int j = 0; j < LABEL_VECTOR_LIST.size(); j++) {
+				String[] colStr = LABEL_VECTOR_LIST.get(j);
 				LCSAlgorithm(rowStr, colStr);
-				double rowStr_lcs = (double) lcs / (rowStr.length - 1);// 因为数组第一个是Label，计算长度时就不计算label。
-				double colStr_lcs = (double) lcs / (colStr.length - 1);
-				if (rowStr_lcs >= Similarity && colStr_lcs >= Similarity) {
+				double rowStr_lcs = (double) LCS / (rowStr.length - 1);// 因为数组第一个是Label，计算长度时就不计算label。
+				double colStr_lcs = (double) LCS / (colStr.length - 1);
+				if (rowStr_lcs >= SIMILARITY && colStr_lcs >= SIMILARITY) {
 					LCSArr[i][j] = 1;
 				} else {
 					LCSArr[i][j] = 0;
 				}
 			}
 		}
-		String[] vertexs = new String[labelVectorList.size()];
-		for (int i = 0; i < labelVectorList.size(); i++) {
-			String[] LVArr = labelVectorList.get(i);
+		String[] vertexs = new String[LABEL_VECTOR_LIST.size()];
+		for (int i = 0; i < LABEL_VECTOR_LIST.size(); i++) {
+			String[] LVArr = LABEL_VECTOR_LIST.get(i);
 			vertexs[i] = LVArr[0];
 		}
 		DFSTraverse(LCSArr.length, vertexs, LCSArr);
@@ -103,18 +109,18 @@ public class LogMergeByLCS {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(LucenePath));
+			directory = FSDirectory.open(new File(LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			Document document = null;
 
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File(LabelSetPath), true));
+						new File(LABEL_SET_PATH), true));
 
-				for (int i = 0; i < LabelSetList.size(); i++) {
+				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
 					writer.write("===========Label_" + i + "===============");
 					writer.newLine();
-					writer.write(LabelSetList.get(i));
+					writer.write(LABEL_SET_LIST.get(i));
 					writer.newLine();
 					writer.newLine();
 				}
@@ -122,25 +128,51 @@ public class LogMergeByLCS {
 				writer.newLine();
 				writer.newLine();
 
-				for (int i = 0; i < LabelSetList.size(); i++) {
-					String[] labelArr = LabelSetList.get(i).split(",");
+				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
+					String[] labelArr = LABEL_SET_LIST.get(i).split(",");
 					writer.write("===========Label_" + i + "===============");
 					writer.newLine();
 					for (int j = 0; j < labelArr.length; j++) {
-						String docIds = labelDocIdsMap.get(labelArr[j]);
+						String docIds = LABEL_DOCIDS_MAP.get(labelArr[j]);
 						String[] docIdArr = docIds.split(",");
 						for (int k = 0; k < docIdArr.length; k++) {
 							document = reader.document(Integer
 									.valueOf(docIdArr[k]));
+							// Message source写入文件
 							writer.write("MESSAGE:" + document.get("message")
 									+ " <-- SOURCE:" + document.get("source"));
 							writer.newLine();
+
 						}
 					}
 
 				}
 				writer.flush();
 				writer.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				BufferedWriter tlWriter = new BufferedWriter(new FileWriter(
+						new File(TIMESTAMP_LABEL_PATH), true));
+				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
+					String[] labelArr = LABEL_SET_LIST.get(i).split(",");
+					for (int j = 0; j < labelArr.length; j++) {
+						String docIds = LABEL_DOCIDS_MAP.get(labelArr[j]);
+						String[] docIdArr = docIds.split(",");
+						for (int k = 0; k < docIdArr.length; k++) {
+							document = reader.document(Integer
+									.valueOf(docIdArr[k]));
+							// Message source写入文件
+							tlWriter.write(document.get("timeStamp")+"\t");
+							tlWriter.write("Label_" + i);
+							tlWriter.newLine();
+						}
+					}
+				}
+				tlWriter.flush();
+				tlWriter.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -151,13 +183,13 @@ public class LogMergeByLCS {
 		// 把Label docIds写入文件
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-					LabelSetDocIdsPath), true));
+					LABEL_SET_DOCIDS_PATH), true));
 
-			for (int i = 0; i < LabelSetList.size(); i++) {
-				String[] labelsArr = LabelSetList.get(i).split(",");
+			for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
+				String[] labelsArr = LABEL_SET_LIST.get(i).split(",");
 				String docIds = "";
 				for (int j = 0; j < labelsArr.length; j++) {
-					docIds += labelDocIdsMap.get(labelsArr[j]);
+					docIds += LABEL_DOCIDS_MAP.get(labelsArr[j]);
 				}
 				writer.write("Label_" + i + "\t" + docIds);
 				writer.newLine();
@@ -168,12 +200,15 @@ public class LogMergeByLCS {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		// 最终label写入Lucene
+
 		System.out.println("Completed.");
 	}
 
 	// 最长公共子串
 	public static void LCSAlgorithm(String[] x, String[] y) {
-		lcs = 0;// lcs是全局变量，所以每次调用LCS算法都要重新初始化一下lcs。
+		LCS = 0;// lcs是全局变量，所以每次调用LCS算法都要重新初始化一下lcs。
 		int[][] b = getLength(x, y);
 		Display(b, x, x.length - 1, y.length - 1);
 	}
@@ -203,7 +238,7 @@ public class LogMergeByLCS {
 			return;
 		if (b[i][j] == 1) {
 			Display(b, x, i - 1, j - 1);
-			lcs++;
+			LCS++;
 		} else if (b[i][j] == 0) {
 			Display(b, x, i - 1, j);
 		} else if (b[i][j] == -1) {
@@ -214,22 +249,22 @@ public class LogMergeByLCS {
 	// 图的深度遍历操作(递归)
 	public static void DFSTraverse(int nodeCount, String[] vertexs,
 			int[][] edges) {
-		flag = new boolean[nodeCount];
+		FLAG = new boolean[nodeCount];
 		for (int i = 0; i < nodeCount; i++) {
-			similarLabels = "";
-			if (flag[i] == false) {// 当前顶点没有被访问
+			SIMILAR_LABELS = "";
+			if (FLAG[i] == false) {// 当前顶点没有被访问
 				DFS(i, nodeCount, vertexs, edges);
-				LabelSetList.add(similarLabels);
+				LABEL_SET_LIST.add(SIMILAR_LABELS);
 			}
 		}
 	}
 
 	// 图的深度优先递归算法
 	public static void DFS(int i, int nodeCount, String[] vertexs, int[][] edges) {
-		flag[i] = true;// 第i个顶点被访问
-		similarLabels += vertexs[i] + ",";
+		FLAG[i] = true;// 第i个顶点被访问
+		SIMILAR_LABELS += vertexs[i] + ",";
 		for (int j = 0; j < nodeCount; j++) {
-			if (flag[j] == false && edges[i][j] == 1) {
+			if (FLAG[j] == false && edges[i][j] == 1) {
 				DFS(j, nodeCount, vertexs, edges);
 			}
 		}

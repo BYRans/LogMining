@@ -1,3 +1,4 @@
+package training;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -29,10 +30,10 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.queryparser.classic.QueryParser;
 
 public class RMNoiseWord {
-	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
 	public static String TermSetPath = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
-	public static String AllTokenSetPath = "C:/Users/Administrator/Desktop/LogMining/AllTokenSet.txt";
-	public static Integer TermFrequent = 2;// 判定低频词阙值
+	public static String AllTOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/AllTokenSet.txt";
+	public static Integer TERM_FREQUENT = 2;// 判定低频词阙值
 
 	public static int Hits = 10;
 	public static String QueryString = "exception";
@@ -41,14 +42,14 @@ public class RMNoiseWord {
 	public static void main(String[] args) throws Exception {
 		System.out.println("Running...");
 		buildTokenSet();
-		// search(LucenePath, QueryString, Field, Hits);//查询功能
+		// search(LUCENE_PATH, QueryString, Field, Hits);//查询功能
 	}
 
 	public static void buildTokenSet() {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(LucenePath));
+			directory = FSDirectory.open(new File(LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			Terms msgTerm = MultiFields.getTerms(reader, "message");
 			TermsEnum msgEnum = msgTerm.iterator(null);
@@ -63,7 +64,7 @@ public class RMNoiseWord {
 				}
 				try {
 					BufferedWriter writer = new BufferedWriter(new FileWriter(
-							new File(AllTokenSetPath), true));
+							new File(AllTOKEN_SET_PATH), true));
 					writer.write(termCount + "\t" + term);
 					writer.newLine();
 					writer.flush();
@@ -71,7 +72,7 @@ public class RMNoiseWord {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				if (termCount > TermFrequent) {
+				if (termCount > TERM_FREQUENT) {
 					try {
 						BufferedWriter writer = new BufferedWriter(
 								new FileWriter(new File(TermSetPath), true));
@@ -85,17 +86,17 @@ public class RMNoiseWord {
 				}
 			}
 			
-			System.out.println("词频阙值:" + TermFrequent + "\n" + "总分词数:"
+			System.out.println("词频阙值:" + TERM_FREQUENT + "\n" + "总分词数:"
 					+ msgTerm.size() + "\n" + "去除干扰词数:"
 					+ (msgTerm.size() - termID) + "\n" + "有效词数:" + termID
 					+ "\n" + "干扰词数/总分词数 = "
 					+ ((float) (msgTerm.size() - termID) / msgTerm.size()));
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File(AllTokenSetPath), true));
+						new File(AllTOKEN_SET_PATH), true));
 				writer.write("****************************");
 				writer.newLine();
-				writer.write("词频阙值:" + TermFrequent);
+				writer.write("词频阙值:" + TERM_FREQUENT);
 				writer.newLine();
 				writer.write("总分词数:" + msgTerm.size());
 				writer.newLine();
@@ -125,12 +126,12 @@ public class RMNoiseWord {
 		}
 	}
 
-	public static void search(String filePath, String queryString,
+	public static void search(String FILE_PATH, String queryString,
 			String field, int hits) {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(filePath));
+			directory = FSDirectory.open(new File(FILE_PATH));
 			reader = IndexReader.open(directory);
 			IndexSearcher searcher = new IndexSearcher(reader);
 			QueryParser parser = new QueryParser(field, new StandardAnalyzer());

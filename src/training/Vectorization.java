@@ -1,3 +1,5 @@
+package training;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -8,23 +10,31 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DocsAndPositionsEnum;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.Version;
 
 public class Vectorization {
-	public static String LucenePath = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
-	public static String TokenSetPath = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
-	public static String VectorPath = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
-	public static HashMap<String, String> TokenSetMap = new HashMap<String, String>();
+	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String TOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
+	public static String VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
+	public static HashMap<String, String> TOKEN_SET_MAP = new HashMap<String, String>();
 
 	static {
 		try {
-			File termSetFile = new File(TokenSetPath);
+			File termSetFile = new File(TOKEN_SET_PATH);
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new FileInputStream(termSetFile), "UTF-8"));
 			String curLine = br.readLine();
@@ -35,7 +45,7 @@ public class Vectorization {
 				}
 				String[] termArr = curLine.split("\t");
 				if (termArr.length >= 3)
-					TokenSetMap.put(termArr[2], termArr[0]);
+					TOKEN_SET_MAP.put(termArr[2], termArr[0]);
 				curLine = br.readLine();
 			}
 			br.close();
@@ -49,8 +59,14 @@ public class Vectorization {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(LucenePath));
+			directory = FSDirectory.open(new File(LUCENE_PATH));
 			reader = IndexReader.open(directory);
+
+			IndexWriterConfig iwc = new IndexWriterConfig(
+					Version.LUCENE_4_10_2, new StandardAnalyzer());
+			iwc.setUseCompoundFile(false);
+			IndexWriter luceneWriter = new IndexWriter(directory, iwc);
+
 			int docCount = reader.maxDoc();
 			for (int i = 0; i < docCount; i++) {
 				// Document document = reader.document(i);
@@ -76,13 +92,14 @@ public class Vectorization {
 					for (Object key : key_arr) {
 						String value = posAndTerMap.get(key);
 						docContent += value + " ";
-						String token = TokenSetMap.get(value);
+						String token = TOKEN_SET_MAP.get(value);
 						if (token != null)
-							docVectorContent += TokenSetMap.get(value) + ",";
+							docVectorContent += TOKEN_SET_MAP.get(value) + ",";
 					}
+
 					try {
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(new File(VectorPath), true));
+								new FileWriter(new File(VECTOR_PATH), true));
 						// writer.write(docContent);
 						// writer.newLine();
 
