@@ -9,6 +9,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
 public class Apriori {
 	public int minSup;// 最小支持度
@@ -26,6 +29,8 @@ public class Apriori {
 	public static int STEP_SIZE = 10;// 步长大小，分钟为单位
 	public static SimpleDateFormat DATE_TEMPLATE = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
+	public static int[] THRESHOLD = { 1 };//出现次数阈值
+//	public static double[] THRESHOLD = { 0.1 };//百分比阈值
 
 	public int getMinSup() {
 		return minSup;
@@ -40,17 +45,18 @@ public class Apriori {
 	 * @throws ParseException
 	 */
 	public static void main(String[] args) throws IOException, ParseException {
+		System.out.println("running...");
 		Apriori apriori = new Apriori();
-		double[] threshold = { 0};
 		FREQUENT_ITEM_SETS_PATH += "fp_threshold";
 		recordList = apriori.readFile(MERGE_LOG_PATH);
-		for (int k = 0; k < threshold.length; k++) {
-			System.out.println(MERGE_LOG_PATH + " threshold: " + threshold[k]);
+		for (int k = 0; k < THRESHOLD.length; k++) {
+			System.out.println(MERGE_LOG_PATH + " THRESHOLD: " + THRESHOLD[k]);
 			long totalItem = 0;
 			long totalTime = 0;
 			FileWriter tgFileWriter = new FileWriter(FREQUENT_ITEM_SETS_PATH
-					+ (threshold[k] * 100) + ".txt");
-			apriori.setMinSup((int) (recordList.size() * threshold[k]));
+					+ (THRESHOLD[k] * 100) + ".txt");
+//			apriori.setMinSup((int) (recordList.size() * THRESHOLD[k]));//这句是按百分比取
+			apriori.setMinSup(THRESHOLD[k]);//按出现次数
 			long startTime = System.currentTimeMillis();
 			Map<String, Integer> f1Set = apriori.findFP1Items(recordList);
 			long endTime = System.currentTimeMillis();
@@ -76,6 +82,7 @@ public class Apriori {
 			System.out.println("共用时：" + totalTime + "ms");
 			System.out.println("共有" + totalItem + "项频繁模式");
 		}
+		System.out.println("Completed.");
 	}
 
 	/**
@@ -231,13 +238,27 @@ public class Apriori {
 	 */
 	private int printMap(Map<Set<String>, Integer> f1Map,
 			FileWriter tgFileWriter) throws IOException {
-		for (Map.Entry<Set<String>, Integer> f1MapItem : f1Map.entrySet()) {
-			for (String p : f1MapItem.getKey()) {
+
+		List<Map.Entry<Set<String>, Integer>> infoIds = new ArrayList<Map.Entry<Set<String>, Integer>>(
+				f1Map.entrySet());
+		// HashMap排序
+		Collections.sort(infoIds, new Comparator<Map.Entry<Set<String>, Integer>>() {
+			public int compare(Map.Entry<Set<String>, Integer> o1,
+					Map.Entry<Set<String>, Integer> o2) {
+				return (o2.getValue() - o1.getValue());//按value，o2-o1降序，o1-o2升序
+			}
+		});
+		
+		for (int i = 0; i < infoIds.size(); i++) {
+			Entry<Set<String>, Integer> ent = infoIds.get(i);
+			System.out.println(ent.getValue()+"\t"+ent.getKey());
+			tgFileWriter.append(ent.getValue()+"\t");
+			for (String p : ent.getKey()) {
 				tgFileWriter.append(p + " ");
 			}
-			tgFileWriter.append(": " + f1MapItem.getValue() + "\r\n");
+			tgFileWriter.append("\r\n");
+			tgFileWriter.flush();
 		}
-		tgFileWriter.flush();
 		return f1Map.size();
 	}
 
@@ -296,7 +317,7 @@ public class Apriori {
 			System.out.println("读取文件失败。");
 			System.exit(-2);
 		}
-		
+
 		if (dataList.size() == 0)
 			return records;
 		String tmpDate = (dataList.get(0))[0];
