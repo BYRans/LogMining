@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -30,8 +32,28 @@ public class LogMerge {
 	public static String TIMESTAMP_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/TimeStampLabel.txt";
 	public static String WARNING_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/WarningLog.txt";
 	public static String MERGE_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/MergeLog.txt";
-	public static SimpleDateFormat DATE_TEMPLATE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	
+	public static SimpleDateFormat DATE_TEMPLATE = new SimpleDateFormat(
+			"yyyy-MM-dd HH:mm:ss");
+	public static String REMOVED_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/RemoveLabel.txt";
+	public static Set<String> REMOVED_LABEL_SET = new HashSet<String>();
+
+	static {
+		try {// removed Label set初始化
+			File rmLabelFile = new File(REMOVED_LABEL_PATH);
+			BufferedReader fReader = new BufferedReader(new InputStreamReader(
+					new FileInputStream(rmLabelFile), "UTF-8"));
+			String line = null;
+			while ((line = fReader.readLine()) != null) {
+				if ("".equals(line.trim()))
+					continue;
+				REMOVED_LABEL_SET.add(line);
+			}
+			fReader.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+
 	public static void main(String[] args) throws ParseException {
 		System.out.println("running...");
 		List<String[]> timeLabelList = new ArrayList<String[]>();
@@ -48,6 +70,8 @@ public class LogMerge {
 				}
 				String[] timeLabelArr = line.split("\t");
 				if (timeLabelArr.length != 2)
+					continue;
+				if (REMOVED_LABEL_SET.contains(timeLabelArr[1]))
 					continue;
 				timeLabelList.add(timeLabelArr);
 			}
@@ -95,7 +119,8 @@ public class LogMerge {
 		System.out.println("Completed.");
 	}
 
-	private static void merge(List<String[]> list, int s, int m, int t) throws ParseException {
+	private static void merge(List<String[]> list, int s, int m, int t)
+			throws ParseException {
 		List<String[]> tmpList = new ArrayList<String[]>();
 		int i = s, j = m, k = 0;
 		while (i < m && j <= t) {
@@ -128,9 +153,10 @@ public class LogMerge {
 	 * @param s
 	 * @param len
 	 *            每次归并的有序集合的长度
-	 * @throws ParseException 
+	 * @throws ParseException
 	 **/
-	public static void mergeSort(List<String[]> list, int s, int len) throws ParseException {
+	public static void mergeSort(List<String[]> list, int s, int len)
+			throws ParseException {
 		int size = list.size();
 		int mid = size / (len << 1);
 		int c = size & ((len << 1) - 1);

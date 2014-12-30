@@ -13,7 +13,7 @@ import java.util.List;
 public class FeatureExtraction {
 	public static String LABEL_SET_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
 	public static String VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
-	public static String FEATURE_PATH = "C:/Users/Administrator/Desktop/LogMining/FEATURE.txt";
+	public static String FEATURE_PATH = "C:/Users/Administrator/Desktop/LogMining/Feature/Feature.txt";
 	public static String TOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
 	public static List<String[]> LABEL_DCOIDS_LIST = new ArrayList<String[]>();
 	public static HashMap<String, String> DOCID_VECTOR_MAP = new HashMap<String, String>();
@@ -106,12 +106,14 @@ public class FeatureExtraction {
 						tokenFEATURE += tmp + ",";
 				}
 
-				writer.write(LABEL_DCOIDS_LIST.get(i)[0] + ":");
+				writer.write(LABEL_DCOIDS_LIST.get(i)[0] + "\t"+tokenFEATURE);
 				writer.newLine();
-				writer.write(tokenFEATURE);
-				writer.newLine();
-				writer.write(FEATURE);
-				writer.newLine();
+				
+//				writer.write(LABEL_DCOIDS_LIST.get(i)[0] + ":");
+//				writer.newLine();
+//				writer.write(tokenFEATURE);
+//				writer.newLine();
+//				writer.write(FEATURE);
 				writer.newLine();
 				writer.flush();
 				writer.close();

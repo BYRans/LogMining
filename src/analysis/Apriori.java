@@ -2,9 +2,11 @@ package analysis;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,12 +27,40 @@ public class Apriori {
 	public static List<Set<String>> recordList;// 以List<Set<String>>格式保存,利用Set的有序性
 	public static String MERGE_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/MergeLog.txt";
 	public static String FREQUENT_ITEM_SETS_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/";
+	public static String FEATURE_FOLDER_PATH = "C:/Users/Administrator/Desktop/LogMining/Feature/";
+	public static HashMap<String, String> FEATURE_MAP = new HashMap<String, String>();
 	public static int WINDOWN_SIZE = 30;// 窗口大小，分钟为单位
 	public static int STEP_SIZE = 10;// 步长大小，分钟为单位
 	public static SimpleDateFormat DATE_TEMPLATE = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
-	public static int[] THRESHOLD = { 1 };//出现次数阈值
-//	public static double[] THRESHOLD = { 0.1 };//百分比阈值
+	public static int[] THRESHOLD = { 1 };// 出现次数阈值
+	public static int ITEMS_COUNT = 0;
+	// public static double[] THRESHOLD = { 0.1 };//百分比阈值
+
+	static {
+		try {// 读入feature
+			File f = new File(FEATURE_FOLDER_PATH);
+			File[] fileList = f.listFiles();
+			for (File file : fileList) {
+				BufferedReader fReader = new BufferedReader(
+						new InputStreamReader(new FileInputStream(file),
+								"UTF-8"));
+				String line = null;
+				while ((line = fReader.readLine()) != null) {
+					if ("".equals(line.trim())) {
+						continue;
+					}
+					String[] tmpArr = line.split("\t");
+					if (tmpArr.length != 2)
+						continue;
+					FEATURE_MAP.put(tmpArr[0], tmpArr[1]);
+				}
+				fReader.close();
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
 
 	public int getMinSup() {
 		return minSup;
@@ -46,6 +76,7 @@ public class Apriori {
 	 */
 	public static void main(String[] args) throws IOException, ParseException {
 		System.out.println("running...");
+
 		Apriori apriori = new Apriori();
 		FREQUENT_ITEM_SETS_PATH += "fp_threshold";
 		recordList = apriori.readFile(MERGE_LOG_PATH);
@@ -55,18 +86,21 @@ public class Apriori {
 			long totalTime = 0;
 			FileWriter tgFileWriter = new FileWriter(FREQUENT_ITEM_SETS_PATH
 					+ (THRESHOLD[k] * 100) + ".txt");
-//			apriori.setMinSup((int) (recordList.size() * THRESHOLD[k]));//这句是按百分比取
-			apriori.setMinSup(THRESHOLD[k]);//按出现次数
+			// apriori.setMinSup((int) (recordList.size() *
+			// THRESHOLD[k]));//这句是按百分比取
+			apriori.setMinSup(THRESHOLD[k]);// 按出现次数
 			long startTime = System.currentTimeMillis();
 			Map<String, Integer> f1Set = apriori.findFP1Items(recordList);
 			long endTime = System.currentTimeMillis();
 			totalTime += endTime - startTime;
+
 			// 频繁1项集信息得加入支持度
 			Map<Set<String>, Integer> f1Map = new HashMap<Set<String>, Integer>();
 			for (Map.Entry<String, Integer> f1Item : f1Set.entrySet()) {
 				Set<String> fs = new HashSet<String>();
 				fs.add(f1Item.getKey());
 				f1Map.put(fs, f1Item.getValue());
+				System.out.println(f1Item.getKey() + f1Item.getValue());
 			}
 
 			totalItem += apriori.printMap(f1Map, tgFileWriter);
@@ -77,10 +111,11 @@ public class Apriori {
 				endTime = System.currentTimeMillis();
 				totalTime += endTime - startTime;
 				totalItem += apriori.printMap(result, tgFileWriter);
+				tgFileWriter.flush();
 			} while (result.size() != 0);
 			tgFileWriter.close();
-			System.out.println("共用时：" + totalTime + "ms");
-			System.out.println("共有" + totalItem + "项频繁模式");
+			// System.out.println("共用时：" + totalTime + "ms");
+			// System.out.println("共有" + totalItem + "项频繁模式");
 		}
 		System.out.println("Completed.");
 	}
@@ -242,20 +277,29 @@ public class Apriori {
 		List<Map.Entry<Set<String>, Integer>> infoIds = new ArrayList<Map.Entry<Set<String>, Integer>>(
 				f1Map.entrySet());
 		// HashMap排序
-		Collections.sort(infoIds, new Comparator<Map.Entry<Set<String>, Integer>>() {
-			public int compare(Map.Entry<Set<String>, Integer> o1,
-					Map.Entry<Set<String>, Integer> o2) {
-				return (o2.getValue() - o1.getValue());//按value，o2-o1降序，o1-o2升序
-			}
-		});
-		
+		Collections.sort(infoIds,
+				new Comparator<Map.Entry<Set<String>, Integer>>() {
+					public int compare(Map.Entry<Set<String>, Integer> o1,
+							Map.Entry<Set<String>, Integer> o2) {
+						return (o2.getValue() - o1.getValue());// 按value，o2-o1降序，o1-o2升序
+					}
+				});
+
+		tgFileWriter.append("\r\n" + "**********项数： " + (++ITEMS_COUNT)
+				+ "**********" + "\r\n");
+		tgFileWriter.flush();
 		for (int i = 0; i < infoIds.size(); i++) {
 			Entry<Set<String>, Integer> ent = infoIds.get(i);
-			System.out.println(ent.getValue()+"\t"+ent.getKey());
-			tgFileWriter.append(ent.getValue()+"\t");
+			System.out.println(ent.getValue() + "\t" + ent.getKey());
+			tgFileWriter.append(ent.getValue() + "\t");
 			for (String p : ent.getKey()) {
 				tgFileWriter.append(p + " ");
 			}
+			tgFileWriter.append("\r\n" + "\t");
+			for (String p : ent.getKey()) {
+				tgFileWriter.append("( " + FEATURE_MAP.get(p) + " ) ");
+			}
+
 			tgFileWriter.append("\r\n");
 			tgFileWriter.flush();
 		}
