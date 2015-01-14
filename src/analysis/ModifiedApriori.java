@@ -22,12 +22,11 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
+import training.PATHS;
+
 public class ModifiedApriori {
 	public int minSup;// 最小支持度
 	public static List<Set<String>> recordList;// 以List<Set<String>>格式保存,利用Set的有序性
-	public static String MERGE_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/MergeLog.txt";
-	public static String FREQUENT_ITEM_SETS_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/";
-	public static String FEATURE_FOLDER_PATH = "C:/Users/Administrator/Desktop/LogMining/Feature/";
 	public static HashMap<String, String> FEATURE_MAP = new HashMap<String, String>();
 	public static int WINDOWN_SIZE = 120;// 窗口大小，分钟为单位
 	public static int STEP_SIZE = 30;// 步长大小，分钟为单位
@@ -39,7 +38,7 @@ public class ModifiedApriori {
 
 	static {
 		try {// 读入feature
-			File f = new File(FEATURE_FOLDER_PATH);
+			File f = new File(PATHS.FEATURE_FOLDER_PATH);
 			File[] fileList = f.listFiles();
 			for (File file : fileList) {
 				BufferedReader fReader = new BufferedReader(
@@ -78,13 +77,13 @@ public class ModifiedApriori {
 		System.out.println("running...");
 
 		ModifiedApriori apriori = new ModifiedApriori();
-		FREQUENT_ITEM_SETS_PATH += "fp_threshold";
-		recordList = apriori.readFile(MERGE_LOG_PATH);
+		PATHS.FREQUENT_ITEM_SETS_PATH += "fp_threshold";
+		recordList = apriori.readFile(PATHS.MERGE_LOG_PATH);
 		for (int k = 0; k < THRESHOLD.length; k++) {
-			System.out.println(MERGE_LOG_PATH + " THRESHOLD: " + THRESHOLD[k]);
+			System.out.println(PATHS.MERGE_LOG_PATH + " THRESHOLD: " + THRESHOLD[k]);
 			long totalItem = 0;
 			long totalTime = 0;
-			FileWriter tgFileWriter = new FileWriter(FREQUENT_ITEM_SETS_PATH
+			FileWriter tgFileWriter = new FileWriter(PATHS.FREQUENT_ITEM_SETS_PATH
 					+ (THRESHOLD[k] * 100) + ".txt");
 			// apriori.setMinSup((int) (recordList.size() *
 			// THRESHOLD[k]));//这句是按百分比取
@@ -345,6 +344,7 @@ public class ModifiedApriori {
 	 * @throws ParseException
 	 * @throws IOException
 	 */
+	@SuppressWarnings("resource")
 	private List<Set<String>> readFile(String fileDir) throws ParseException {
 		List<Set<String>> records = new ArrayList<Set<String>>();
 		List<String[]> dataList = new ArrayList<String[]>();

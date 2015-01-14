@@ -76,7 +76,7 @@ public class FeatureExtraction {
 	}
 
 	public static void main(String[] args) {
-		System.out.println("Running...");
+		System.out.println("FeatureExtraction Running...");
 		for (int i = 0; i < LABEL_DCOIDS_LIST.size(); i++) {
 			String[] docIdArr = LABEL_DCOIDS_LIST.get(i)[1].split(",");
 			FEATURE = "P," + DOCID_VECTOR_MAP.get(docIdArr[0]);// 取最长公共子串的算法会忽略掉第一个字符，所以加个P,日志合并一步第一个字符设置的是Li

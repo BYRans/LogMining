@@ -11,14 +11,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DocsAndPositionsEnum;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.store.Directory;
@@ -52,8 +47,9 @@ public class Vectorization {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
-		System.out.println("Running...");
+		System.out.println("Vectorization Running...");
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
@@ -63,7 +59,6 @@ public class Vectorization {
 			IndexWriterConfig iwc = new IndexWriterConfig(
 					Version.LUCENE_4_10_2, new StandardAnalyzer());
 			iwc.setUseCompoundFile(false);
-			IndexWriter luceneWriter = new IndexWriter(directory, iwc);
 
 			int docCount = reader.maxDoc();
 			for (int i = 0; i < docCount; i++) {
@@ -85,6 +80,7 @@ public class Vectorization {
 					}
 					Object[] key_arr = posAndTerMap.keySet().toArray();// °´positionÅÅÐò
 					Arrays.sort(key_arr);
+					@SuppressWarnings("unused")
 					String docContent = "";
 					String docVectorContent = "";
 					for (Object key : key_arr) {

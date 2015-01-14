@@ -13,13 +13,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import training.PATHS;
 
 public class FPTree {
 	public static int WINDOWN_SIZE = 120;// 窗口大小，分钟为单位
@@ -39,12 +40,10 @@ public class FPTree {
 
 	public static void main(String[] args) throws IOException, Exception {
 		FPTree fptree = new FPTree();
-		String transFile = "C:/Users/Administrator/Desktop/LogMining/LogMerge/MergeLog.txt";
-		List<List<String>> transRecords = fptree.readFile(transFile); // 第一组测试
+		List<List<String>> transRecords = fptree.readFile(PATHS.MERGE_LOG_PATH); // 第一组测试
 		// List<List<String>> transRecords = fptree.readTransData(); //第二组测试
 		// fptree.setMinSup((int) (transRecords.size() * 0.25));
 		fptree.setMinSup(0);
-		long startTime = System.currentTimeMillis();
 		ArrayList<TreeNode> F1 = fptree.buildF1Items(transRecords);
 		fptree.printF1(F1);
 		TreeNode treeroot = fptree.buildFPTree(transRecords, F1);
@@ -68,6 +67,7 @@ public class FPTree {
 		List<String> record;
 		try {
 			FileReader fr = new FileReader(new File(filename));
+			@SuppressWarnings("resource")
 			BufferedReader br = new BufferedReader(fr);
 			String line = null;
 			while ((line = br.readLine()) != null) {
@@ -96,6 +96,7 @@ public class FPTree {
 	 * @throws ParseException
 	 * @throws IOException
 	 */
+	@SuppressWarnings("resource")
 	private List<List<String>> readFile(String fileDir) throws ParseException {
 		List<List<String>> records = new ArrayList<List<String>>();
 		List<String[]> dataList = new ArrayList<String[]>();
@@ -530,6 +531,7 @@ public class FPTree {
 	 * @param f1
 	 * @throws IOException
 	 */
+	@SuppressWarnings("resource")
 	public void printFreqPatterns(Map<List<String>, Integer> patterns,
 			String transFile, ArrayList<TreeNode> f1) throws IOException {
 		System.out.println();
@@ -557,7 +559,6 @@ public class FPTree {
 			FPResFile.append(tn.getCount() + "\t" + tn.getName() + "\r\n");
 		}
 		Set<Entry<List<String>, Integer>> ss = patterns.entrySet();
-		int count = 1;
 		for (Entry<List<String>, Integer> entry : ss) {
 			List<String> list = entry.getKey();
 			FPResFile.append(entry.getValue() + "\t");

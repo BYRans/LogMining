@@ -10,36 +10,22 @@ import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.DocsAndPositionsEnum;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.Terms;
-import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.BytesRef;
+import training.PATHS;
 
 public class LogMerge {
-	public static String TIMESTAMP_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/TimeStampLabel.txt";
-	public static String WARNING_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/WarningLog.txt";
-	public static String MERGE_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/MergeLog.txt";
+	
 	public static SimpleDateFormat DATE_TEMPLATE = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
-	public static String REMOVED_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/RemoveLabel.txt";
 	public static Set<String> REMOVED_LABEL_SET = new HashSet<String>();
 
 	static {
 		try {// removed Label set初始化
-			File rmLabelFile = new File(REMOVED_LABEL_PATH);
+			File rmLabelFile = new File(PATHS.REMOVED_LABEL_PATH);
 			BufferedReader fReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(rmLabelFile), "UTF-8"));
 			String line = null;
@@ -60,7 +46,7 @@ public class LogMerge {
 
 		// 读入syslog time+label
 		try {
-			File syslogFile = new File(TIMESTAMP_LABEL_PATH);
+			File syslogFile = new File(PATHS.TIMESTAMP_LABEL_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(syslogFile), "UTF-8"));
 			String line = null;
@@ -82,7 +68,7 @@ public class LogMerge {
 
 		// 读入warning log
 		try {
-			File warningLogFile = new File(WARNING_LOG_PATH);
+			File warningLogFile = new File(PATHS.WARNING_LOG_PATH);
 			BufferedReader wReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(warningLogFile), "UTF-8"));
 			String line = null;
@@ -104,7 +90,7 @@ public class LogMerge {
 
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-					MERGE_LOG_PATH), true));
+					PATHS.MERGE_LOG_PATH), true));
 			for (int i = 0; i < timeLabelList.size(); i++) {
 				writer.write(timeLabelList.get(i)[0] + "\t"
 						+ timeLabelList.get(i)[1]);
@@ -122,7 +108,7 @@ public class LogMerge {
 	private static void merge(List<String[]> list, int s, int m, int t)
 			throws ParseException {
 		List<String[]> tmpList = new ArrayList<String[]>();
-		int i = s, j = m, k = 0;
+		int i = s, j = m;
 		while (i < m && j <= t) {
 			Date dateI = DATE_TEMPLATE.parse(list.get(i)[0]);
 			Date dateJ = DATE_TEMPLATE.parse(list.get(j)[0]);

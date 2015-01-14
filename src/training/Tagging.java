@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import org.apache.lucene.document.Document;
@@ -17,8 +16,9 @@ import org.apache.lucene.store.FSDirectory;
 
 public class Tagging {
 
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
-		System.out.println("Running...");
+		System.out.println("Tagging Running...");
 		List<String> LABEL_VECTOR_LIST = new ArrayList<String>();
 		List<String> docIdList = new ArrayList<String>();
 		try {

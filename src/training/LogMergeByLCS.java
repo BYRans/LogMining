@@ -9,16 +9,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -74,8 +68,9 @@ public class LogMergeByLCS {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
-		System.out.println("Running...");
+		System.out.println("LogMergeByLCS Running...");
 		int[][] LCSArr = new int[LABEL_VECTOR_LIST.size()][LABEL_VECTOR_LIST
 				.size()];
 		for (int i = 0; i < LABEL_VECTOR_LIST.size(); i++) {
