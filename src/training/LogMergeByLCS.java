@@ -24,12 +24,6 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 
 public class LogMergeByLCS {
-	public static String LABEL_VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
-	public static String LABEL_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
-	public static String TIMESTAMP_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/TimeStampLabel.txt";
-	public static String LABEL_SET_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
-	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
-	public static String LABEL_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelDocIds.txt";
 	public static double SIMILARITY = 0.6;
 	public static List<String[]> LABEL_VECTOR_LIST = new ArrayList<String[]>();
 	public static HashMap<String, String> LABEL_DOCIDS_MAP = new HashMap<String, String>();
@@ -41,7 +35,7 @@ public class LogMergeByLCS {
 	static {
 		// 读Label vector文件
 		try {
-			File LabelVectorFile = new File(LABEL_VECTOR_PATH);
+			File LabelVectorFile = new File(PATHS.LABEL_VECTOR_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelVectorFile), "UTF-8"));
 			String line = vReader.readLine();
@@ -61,7 +55,7 @@ public class LogMergeByLCS {
 
 		// 读label docIds文件
 		try {
-			File LabelDocIDsFile = new File(LABEL_DOCIDS_PATH);
+			File LabelDocIDsFile = new File(PATHS.LABEL_DOCIDS_PATH);
 			BufferedReader dReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelDocIDsFile), "UTF-8"));
 			String line = dReader.readLine();
@@ -109,13 +103,13 @@ public class LogMergeByLCS {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(LUCENE_PATH));
+			directory = FSDirectory.open(new File(PATHS.LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			Document document = null;
 
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File(LABEL_SET_PATH), true));
+						new File(PATHS.LABEL_SET_PATH), true));
 
 				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
 					writer.write("===========Label_" + i + "===============");
@@ -155,7 +149,7 @@ public class LogMergeByLCS {
 
 			try {
 				BufferedWriter tlWriter = new BufferedWriter(new FileWriter(
-						new File(TIMESTAMP_LABEL_PATH), true));
+						new File(PATHS.TIMESTAMP_LABEL_PATH), true));
 				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
 					String[] labelArr = LABEL_SET_LIST.get(i).split(",");
 					for (int j = 0; j < labelArr.length; j++) {
@@ -183,7 +177,7 @@ public class LogMergeByLCS {
 		// 把Label docIds写入文件
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-					LABEL_SET_DOCIDS_PATH), true));
+					PATHS.LABEL_SET_DOCIDS_PATH), true));
 
 			for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
 				String[] labelsArr = LABEL_SET_LIST.get(i).split(",");

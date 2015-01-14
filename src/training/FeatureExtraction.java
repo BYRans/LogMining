@@ -11,10 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 
 public class FeatureExtraction {
-	public static String LABEL_SET_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
-	public static String VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
-	public static String FEATURE_PATH = "C:/Users/Administrator/Desktop/LogMining/Feature/Feature.txt";
-	public static String TOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
 	public static List<String[]> LABEL_DCOIDS_LIST = new ArrayList<String[]>();
 	public static HashMap<String, String> DOCID_VECTOR_MAP = new HashMap<String, String>();
 	public static HashMap<String, String> TOKEN_MAP = new HashMap<String, String>();
@@ -22,7 +18,7 @@ public class FeatureExtraction {
 
 	static {
 		try {
-			File LabelVectorFile = new File(VECTOR_PATH);
+			File LabelVectorFile = new File(PATHS.VECTOR_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelVectorFile), "UTF-8"));
 			String line = vReader.readLine();
@@ -41,7 +37,7 @@ public class FeatureExtraction {
 		}
 
 		try {
-			File LabelDocIdsFile = new File(LABEL_SET_DOCIDS_PATH);
+			File LabelDocIdsFile = new File(PATHS.LABEL_SET_DOCIDS_PATH);
 			BufferedReader dReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelDocIdsFile), "UTF-8"));
 			String line = dReader.readLine();
@@ -60,7 +56,7 @@ public class FeatureExtraction {
 		}
 
 		try {
-			File TokenSetFile = new File(TOKEN_SET_PATH);
+			File TokenSetFile = new File(PATHS.TOKEN_SET_PATH);
 			BufferedReader tReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(TokenSetFile), "UTF-8"));
 			String line = tReader.readLine();
@@ -95,7 +91,7 @@ public class FeatureExtraction {
 			// 把Label Set写入文件
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File(FEATURE_PATH), true));
+						new File(PATHS.FEATURE_PATH), true));
 				if (FEATURE.length() > 2)// 去掉"P,"
 					FEATURE = FEATURE.substring(2);
 

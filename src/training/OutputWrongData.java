@@ -19,9 +19,9 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 
 public class OutputWrongData {
-	public static String LUCENE_PATH = "C:/Documents and Settings/js4/×ÀÃæ/LogMining/luceneFile/";
-	public static String TOKEN_SET_PATH = "C:/Documents and Settings/js4/×ÀÃæ/LogMining/TokenSet.txt";
-	public static String VECTOR_PATH = "C:/Documents and Settings/js4/×ÀÃæ/LogMining/Vector.txt";
+	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
+	public static String TOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
+	public static String VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
 	public static HashMap<String, String> TOKEN_SET_MAP = new HashMap<String, String>();
 
 	static {

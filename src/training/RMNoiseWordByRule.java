@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Set;
 
 
+
+
+
+
 //import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -31,9 +35,6 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.queryparser.classic.QueryParser;
 
 public class RMNoiseWordByRule {
-	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
-	public static String TOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
-	public static String AllTOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/AllTokenSet.txt";
 
 	public static int Hits = 10;
 	public static String QueryString = "exception";
@@ -49,7 +50,7 @@ public class RMNoiseWordByRule {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(LUCENE_PATH));
+			directory = FSDirectory.open(new File(PATHS.LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			Terms msgTerm = MultiFields.getTerms(reader, "message");
 			TermsEnum msgEnum = msgTerm.iterator(null);
@@ -66,7 +67,7 @@ public class RMNoiseWordByRule {
 				}
 				try {
 					BufferedWriter writer = new BufferedWriter(new FileWriter(
-							new File(AllTOKEN_SET_PATH), true));
+							new File(PATHS.AllTOKEN_SET_PATH), true));
 					writer.write(termCount + "\t" + term);
 					writer.newLine();
 					writer.flush();
@@ -81,7 +82,7 @@ public class RMNoiseWordByRule {
 				if ((!isNumber)&&(!isIP)) {
 					try {
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(new File(TOKEN_SET_PATH), true));
+								new FileWriter(new File(PATHS.TOKEN_SET_PATH), true));
 						writer.write(++termID + "\t" + termCount + "\t" + term);
 						writer.newLine();
 						writer.flush();
@@ -99,7 +100,7 @@ public class RMNoiseWordByRule {
 					+ ((float) (msgTerm.size() - termID) / msgTerm.size()));
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File(AllTOKEN_SET_PATH), true));
+						new File(PATHS.AllTOKEN_SET_PATH), true));
 				writer.write("****************************");
 				writer.newLine();
 				writer.write("×Ü·Ö´ÊÊý:" + msgTerm.size());

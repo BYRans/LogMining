@@ -25,9 +25,9 @@ import java.util.Map.Entry;
 public class ModifiedApriori {
 	public int minSup;// 最小支持度
 	public static List<Set<String>> recordList;// 以List<Set<String>>格式保存,利用Set的有序性
-	public static String MERGE_LOG_PATH = "C:/Documents and Settings/js4/桌面/LogMining/LogMerge/MergeLog.txt";
-	public static String FREQUENT_ITEM_SETS_PATH = "C:/Documents and Settings/js4/桌面/LogMining/LogMerge/";
-	public static String FEATURE_FOLDER_PATH = "C:/Documents and Settings/js4/桌面/LogMining/Feature/";
+	public static String MERGE_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/MergeLog.txt";
+	public static String FREQUENT_ITEM_SETS_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/";
+	public static String FEATURE_FOLDER_PATH = "C:/Users/Administrator/Desktop/LogMining/Feature/";
 	public static HashMap<String, String> FEATURE_MAP = new HashMap<String, String>();
 	public static int WINDOWN_SIZE = 120;// 窗口大小，分钟为单位
 	public static int STEP_SIZE = 30;// 步长大小，分钟为单位

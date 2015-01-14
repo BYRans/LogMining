@@ -25,22 +25,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Structured {
-	public static String FILE_PATH = "C:/Users/Administrator/Desktop/LogMining/Analyze/";
-	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
 	
 	public static void main(String[] args) throws Exception {
 		System.out.println("Running...");
 		IndexWriter writer = null;
 		try {
 
-			Directory directory = FSDirectory.open(new File(LUCENE_PATH));
+			Directory directory = FSDirectory.open(new File(PATHS.LUCENE_PATH));
 			IndexWriterConfig iwc = new IndexWriterConfig(
 					Version.LUCENE_4_10_2, new StandardAnalyzer());
 			iwc.setUseCompoundFile(false);
 			writer = new IndexWriter(directory, iwc);
 			Document document = null;
 			List<String> list = new ArrayList<String>();
-			File f = new File(FILE_PATH);
+			File f = new File(PATHS.RAW_LOG_FILE_PATH);
 			File[] fileList = f.listFiles();
 
 			for (File file : fileList) {

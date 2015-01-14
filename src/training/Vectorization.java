@@ -27,14 +27,12 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 
 public class Vectorization {
-	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
-	public static String TOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
-	public static String VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
+	
 	public static HashMap<String, String> TOKEN_SET_MAP = new HashMap<String, String>();
 
 	static {
 		try {
-			File termSetFile = new File(TOKEN_SET_PATH);
+			File termSetFile = new File(PATHS.TOKEN_SET_PATH);
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new FileInputStream(termSetFile), "UTF-8"));
 			String curLine = br.readLine();
@@ -59,7 +57,7 @@ public class Vectorization {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(LUCENE_PATH));
+			directory = FSDirectory.open(new File(PATHS.LUCENE_PATH));
 			reader = IndexReader.open(directory);
 
 			IndexWriterConfig iwc = new IndexWriterConfig(
@@ -99,7 +97,7 @@ public class Vectorization {
 
 					try {
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(new File(VECTOR_PATH), true));
+								new FileWriter(new File(PATHS.VECTOR_PATH), true));
 						// writer.write(docContent);
 						// writer.newLine();
 
