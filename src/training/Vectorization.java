@@ -27,7 +27,7 @@ public class Vectorization {
 
 	static {
 		try {
-			File termSetFile = new File(PATHS.TOKEN_SET_PATH);
+			File termSetFile = new File(COMMON_PATH.TOKEN_SET_PATH);
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new FileInputStream(termSetFile), "UTF-8"));
 			String curLine = br.readLine();
@@ -53,7 +53,7 @@ public class Vectorization {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(PATHS.LUCENE_PATH));
+			directory = FSDirectory.open(new File(COMMON_PATH.LUCENE_PATH));
 			reader = IndexReader.open(directory);
 
 			IndexWriterConfig iwc = new IndexWriterConfig(
@@ -93,7 +93,7 @@ public class Vectorization {
 
 					try {
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(new File(PATHS.VECTOR_PATH), true));
+								new FileWriter(new File(COMMON_PATH.VECTOR_PATH), true));
 						// writer.write(docContent);
 						// writer.newLine();
 

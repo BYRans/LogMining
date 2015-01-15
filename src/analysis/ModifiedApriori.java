@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
-import training.PATHS;
+import training.COMMON_PATH;
 
 public class ModifiedApriori {
 	public int minSup;// 最小支持度
@@ -38,7 +38,7 @@ public class ModifiedApriori {
 
 	static {
 		try {// 读入feature
-			File f = new File(PATHS.FEATURE_FOLDER_PATH);
+			File f = new File(COMMON_PATH.FEATURE_FOLDER_PATH);
 			File[] fileList = f.listFiles();
 			for (File file : fileList) {
 				BufferedReader fReader = new BufferedReader(
@@ -77,13 +77,13 @@ public class ModifiedApriori {
 		System.out.println("running...");
 
 		ModifiedApriori apriori = new ModifiedApriori();
-		PATHS.FREQUENT_ITEM_SETS_PATH += "fp_threshold";
-		recordList = apriori.readFile(PATHS.MERGE_LOG_PATH);
+		COMMON_PATH.FREQUENT_ITEM_SETS_PATH += "fp_threshold";
+		recordList = apriori.readFile(COMMON_PATH.MERGE_LOG_PATH);
 		for (int k = 0; k < THRESHOLD.length; k++) {
-			System.out.println(PATHS.MERGE_LOG_PATH + " THRESHOLD: " + THRESHOLD[k]);
+			System.out.println(COMMON_PATH.MERGE_LOG_PATH + " THRESHOLD: " + THRESHOLD[k]);
 			long totalItem = 0;
 			long totalTime = 0;
-			FileWriter tgFileWriter = new FileWriter(PATHS.FREQUENT_ITEM_SETS_PATH
+			FileWriter tgFileWriter = new FileWriter(COMMON_PATH.FREQUENT_ITEM_SETS_PATH
 					+ (THRESHOLD[k] * 100) + ".txt");
 			// apriori.setMinSup((int) (recordList.size() *
 			// THRESHOLD[k]));//这句是按百分比取

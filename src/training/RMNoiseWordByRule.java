@@ -46,7 +46,7 @@ public class RMNoiseWordByRule {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(PATHS.LUCENE_PATH));
+			directory = FSDirectory.open(new File(COMMON_PATH.LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			Terms msgTerm = MultiFields.getTerms(reader, "message");
 			TermsEnum msgEnum = msgTerm.iterator(null);
@@ -63,7 +63,7 @@ public class RMNoiseWordByRule {
 				}
 				try {
 					BufferedWriter writer = new BufferedWriter(new FileWriter(
-							new File(PATHS.AllTOKEN_SET_PATH), true));
+							new File(COMMON_PATH.AllTOKEN_SET_PATH), true));
 					writer.write(termCount + "\t" + term);
 					writer.newLine();
 					writer.flush();
@@ -78,7 +78,7 @@ public class RMNoiseWordByRule {
 				if ((!isNumber)&&(!isIP)) {
 					try {
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(new File(PATHS.TOKEN_SET_PATH), true));
+								new FileWriter(new File(COMMON_PATH.TOKEN_SET_PATH), true));
 						writer.write(++termID + "\t" + termCount + "\t" + term);
 						writer.newLine();
 						writer.flush();
@@ -96,7 +96,7 @@ public class RMNoiseWordByRule {
 					+ ((float) (msgTerm.size() - termID) / msgTerm.size()));
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File(PATHS.AllTOKEN_SET_PATH), true));
+						new File(COMMON_PATH.AllTOKEN_SET_PATH), true));
 				writer.write("****************************");
 				writer.newLine();
 				writer.write("×Ü·Ö´ÊÊý:" + msgTerm.size());

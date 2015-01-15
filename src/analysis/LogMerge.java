@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import training.PATHS;
+import training.COMMON_PATH;
 
 public class LogMerge {
 	
@@ -25,7 +25,7 @@ public class LogMerge {
 
 	static {
 		try {// removed Label set初始化
-			File rmLabelFile = new File(PATHS.REMOVED_LABEL_PATH);
+			File rmLabelFile = new File(COMMON_PATH.REMOVED_LABEL_PATH);
 			BufferedReader fReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(rmLabelFile), "UTF-8"));
 			String line = null;
@@ -46,7 +46,7 @@ public class LogMerge {
 
 		// 读入syslog time+label
 		try {
-			File syslogFile = new File(PATHS.TIMESTAMP_LABEL_PATH);
+			File syslogFile = new File(COMMON_PATH.TIMESTAMP_LABEL_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(syslogFile), "UTF-8"));
 			String line = null;
@@ -68,7 +68,7 @@ public class LogMerge {
 
 		// 读入warning log
 		try {
-			File warningLogFile = new File(PATHS.WARNING_LOG_PATH);
+			File warningLogFile = new File(COMMON_PATH.WARNING_LOG_PATH);
 			BufferedReader wReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(warningLogFile), "UTF-8"));
 			String line = null;
@@ -90,7 +90,7 @@ public class LogMerge {
 
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-					PATHS.MERGE_LOG_PATH), true));
+					COMMON_PATH.MERGE_LOG_PATH), true));
 			for (int i = 0; i < timeLabelList.size(); i++) {
 				writer.write(timeLabelList.get(i)[0] + "\t"
 						+ timeLabelList.get(i)[1]);

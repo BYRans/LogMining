@@ -18,7 +18,7 @@ public class FeatureExtraction {
 
 	static {
 		try {
-			File LabelVectorFile = new File(PATHS.VECTOR_PATH);
+			File LabelVectorFile = new File(COMMON_PATH.VECTOR_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelVectorFile), "UTF-8"));
 			String line = vReader.readLine();
@@ -37,7 +37,7 @@ public class FeatureExtraction {
 		}
 
 		try {
-			File LabelDocIdsFile = new File(PATHS.LABEL_SET_DOCIDS_PATH);
+			File LabelDocIdsFile = new File(COMMON_PATH.LABEL_SET_DOCIDS_PATH);
 			BufferedReader dReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(LabelDocIdsFile), "UTF-8"));
 			String line = dReader.readLine();
@@ -56,7 +56,7 @@ public class FeatureExtraction {
 		}
 
 		try {
-			File TokenSetFile = new File(PATHS.TOKEN_SET_PATH);
+			File TokenSetFile = new File(COMMON_PATH.TOKEN_SET_PATH);
 			BufferedReader tReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(TokenSetFile), "UTF-8"));
 			String line = tReader.readLine();
@@ -91,7 +91,7 @@ public class FeatureExtraction {
 			// 把Label Set写入文件
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File(PATHS.FEATURE_PATH), true));
+						new File(COMMON_PATH.FEATURE_PATH), true));
 				if (FEATURE.length() > 2)// 去掉"P,"
 					FEATURE = FEATURE.substring(2);
 

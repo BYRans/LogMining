@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import training.PATHS;
+import training.COMMON_PATH;
 
 public class FPTree {
 	public static int WINDOWN_SIZE = 120;// 窗口大小，分钟为单位
@@ -40,7 +40,7 @@ public class FPTree {
 
 	public static void main(String[] args) throws IOException, Exception {
 		FPTree fptree = new FPTree();
-		List<List<String>> transRecords = fptree.readFile(PATHS.MERGE_LOG_PATH); // 第一组测试
+		List<List<String>> transRecords = fptree.readFile(COMMON_PATH.MERGE_LOG_PATH); // 第一组测试
 		// List<List<String>> transRecords = fptree.readTransData(); //第二组测试
 		// fptree.setMinSup((int) (transRecords.size() * 0.25));
 		fptree.setMinSup(0);

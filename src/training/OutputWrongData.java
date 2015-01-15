@@ -17,14 +17,11 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.BytesRef;
 
 public class OutputWrongData {
-	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
-	public static String TOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
-	public static String VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
 	public static HashMap<String, String> TOKEN_SET_MAP = new HashMap<String, String>();
 
 	static {
 		try {
-			File termSetFile = new File(TOKEN_SET_PATH);
+			File termSetFile = new File(COMMON_PATH.TOKEN_SET_PATH);
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new FileInputStream(termSetFile), "UTF-8"));
 			String curLine = br.readLine();
@@ -49,7 +46,7 @@ public class OutputWrongData {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(LUCENE_PATH));
+			directory = FSDirectory.open(new File(COMMON_PATH.LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			int docCount = reader.maxDoc();
 			for (int i = 0; i < docCount; i++) {

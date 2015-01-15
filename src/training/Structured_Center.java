@@ -1,5 +1,7 @@
-package training;
+﻿package training;
+
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
@@ -18,52 +20,76 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class Structured {
-	
-	@SuppressWarnings("deprecation")
+public class Structured_Center {
+
 	public static void main(String[] args) throws Exception {
 		System.out.println("Structured Running...");
 		IndexWriter writer = null;
 		int logCount = 0;// 统计日志总条数
 		try {
-			Directory directory = FSDirectory.open(new File(COMMON_PATH.LUCENE_PATH));
+			List<String> sw = new LinkedList<String>();// custom stopWords set
+			sw.add("");
+			CharArraySet stopWords = new CharArraySet(sw, true);
+			StandardAnalyzer analyzer = new StandardAnalyzer(stopWords);
+
+			COMMON_PATH.INIT_DIR(COMMON_PATH.LUCENE_PATH);// 初始化Lucene文件夹
+			Directory directory = FSDirectory.open(new File(
+					COMMON_PATH.LUCENE_PATH));
 			IndexWriterConfig iwc = new IndexWriterConfig(
-					Version.LUCENE_4_10_2, new StandardAnalyzer());
+					Version.LUCENE_4_10_2, analyzer);
 			iwc.setUseCompoundFile(false);
 			writer = new IndexWriter(directory, iwc);
 			Document document = null;
 			List<String> list = new ArrayList<String>();
-			
-			COMMON_PATH.INIT_DIR(COMMON_PATH.LUCENE_PATH);// 初始化Lucene文件夹
 			File f = new File(COMMON_PATH.RAW_LOG_FILE_PATH);
 			File[] fileList = f.listFiles();
 
 			for (File file : fileList) {
-				list = getContent(file);
+				list = getRealDataContent(file);
 				logCount += list.size();
+				System.out.println(logCount);
 				for (int i = 0; i < list.size(); i++) {
-					String[] recordArr = list.get(i).split(" |,|: ");
+					String[] recordArr = list.get(i).split(";| ");
+					String regTime = "^([0-9][0-9]:[0-9][0-9]:[0-9][0-9])$";// 输入数据时间戳有差异，在这里过滤一下
+					if (!recordArr[4].matches(regTime)) {
+						logCount--;
+						continue;
+					}
+					if (!recordArr[5].equals("BJLTSH-503-DFA-CL-SEV7")) {
+						logCount--;
+						continue;
+					}
 					document = new Document();
-					document.add(new TextField("id",i+"", Field.Store.YES));
-					document.add(new TextField("timeStamp", recordArr[0] + " "
-							+ recordArr[1], Field.Store.YES));
-					document.add(new TextField("processID", recordArr[2],
+					document.add(new TextField("serviceName", recordArr[0],
 							Field.Store.YES));
-					document.add(new TextField("level", recordArr[3],
+					document.add(new TextField("netType", recordArr[1],
 							Field.Store.YES));
-					document.add(new Field("ip", "192.168.8.190",
+					document.add(new Field("ip", recordArr[2],
 							Field.Store.YES,Field.Index.ANALYZED));
-					document.add(new TextField("source", recordArr[4],
+					document.add(new TextField("timeStamp", recordArr[3] + " "
+							+ recordArr[4], Field.Store.YES));
+					document.add(new TextField("segment", recordArr[5],
 							Field.Store.YES));
+					String source = "";
 					String message = "";
-					for (int j = 5; j < recordArr.length; j++)
-						message += recordArr[j] + " ";
-					document.add(new Field("message", message,
-							Field.Store.YES, Field.Index.ANALYZED,Field.TermVector.WITH_POSITIONS_OFFSETS));
+					for (int k = 6; k < recordArr.length; k++) {
+						message += recordArr[k] + " ";
+					}
+					String[] messArr = message.split(":");
+					if (messArr.length > 1) {
+						source = messArr[0];
+						message = "";
+						for (int j = 1; j < messArr.length; j++)
+							message += messArr[j] + " ";
+					}
+					document.add(new TextField("source", source,
+							Field.Store.YES));
+					document.add(new Field("message", message, Field.Store.YES,
+							Field.Index.ANALYZED,
+							Field.TermVector.WITH_POSITIONS_OFFSETS));
 					writer.addDocument(document);
 				}
 			}
@@ -79,7 +105,7 @@ public class Structured {
 					e.printStackTrace();
 				}
 			}
-			
+
 			try {// 把统计结果写入统计汇总文件
 				COMMON_PATH.DELETE_FILE(COMMON_PATH.STATISTICS_PATH);// 写入前，删除原统计文件
 				BufferedWriter sWriter = new BufferedWriter(new FileWriter(
@@ -99,13 +125,8 @@ public class Structured {
 		}
 	}
 
-	//读日志文件
-	public static List<String> getContent(File file) throws Exception {
-		Pattern p = Pattern
-				.compile(
-						"^(\\d{1,4}[-|\\/|年|\\.]\\d{1,2}[-|\\/|月|\\.]\\d{1,2}([日|号])?(\\s)*(\\d{1,2}([点|时])?((:)?\\d{1,2}(分)?((:)?\\d{1,2}(秒)?)?)?)?(\\s)*(PM|AM)?)",
-						Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-
+	// 读日志文件
+	public static List<String> getRealDataContent(File file) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(
 				new FileInputStream(file), "UTF-8"));
 		String tempLine = "";
@@ -113,30 +134,11 @@ public class Structured {
 		String nextLine = "";
 		List<String> contents = new ArrayList<String>();
 		while (curLine != null) {
-			nextLine = br.readLine();
-			if (nextLine != null) {// 如果当前不是最后一行
-				Matcher matcher = p.matcher(nextLine);
-				if (matcher.find() && matcher.groupCount() >= 1) {// 如果下一行符合日期格式
-					if (!"".equals(tempLine)) {// 如果tempLine不空则存tempLine,空则存curLine
-						tempLine += curLine;
-						curLine = tempLine;
-						tempLine = "";
-					}
-					contents.add(curLine);
-				} else {
-					tempLine += curLine;
-				}
-			} else {
-				if (!"".equals(tempLine)) {// 如果tempLine不空则存tempLine,空则存curLine
-					tempLine += curLine;
-					curLine = tempLine;
-					tempLine = "";
-				}
-				contents.add(curLine);
-			}
-			curLine = nextLine;
+			contents.add(curLine);
+			curLine = br.readLine();
 		}
 		br.close();
 		return contents;
 	}
+
 }

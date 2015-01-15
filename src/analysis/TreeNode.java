@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import training.PATHS;
+import training.COMMON_PATH;
 
 public class TreeNode implements Comparable<TreeNode> {
 
@@ -33,7 +33,7 @@ public class TreeNode implements Comparable<TreeNode> {
 		FileWriter FPResFile;
 		try {
 			
-			FPResFile = new FileWriter(new File(PATHS.FPTREE_PATH
+			FPResFile = new FileWriter(new File(COMMON_PATH.FPTREE_PATH
 					),true);
 			FPResFile.append(prefix + (isTail ? "└── " : "├── ") + name + " :"
 					+ count + "\r\n");

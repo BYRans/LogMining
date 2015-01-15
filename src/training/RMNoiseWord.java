@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 //import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DocsEnum;
@@ -121,6 +122,7 @@ public class RMNoiseWord {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void search(String FILE_PATH, String queryString,
 			String field, int hits) {
 		Directory directory = null;

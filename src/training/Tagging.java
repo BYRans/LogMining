@@ -22,7 +22,7 @@ public class Tagging {
 		List<String> LABEL_VECTOR_LIST = new ArrayList<String>();
 		List<String> docIdList = new ArrayList<String>();
 		try {
-			File vectorFile = new File(PATHS.VECTOR_PATH);
+			File vectorFile = new File(COMMON_PATH.VECTOR_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(vectorFile), "UTF-8"));
 			String vLine = vReader.readLine();
@@ -65,7 +65,7 @@ public class Tagging {
 		// 把Label docIds写入文件
 		try {
 			BufferedWriter DLWriter = new BufferedWriter(new FileWriter(
-					new File(PATHS.LABEL_DOCIDS_PATH), true));
+					new File(COMMON_PATH.LABEL_DOCIDS_PATH), true));
 			for (int i = 0; i < docIdList.size(); i++) {
 				DLWriter.write("L" + i + "\t" + docIdList.get(i));
 				DLWriter.newLine();
@@ -78,7 +78,7 @@ public class Tagging {
 		// 把Label Vector写入文件
 		try {
 			BufferedWriter LVWriter = new BufferedWriter(new FileWriter(
-					new File(PATHS.LABEL_VECTOR_PATH), true));
+					new File(COMMON_PATH.LABEL_VECTOR_PATH), true));
 			for (int i = 0; i < LABEL_VECTOR_LIST.size(); i++) {
 				LVWriter.write("L" + i + "\t" + LABEL_VECTOR_LIST.get(i));
 				LVWriter.newLine();
@@ -91,13 +91,13 @@ public class Tagging {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
-			directory = FSDirectory.open(new File(PATHS.LUCENE_PATH));
+			directory = FSDirectory.open(new File(COMMON_PATH.LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			Document document = null;
 
 			try {
 				BufferedWriter LRWriter = new BufferedWriter(new FileWriter(
-						new File(PATHS.LABEL_RAW_DATA_PATH), true));
+						new File(COMMON_PATH.LABEL_RAW_DATA_PATH), true));
 				for (int i = 0; i < docIdList.size(); i++) {
 					String[] docArr = docIdList.get(i).split(",");
 					LRWriter.write("==============L" + i + "=============");
