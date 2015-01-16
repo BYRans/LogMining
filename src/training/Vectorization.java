@@ -61,7 +61,6 @@ public class Vectorization {
 			iwc.setUseCompoundFile(false);
 
 			int docCount = reader.maxDoc();
-			COMMON_PATH.DELETE_FILE(COMMON_PATH.VECTOR_PATH);//写入VECTOR文件前先删除原文件
 			for (int i = 0; i < docCount; i++) {
 				// Document document = reader.document(i);
 				Terms termVector = reader.getTermVector(i, "message");
@@ -98,7 +97,9 @@ public class Vectorization {
 						// writer.write(docContent);
 						// writer.newLine();
 
+						// **************new start
 						writer.write(i + "\t" + docVectorContent);
+						// new end*****************
 
 						writer.newLine();
 						writer.newLine();

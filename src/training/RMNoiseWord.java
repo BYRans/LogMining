@@ -1,5 +1,4 @@
 package training;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -8,42 +7,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
 //import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DocsEnum;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiFields;
-import org.apache.lucene.index.Term;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.queryparser.classic.QueryParser;
 
 public class RMNoiseWord {
-	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/LabeledLuceneFile/";
+	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/luceneFile/";
 	public static String TermSetPath = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
 	public static String AllTOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/AllTokenSet.txt";
 	public static Integer TERM_FREQUENT = 2;// 判定低频词阙值
 
-	public static int Hits = 1000;
-	public static String QueryString = "2014-11-19";
-	public static String Field = "timeStamp";
+	public static int Hits = 10;
+	public static String QueryString = "exception";
+	public static String Field = "message";
 
 	public static void main(String[] args) throws Exception {
 		System.out.println("Running...");
-		// buildTokenSet();
-		search(LUCENE_PATH, QueryString, Field, Hits);// 查询功能
+		buildTokenSet();
+		// search(LUCENE_PATH, QueryString, Field, Hits);//查询功能
 	}
 
 	@SuppressWarnings("deprecation")
@@ -87,7 +81,7 @@ public class RMNoiseWord {
 					}
 				}
 			}
-
+			
 			System.out.println("词频阙值:" + TERM_FREQUENT + "\n" + "总分词数:"
 					+ msgTerm.size() + "\n" + "去除干扰词数:"
 					+ (msgTerm.size() - termID) + "\n" + "有效词数:" + termID
@@ -130,52 +124,40 @@ public class RMNoiseWord {
 
 	@SuppressWarnings("deprecation")
 	public static void search(String FILE_PATH, String queryString,
-			String field, int hits) throws ParseException {
+			String field, int hits) {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
 			directory = FSDirectory.open(new File(FILE_PATH));
 			reader = IndexReader.open(directory);
 			IndexSearcher searcher = new IndexSearcher(reader);
-			Term term1 = new Term("ip", "192.168.8.190");
-			Term term2 = new Term("label", "Label_0");
-			Term term3 = new Term("timeStampDay", "2014-11-18");
-			TermQuery query1 = new TermQuery(term1);
-			TermQuery query2 = new TermQuery(term2);
-//			TermQuery query3 = new TermQuery(term3);
-			String QueryString = "2014-11-18";
-			QueryParser parser = new QueryParser("timeStampDay", new StandardAnalyzer());
-			Query
-				query3 = parser.parse(queryString);
-			
-			BooleanQuery booleanQuery = new BooleanQuery();
-			booleanQuery.add(query1, Occur.MUST);
-			booleanQuery.add(query2, Occur.MUST);
-			booleanQuery.add(query3, Occur.MUST);
-			// query = parser.parse(queryString);
-			TopDocs tds = searcher.search(booleanQuery, hits);
-			ScoreDoc[] sds = tds.scoreDocs;
-			System.out.println(tds.totalHits + " total matching documents");
-			for (int j = 0; j < sds.length; j++) {
-				System.out.println(sds[j]);
+			QueryParser parser = new QueryParser(field, new StandardAnalyzer());
+			Query query;
+			try {
+				query = parser.parse(queryString);
+				TopDocs tds = searcher.search(query, hits);
+				ScoreDoc[] sds = tds.scoreDocs;
+				System.out.println(tds.totalHits + " total matching documents");
+				for (int j = 0; j < sds.length; j++) {
+					System.out.println(sds[j]);
 
-			}
-			int[] docCount = new int[hits];
-			int i = 0;
-			for (ScoreDoc sd : sds) {
-				docCount[i] = sd.doc;
-				i++;
-				System.out.println(searcher.doc(docCount[i]).get("label"));
-				System.out.println(searcher.doc(docCount[i]).get("ip"));
-				System.out.println(searcher.doc(docCount[i]).get("timeStampDay"));
-				System.out.println("sd.doc " + sd.doc);
-				// Document document = searcher.doc(sd.doc);
-				// System.out.println(document.get("message")+" ");
-			}
-			List<Integer> list = new ArrayList<Integer>();
+				}
+				int[] docCount = new int[hits];
+				int i = 0;
+				for (ScoreDoc sd : sds) {
+					docCount[i] = sd.doc;
+					i++;
+					System.out.println("sd.doc " + sd.doc);
+					// Document document = searcher.doc(sd.doc);
+					// System.out.println(document.get("message")+" ");
+				}
+				List<Integer> list = new ArrayList<Integer>();
 
-			for (int j = 0; j < docCount.length; j++) {
-				list.add(docCount[j]);
+				for (int j = 0; j < docCount.length; j++) {
+					list.add(docCount[j]);
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

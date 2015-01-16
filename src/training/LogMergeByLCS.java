@@ -12,18 +12,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
 
 public class LogMergeByLCS {
 	public static double SIMILARITY = 0.6;
@@ -85,8 +77,8 @@ public class LogMergeByLCS {
 			String[] rowStr = LABEL_VECTOR_LIST.get(i);
 			for (int j = 0; j < LABEL_VECTOR_LIST.size(); j++) {
 				String[] colStr = LABEL_VECTOR_LIST.get(j);
-				LCS = LCSLength(rowStr, colStr);
-				double rowStr_lcs = (double) LCS / (rowStr.length - 1);// 因为数组第一个是Label，计算长度时就不计算label，并且该算法也会忽略第一个字符。
+				LCSAlgorithm(rowStr, colStr);
+				double rowStr_lcs = (double) LCS / (rowStr.length - 1);// 因为数组第一个是Label，计算长度时就不计算label。
 				double colStr_lcs = (double) LCS / (colStr.length - 1);
 				if (rowStr_lcs >= SIMILARITY && colStr_lcs >= SIMILARITY) {
 					LCSArr[i][j] = 1;
@@ -105,8 +97,6 @@ public class LogMergeByLCS {
 		// 把Label Set写入文件
 		Directory directory = null;
 		IndexReader reader = null;
-		COMMON_PATH.DELETE_FILE(COMMON_PATH.LABEL_SET_PATH);// 写入Label_Set文件前先删除原文件
-
 		try {
 			directory = FSDirectory.open(new File(COMMON_PATH.LUCENE_PATH));
 			reader = IndexReader.open(directory);
@@ -122,7 +112,6 @@ public class LogMergeByLCS {
 					writer.write(LABEL_SET_LIST.get(i));
 					writer.newLine();
 					writer.newLine();
-					writer.flush();
 				}
 				writer.write("***************************");
 				writer.newLine();
@@ -142,59 +131,17 @@ public class LogMergeByLCS {
 							writer.write("MESSAGE:" + document.get("message")
 									+ " <-- SOURCE:" + document.get("source"));
 							writer.newLine();
-							writer.flush();
+
 						}
 					}
 
 				}
+				writer.flush();
 				writer.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
-			IndexWriter LLWriter = null;
-			try {
-				// save as Labeled Lucene File
-				COMMON_PATH.INIT_DIR(COMMON_PATH.LABELED_LUCENE_PATH);// 初始化Labeled_Lucene文件夹
-				Directory LLDirectory = FSDirectory.open(new File(
-						COMMON_PATH.LABELED_LUCENE_PATH));
-				IndexWriterConfig LLiwc = new IndexWriterConfig(
-						Version.LUCENE_4_10_2, new StandardAnalyzer());
-				LLiwc.setUseCompoundFile(false);
-				LLWriter = new IndexWriter(LLDirectory, LLiwc);
-				Document LLDocument = null;
-
-				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
-					String[] labelArr = LABEL_SET_LIST.get(i).split(",");
-					for (int j = 0; j < labelArr.length; j++) {
-						String docIds = LABEL_DOCIDS_MAP.get(labelArr[j]);
-						String[] docIdArr = docIds.split(",");
-						for (int k = 0; k < docIdArr.length; k++) {
-							document = reader.document(Integer
-									.valueOf(docIdArr[k]));
-							document.add(new Field("label", "Label_" + i,
-									Field.Store.YES, Field.Index.NOT_ANALYZED));
-							LLWriter.addDocument(document);
-						}
-					}
-
-				}
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if (LLWriter != null) {
-					try {
-						LLWriter.close();
-					} catch (CorruptIndexException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			// 写入TimesTamp_Label文件
-			COMMON_PATH.DELETE_FILE(COMMON_PATH.TIMESTAMP_LABEL_PATH);// 写入TimesTamp_Label文件前先删除原文件
 			try {
 				BufferedWriter tlWriter = new BufferedWriter(new FileWriter(
 						new File(COMMON_PATH.TIMESTAMP_LABEL_PATH), true));
@@ -207,7 +154,7 @@ public class LogMergeByLCS {
 							document = reader.document(Integer
 									.valueOf(docIdArr[k]));
 							// Message source写入文件
-							tlWriter.write(document.get("timeStamp") + "\t");
+							tlWriter.write(document.get("timeStamp")+"\t");
 							tlWriter.write("Label_" + i);
 							tlWriter.newLine();
 						}
@@ -223,8 +170,6 @@ public class LogMergeByLCS {
 		}
 
 		// 把Label docIds写入文件
-		COMMON_PATH.DELETE_FILE(COMMON_PATH.LABEL_SET_DOCIDS_PATH);// 写入Label
-																	// docIds文件前先删除原文件
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
 					COMMON_PATH.LABEL_SET_DOCIDS_PATH), true));
@@ -250,23 +195,44 @@ public class LogMergeByLCS {
 		System.out.println("Completed.");
 	}
 
-	// 计算最长公共子串长度
-	public static int LCSLength(String[] x, String[] y) {
-		// int[][] b = new
-		// int[x.length][y.length];//b[][]存储x、yLCS路径，这里只需要长度，不需要得到LCS内容
-		int[][] c = new int[x.length][y.length];// c[][]存储x、yLCS长度
+	// 最长公共子串
+	public static void LCSAlgorithm(String[] x, String[] y) {
+		LCS = 0;// lcs是全局变量，所以每次调用LCS算法都要重新初始化一下lcs。
+		int[][] b = getLength(x, y);
+		Display(b, x, x.length - 1, y.length - 1);
+	}
+
+	public static int[][] getLength(String[] x, String[] y) {
+		int[][] b = new int[x.length][y.length];
+		int[][] c = new int[x.length][y.length];
 		for (int i = 1; i < x.length; i++) {
 			for (int j = 1; j < y.length; j++) {
 				if (x[i].equals(y[j])) {
 					c[i][j] = c[i - 1][j - 1] + 1;
+					b[i][j] = 1;
 				} else if (c[i - 1][j] >= c[i][j - 1]) {
 					c[i][j] = c[i - 1][j];
+					b[i][j] = 0;
 				} else {
 					c[i][j] = c[i][j - 1];
+					b[i][j] = -1;
 				}
 			}
 		}
-		return c[x.length - 1][y.length - 1];
+		return b;
+	}
+
+	public static void Display(int[][] b, String[] x, int i, int j) {
+		if (i == 0 || j == 0)
+			return;
+		if (b[i][j] == 1) {
+			Display(b, x, i - 1, j - 1);
+			LCS++;
+		} else if (b[i][j] == 0) {
+			Display(b, x, i - 1, j);
+		} else if (b[i][j] == -1) {
+			Display(b, x, i, j - 1);
+		}
 	}
 
 	// 图的深度遍历操作(递归)
@@ -293,34 +259,3 @@ public class LogMergeByLCS {
 		}
 	}
 }
-
-/*
- * try { COMMON_PATH.INIT_DIR(COMMON_PATH.LABELED_LUCENE_PATH);// 初始化Lucene文件夹
- * Directory LLDirectory = FSDirectory.open(new File(
- * COMMON_PATH.LABELED_LUCENE_PATH)); IndexWriterConfig LLiwc = new
- * IndexWriterConfig( Version.LUCENE_4_10_2, new StandardAnalyzer());
- * LLiwc.setUseCompoundFile(false); IndexWriter LLWriter = new
- * IndexWriter(LLDirectory, LLiwc); Document LLDocument = null;
- * 
- * String[] recordArr = list.get(i).split(";| "); String regTime =
- * "^([0-9][0-9]:[0-9][0-9]:[0-9][0-9])$";// 输入数据时间戳有差异，在这里过滤一下 if
- * (!recordArr[4].matches(regTime)) { logCount--; continue; } if
- * (!recordArr[5].equals("BJLTSH-503-DFA-CL-SEV7")) { logCount--; continue; }
- * document = new Document(); document.add(new TextField("serviceName",
- * recordArr[0], Field.Store.YES)); document.add(new TextField("netType",
- * recordArr[1], Field.Store.YES)); document.add(new Field("ip", recordArr[2],
- * Field.Store.YES,Field.Index.ANALYZED)); document.add(new
- * TextField("timeStamp", recordArr[3] + " " + recordArr[4], Field.Store.YES));
- * document.add(new TextField("segment", recordArr[5], Field.Store.YES)); String
- * source = ""; String message = ""; for (int k = 6; k < recordArr.length; k++)
- * { message += recordArr[k] + " "; } String[] messArr = message.split(":"); if
- * (messArr.length > 1) { source = messArr[0]; message = ""; for (int j = 1; j <
- * messArr.length; j++) message += messArr[j] + " "; } document.add(new
- * TextField("source", source, Field.Store.YES)); document.add(new
- * Field("message", message, Field.Store.YES, Field.Index.ANALYZED,
- * Field.TermVector.WITH_POSITIONS_OFFSETS)); LLWriter.addDocument(document); }
- * catch (IOException e) { e.printStackTrace(); } finally { if (writer != null)
- * { try { writer.close(); } catch (CorruptIndexException e) {
- * e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); } }
- */
-

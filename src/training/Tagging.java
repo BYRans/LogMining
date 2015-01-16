@@ -1,5 +1,4 @@
 package training;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -38,11 +37,10 @@ public class Tagging {
 				String vectorStr = "";
 				if (lineArr.length > 1)
 					vectorStr = lineArr[1];
-				else {
-					System.out.println("wrong data docId(lineCount): "
-							+ lineArr[0]);
+				else{
+					System.out.println("wrong data docId(lineCount): "+lineArr[0]);
 				}
-
+				
 				for (int i = 0; i < LABEL_VECTOR_LIST.size(); i++) {
 					if (vectorStr.equals(LABEL_VECTOR_LIST.get(i))) {// 如果两个向量完全匹配，则判定为同一Label
 						isExist = true;
@@ -65,7 +63,6 @@ public class Tagging {
 		}
 
 		// 把Label docIds写入文件
-		COMMON_PATH.DELETE_FILE(COMMON_PATH.LABEL_DOCIDS_PATH);//写入Label docIds文件前先删除原文件
 		try {
 			BufferedWriter DLWriter = new BufferedWriter(new FileWriter(
 					new File(COMMON_PATH.LABEL_DOCIDS_PATH), true));
@@ -79,49 +76,46 @@ public class Tagging {
 		}
 
 		// 把Label Vector写入文件
-		COMMON_PATH.DELETE_FILE(COMMON_PATH.LABEL_VECTOR_PATH);//写入Label Vector文件前先删除原文件
 		try {
 			BufferedWriter LVWriter = new BufferedWriter(new FileWriter(
 					new File(COMMON_PATH.LABEL_VECTOR_PATH), true));
 			for (int i = 0; i < LABEL_VECTOR_LIST.size(); i++) {
 				LVWriter.write("L" + i + "\t" + LABEL_VECTOR_LIST.get(i));
 				LVWriter.newLine();
-				LVWriter.flush();
 			}
 			LVWriter.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		// 把临时分类情况写入文件，临时label下所有日志Message域，为效率，暂不存储
-		// Directory directory = null;
-		// IndexReader reader = null;
-		// try {
-		// directory = FSDirectory.open(new File(COMMON_PATH.LUCENE_PATH));
-		// reader = IndexReader.open(directory);
-		// Document document = null;
-		// try {
-		// BufferedWriter LRWriter = new BufferedWriter(new FileWriter(
-		// new File(COMMON_PATH.LABEL_RAW_DATA_PATH), true));
-		// for (int i = 0; i < docIdList.size(); i++) {
-		// String[] docArr = docIdList.get(i).split(",");
-		// LRWriter.write("==============L" + i + "=============");
-		// LRWriter.newLine();
-		// for (int j = 0; j < docArr.length; j++) {
-		// document = reader.document(Integer.valueOf(docArr[j]));
-		// LRWriter.write("MESSAGE:" + document.get("message")+" <-- SOURCE:" +
-		// document.get("source"));
-		// LRWriter.newLine();
-		// LRWriter.newLine();
-		// }
-		// }
-		// LRWriter.close();
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
+		Directory directory = null;
+		IndexReader reader = null;
+		try {
+			directory = FSDirectory.open(new File(COMMON_PATH.LUCENE_PATH));
+			reader = IndexReader.open(directory);
+			Document document = null;
+
+			try {
+				BufferedWriter LRWriter = new BufferedWriter(new FileWriter(
+						new File(COMMON_PATH.LABEL_RAW_DATA_PATH), true));
+				for (int i = 0; i < docIdList.size(); i++) {
+					String[] docArr = docIdList.get(i).split(",");
+					LRWriter.write("==============L" + i + "=============");
+					LRWriter.newLine();
+					for (int j = 0; j < docArr.length; j++) {
+						document = reader.document(Integer.valueOf(docArr[j]));
+						LRWriter.write("MESSAGE:" + document.get("message")+" <-- SOURCE:" + document.get("source"));
+						LRWriter.newLine();
+						LRWriter.newLine();
+					}
+				}
+				LRWriter.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		System.out.println("Completed.");
 	}
