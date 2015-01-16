@@ -53,24 +53,29 @@ public class Structured_Center {
 				System.out.println(logCount);
 				for (int i = 0; i < list.size(); i++) {
 					String[] recordArr = list.get(i).split(";| ");
-					String regTime = "^([0-9][0-9]:[0-9][0-9]:[0-9][0-9])$";// 输入数据时间戳有差异，在这里过滤一下
-					if (!recordArr[4].matches(regTime)) {
-						logCount--;
+					//过滤不符合规则数据
+					String regTimeDay = "^(2014-[0-1]?[0-9]-[0-3]?[0-9])$";				
+					String regTimeSec = "^([0-9][0-9]:[0-9][0-9]:[0-9][0-9])$";
+					String regSegment = "node\\d+";
+					if (!recordArr[3].matches(regTimeDay)) {
 						continue;
 					}
-					if (!recordArr[5].equals("BJLTSH-503-DFA-CL-SEV7")) {
-						logCount--;
+					if (!recordArr[4].matches(regTimeSec)) {
 						continue;
 					}
+					if (!recordArr[5].matches(regSegment)) {
+						continue;
+					}
+					
 					document = new Document();
 					document.add(new TextField("serviceName", recordArr[0],
 							Field.Store.YES));
 					document.add(new TextField("netType", recordArr[1],
 							Field.Store.YES));
-					document.add(new Field("ip", recordArr[2],
-							Field.Store.YES,Field.Index.ANALYZED));
-					document.add(new TextField("timeStamp", recordArr[3] + " "
-							+ recordArr[4], Field.Store.YES));
+					document.add(new Field("ip", recordArr[2], Field.Store.YES,
+							Field.Index.ANALYZED));
+					document.add(new Field("timeStamp", recordArr[3] + " "
+							+ recordArr[4], Field.Store.YES,Field.Index.ANALYZED));
 					document.add(new TextField("segment", recordArr[5],
 							Field.Store.YES));
 					String source = "";
@@ -105,24 +110,24 @@ public class Structured_Center {
 					e.printStackTrace();
 				}
 			}
-
-			try {// 把统计结果写入统计汇总文件
-				COMMON_PATH.DELETE_FILE(COMMON_PATH.STATISTICS_PATH);// 写入前，删除原统计文件
-				BufferedWriter sWriter = new BufferedWriter(new FileWriter(
-						new File(COMMON_PATH.STATISTICS_PATH), true));
-				sWriter.write("***Structured    " + System.currentTimeMillis()
-						+ "***");
-				sWriter.newLine();
-				sWriter.write("总日志条数:" + logCount);
-				sWriter.newLine();
-				sWriter.newLine();
-				sWriter.flush();
-				sWriter.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			System.out.println("Completed.");
 		}
+		try {// 把统计结果写入统计汇总文件
+			COMMON_PATH.DELETE_FILE(COMMON_PATH.STATISTICS_PATH);// 写入前，删除原统计文件
+			BufferedWriter sWriter = new BufferedWriter(new FileWriter(
+					new File(COMMON_PATH.STATISTICS_PATH), true));
+			sWriter.write("***Structured    " + System.currentTimeMillis()
+					+ "***");
+			sWriter.newLine();
+			sWriter.write("总日志条数:" + logCount);
+			sWriter.newLine();
+			sWriter.newLine();
+			sWriter.flush();
+			sWriter.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("Completed.");
+
 	}
 
 	// 读日志文件
