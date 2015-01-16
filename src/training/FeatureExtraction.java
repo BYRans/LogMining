@@ -77,6 +77,7 @@ public class FeatureExtraction {
 
 	public static void main(String[] args) {
 		System.out.println("FeatureExtraction Running...");
+		COMMON_PATH.DELETE_FILE(COMMON_PATH.FEATURE_PATH);//写入Feature文件前先删除原文件
 		for (int i = 0; i < LABEL_DCOIDS_LIST.size(); i++) {
 			String[] docIdArr = LABEL_DCOIDS_LIST.get(i)[1].split(",");
 			FEATURE = "P," + DOCID_VECTOR_MAP.get(docIdArr[0]);// 取最长公共子串的算法会忽略掉第一个字符，所以加个P,日志合并一步第一个字符设置的是Li
@@ -88,7 +89,7 @@ public class FeatureExtraction {
 			}
 
 			String tokenFEATURE = "";
-			// 把Label Set写入文件
+			// 把Feature写入文件
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
 						new File(COMMON_PATH.FEATURE_PATH), true));

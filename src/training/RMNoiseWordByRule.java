@@ -53,6 +53,7 @@ public class RMNoiseWordByRule {
 			int termID = 0;
 			String regNumber = "^[0-9a-fA-F]*$";
 			String regIP = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+			COMMON_PATH.DELETE_FILE(COMMON_PATH.TOKEN_SET_PATH);//写入TokenSet文件前先删除原文件
 			while (msgEnum.next() != null) {
 				String term = msgEnum.term().utf8ToString();
 				DocsEnum termDocs = msgEnum.docs(null, null,
@@ -61,7 +62,9 @@ public class RMNoiseWordByRule {
 				while (termDocs.nextDoc() != DocsEnum.NO_MORE_DOCS) {
 					termCount += termDocs.freq();
 				}
+				
 				try {
+					COMMON_PATH.DELETE_FILE(COMMON_PATH.AllTOKEN_SET_PATH);//写入AllToken文件前先删除原文件
 					BufferedWriter writer = new BufferedWriter(new FileWriter(
 							new File(COMMON_PATH.AllTOKEN_SET_PATH), true));
 					writer.write(termCount + "\t" + term);

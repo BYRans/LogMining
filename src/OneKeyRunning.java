@@ -18,8 +18,8 @@ public class OneKeyRunning {
 		Tagging.main(null);
 		LogMergeByLCS.main(null);
 		FeatureExtraction.main(null);
-		LogMerge.main(null);
-		FPTree.main(null);
+//		LogMerge.main(null);
+//		FPTree.main(null);
 	}
 
 }
