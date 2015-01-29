@@ -25,19 +25,19 @@ import java.util.Map.Entry;
 import training.COMMON_PATH;
 
 public class ModifiedApriori {
-	public int minSup;// ×îÐ¡Ö§³Ö¶È
-	public static List<Set<String>> recordList;// ÒÔList<Set<String>>¸ñÊ½±£´æ,ÀûÓÃSetµÄÓÐÐòÐÔ
+	public int minSup;// ï¿½ï¿½Ð¡Ö§ï¿½Ö¶ï¿½
+	public static List<Set<String>> recordList;// ï¿½ï¿½List<Set<String>>ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½Setï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	public static HashMap<String, String> FEATURE_MAP = new HashMap<String, String>();
-	public static int WINDOWN_SIZE = 120;// ´°¿Ú´óÐ¡£¬·ÖÖÓÎªµ¥Î»
-	public static int STEP_SIZE = 30;// ²½³¤´óÐ¡£¬·ÖÖÓÎªµ¥Î»
+	public static int WINDOWN_SIZE = 120;// ï¿½ï¿½ï¿½Ú´ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Î»
+	public static int STEP_SIZE = 30;// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½Î»
 	public static SimpleDateFormat DATE_TEMPLATE = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
-	public static int[] THRESHOLD = { 8 };// ³öÏÖ´ÎÊýãÐÖµ
+	public static int[] THRESHOLD = { 8 };// ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½ï¿½Öµ
 	public static int ITEMS_COUNT = 0;
-	// public static double[] THRESHOLD = { 0.1 };//°Ù·Ö±ÈãÐÖµ
+	// public static double[] THRESHOLD = { 0.1 };//ï¿½Ù·Ö±ï¿½ï¿½ï¿½Öµ
 
 	static {
-		try {// ¶ÁÈëfeature
+		try {// ï¿½ï¿½ï¿½ï¿½feature
 			File f = new File(COMMON_PATH.FEATURE_FOLDER_PATH);
 			File[] fileList = f.listFiles();
 			for (File file : fileList) {
@@ -86,14 +86,14 @@ public class ModifiedApriori {
 			FileWriter tgFileWriter = new FileWriter(COMMON_PATH.FREQUENT_ITEM_SETS_PATH
 					+ (THRESHOLD[k] * 100) + ".txt");
 			// apriori.setMinSup((int) (recordList.size() *
-			// THRESHOLD[k]));//Õâ¾äÊÇ°´°Ù·Ö±ÈÈ¡
-			apriori.setMinSup(THRESHOLD[k]);// °´³öÏÖ´ÎÊý
+			// THRESHOLD[k]));//ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½Ù·Ö±ï¿½È¡
+			apriori.setMinSup(THRESHOLD[k]);// ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½
 			long startTime = System.currentTimeMillis();
 			Map<String, Integer> f1Set = apriori.findFP1Items(recordList);
 			long endTime = System.currentTimeMillis();
 			totalTime += endTime - startTime;
 
-			// Æµ·±1Ïî¼¯ÐÅÏ¢µÃ¼ÓÈëÖ§³Ö¶È
+			// Æµï¿½ï¿½1ï¿½î¼¯ï¿½ï¿½Ï¢ï¿½Ã¼ï¿½ï¿½ï¿½Ö§ï¿½Ö¶ï¿½
 			Map<Set<String>, Integer> f1Map = new HashMap<Set<String>, Integer>();
 			for (Map.Entry<String, Integer> f1Item : f1Set.entrySet()) {
 				Set<String> fs = new HashSet<String>();
@@ -113,26 +113,26 @@ public class ModifiedApriori {
 				tgFileWriter.flush();
 			} while (result.size() != 0);
 			tgFileWriter.close();
-			System.out.println("¹²ÓÃÊ±£º" + totalTime + "ms");
-			System.out.println("¹²ÓÐ" + totalItem + "ÏîÆµ·±Ä£Ê½");
+			System.out.println("ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½" + totalTime + "ms");
+			System.out.println("ï¿½ï¿½ï¿½ï¿½" + totalItem + "ï¿½ï¿½Æµï¿½ï¿½Ä£Ê½");
 		}
 		System.out.println("Completed.");
 	}
 
 	/**
-	 * ÓÉÆµ·±K-1Ïî¼¯Éú³ÉÆµ·±KÏî¼¯
+	 * ï¿½ï¿½Æµï¿½ï¿½K-1ï¿½î¼¯ï¿½ï¿½ï¿½Æµï¿½ï¿½Kï¿½î¼¯
 	 * 
 	 * @param preMap
-	 *            ±£´æÆµ·±KÏî¼¯µÄmap
+	 *            ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½Kï¿½î¼¯ï¿½ï¿½map
 	 * @param tgFileWriter
-	 *            Êä³öÎÄ¼þ¾ä±ú
-	 * @return int Æµ·±iÏî¼¯µÄÊýÄ¿
+	 *            ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+	 * @return int Æµï¿½ï¿½iï¿½î¼¯ï¿½ï¿½ï¿½ï¿½Ä¿
 	 * @throws IOException
 	 */
 	private Map<Set<String>, Integer> genNextKItem(
 			Map<Set<String>, Integer> preMap) {
 		Map<Set<String>, Integer> result = new HashMap<Set<String>, Integer>();
-		// ±éÀúÁ½¸ök-1Ïî¼¯Éú³ÉkÏî¼¯
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½k-1ï¿½î¼¯ï¿½ï¿½ï¿½kï¿½î¼¯
 		List<Set<String>> preSetArray = new ArrayList<Set<String>>();
 		for (Map.Entry<Set<String>, Integer> preMapItem : preMap.entrySet()) {
 			preSetArray.add(preMapItem.getKey());
@@ -142,30 +142,30 @@ public class ModifiedApriori {
 			for (int j = i + 1; j < preSetLength; j++) {
 				String[] strA1 = preSetArray.get(i).toArray(new String[0]);
 				String[] strA2 = preSetArray.get(j).toArray(new String[0]);
-				if (isCanLink(strA1, strA2)) { // ÅÐ¶ÏÁ½¸ök-1Ïî¼¯ÊÇ·ñ·ûºÏÁ¬½Ó³ÉkÏî¼¯µÄÌõ¼þ¡¡
+				if (isCanLink(strA1, strA2)) { // ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½ï¿½k-1ï¿½î¼¯ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó³ï¿½kï¿½î¼¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 					Set<String> set = new TreeSet<String>();
 					for (String str : strA1) {
 						set.add(str);
 					}
-					set.add((String) strA2[strA2.length - 1]); // Á¬½Ó³ÉkÏî¼¯
-					// ÅÐ¶ÏkÏî¼¯ÊÇ·ñÐèÒª¼ôÇÐµô£¬Èç¹û²»ÐèÒª±»cutµô£¬Ôò¼ÓÈëµ½kÏî¼¯ÁÐ±íÖÐ
-					if (isNeedCut(preMap, set)) {// ÓÉÓÚµ¥µ÷ÐÔ£¬±ØÐë±£Ö¤kÏî¼¯µÄËùÓÐk-1Ïî×Ó¼¯¶¼ÔÚpreMapÖÐ³öÏÖ£¬·ñÔò¾Í¸Ã¼ôÇÐ¸ÃkÏî¼¯
+					set.add((String) strA2[strA2.length - 1]); // ï¿½ï¿½ï¿½Ó³ï¿½kï¿½î¼¯
+					// ï¿½Ð¶ï¿½kï¿½î¼¯ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½cutï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ëµ½kï¿½î¼¯ï¿½Ð±ï¿½ï¿½ï¿½
+					if (isNeedCut(preMap, set)) {// ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ï¿½Ô£ï¿½ï¿½ï¿½ï¿½ë±£Ö¤kï¿½î¼¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½k-1ï¿½ï¿½ï¿½Ó¼ï¿½ï¿½ï¿½ï¿½ï¿½preMapï¿½Ð³ï¿½ï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½Í¸Ã¼ï¿½ï¿½Ð¸ï¿½kï¿½î¼¯
 						result.put(set, 0);
 					}
 				}
 			}
 		}
-		return assertFP(result);// ±éÀúÊÂÎïÊý¾Ý¿â£¬ÇóÖ§³Ö¶È£¬È·±£ÎªÆµ·±Ïî¼¯
+		return assertFP(result);// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿â£¬ï¿½ï¿½Ö§ï¿½Ö¶È£ï¿½È·ï¿½ï¿½ÎªÆµï¿½ï¿½ï¿½î¼¯
 	}
 
 	/**
-	 * ¼ì²âkÏî¼¯ÊÇ·ñ¸Ã¼ôÇÐ¡£ÓÉÓÚµ¥µ÷ÐÔ£¬±ØÐë±£Ö¤kÏî¼¯µÄËùÓÐk-1Ïî×Ó¼¯¶¼ÔÚpreMapÖÐ³öÏÖ£¬·ñÔò¾Í¸Ã¼ôÇÐ¸ÃkÏî¼¯
+	 * ï¿½ï¿½ï¿½kï¿½î¼¯ï¿½Ç·ï¿½Ã¼ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½ï¿½Ô£ï¿½ï¿½ï¿½ï¿½ë±£Ö¤kï¿½î¼¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½k-1ï¿½ï¿½ï¿½Ó¼ï¿½ï¿½ï¿½ï¿½ï¿½preMapï¿½Ð³ï¿½ï¿½Ö£ï¿½ï¿½ï¿½ï¿½ï¿½Í¸Ã¼ï¿½ï¿½Ð¸ï¿½kï¿½î¼¯
 	 * 
 	 * @param preMap
-	 *            k-1ÏîÆµ·±¼¯map
+	 *            k-1ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½map
 	 * @param set
-	 *            ´ý¼ì²âµÄkÏî¼¯
-	 * @return boolean ÊÇ·ñ¸Ã¼ôÇÐ
+	 *            ï¿½ï¿½ï¿½ï¿½ï¿½kï¿½î¼¯
+	 * @return boolean ï¿½Ç·ï¿½Ã¼ï¿½ï¿½ï¿½
 	 * @throws IOException
 	 */
 	private boolean isNeedCut(Map<Set<String>, Integer> preMap, Set<String> set) {
@@ -180,11 +180,11 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * »ñÈ¡kÏî¼¯setµÄËùÓÐk-1Ïî×Ó¼¯
+	 * ï¿½ï¿½È¡kï¿½î¼¯setï¿½ï¿½ï¿½ï¿½ï¿½ï¿½k-1ï¿½ï¿½ï¿½Ó¼ï¿½
 	 * 
 	 * @param set
-	 *            Æµ·±kÏî¼¯
-	 * @return List<Set<String>> ËùÓÐk-1Ïî×Ó¼¯ÈÝÆ÷
+	 *            Æµï¿½ï¿½kï¿½î¼¯
+	 * @return List<Set<String>> ï¿½ï¿½ï¿½ï¿½k-1ï¿½ï¿½ï¿½Ó¼ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @throws IOException
 	 */
 	private List<Set<String>> getSubSets(Set<String> set) {
@@ -202,11 +202,11 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * ±éÀúÊÂÎïÊý¾Ý¿â£¬ÇóÖ§³Ö¶È£¬È·±£ÎªÆµ·±Ïî¼¯
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿â£¬ï¿½ï¿½Ö§ï¿½Ö¶È£ï¿½È·ï¿½ï¿½ÎªÆµï¿½ï¿½ï¿½î¼¯
 	 * 
 	 * @param allKItem
-	 *            ºòÑ¡Æµ·±kÏî¼¯
-	 * @return Map<Set<String>, Integer> Ö§³Ö¶È´óÓÚãÐÖµµÄÆµ·±Ïî¼¯ºÍÖ§³Ö¶Èmap
+	 *            ï¿½ï¿½Ñ¡Æµï¿½ï¿½kï¿½î¼¯
+	 * @return Map<Set<String>, Integer> Ö§ï¿½Ö¶È´ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Æµï¿½ï¿½ï¿½î¼¯ï¿½ï¿½Ö§ï¿½Ö¶ï¿½map
 	 * @throws IOException
 	 */
 	private Map<Set<String>, Integer> assertFP(
@@ -232,13 +232,13 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * ¼ì²âÁ½¸öÆµ·±KÏî¼¯ÊÇ·ñ¿ÉÒÔÁ¬½Ó£¬Á¬½ÓÌõ¼þÊÇÖ»ÓÐ×îºóÒ»¸öÏî²»Í¬
+	 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½Kï¿½î¼¯ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½î²»Í¬
 	 * 
 	 * @param strA1
-	 *            kÏî¼¯1
+	 *            kï¿½î¼¯1
 	 * @param strA1
-	 *            kÏî¼¯2
-	 * @return boolean ÊÇ·ñ¿ÉÒÔÁ¬½Ó
+	 *            kï¿½î¼¯2
+	 * @return boolean ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @throws IOException
 	 */
 	private boolean isCanLink(String[] strA1, String[] strA2) {
@@ -260,13 +260,13 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * ½«Æµ·±iÏî¼¯µÄÄÚÈÝ¼°Ö§³Ö¶ÈÊä³öµ½ÎÄ¼þ ¸ñÊ½Îª Ä£Ê½:Ö§³Ö¶È
+	 * ï¿½ï¿½Æµï¿½ï¿½iï¿½î¼¯ï¿½ï¿½ï¿½ï¿½ï¿½Ý¼ï¿½Ö§ï¿½Ö¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ ï¿½ï¿½Ê½Îª Ä£Ê½:Ö§ï¿½Ö¶ï¿½
 	 * 
 	 * @param f1Map
-	 *            ±£´æÆµ·±iÏî¼¯µÄÈÝÆ÷<iÏî¼¯ , Ö§³Ö¶È>
+	 *            ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½iï¿½î¼¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½<iï¿½î¼¯ , Ö§ï¿½Ö¶ï¿½>
 	 * @param tgFileWriter
-	 *            Êä³öÎÄ¼þ¾ä±ú
-	 * @return int Æµ·±iÏî¼¯µÄÊýÄ¿
+	 *            ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+	 * @return int Æµï¿½ï¿½iï¿½î¼¯ï¿½ï¿½ï¿½ï¿½Ä¿
 	 * @throws IOException
 	 */
 	private int printMap(Map<Set<String>, Integer> f1Map,
@@ -274,16 +274,16 @@ public class ModifiedApriori {
 
 		List<Map.Entry<Set<String>, Integer>> infoIds = new ArrayList<Map.Entry<Set<String>, Integer>>(
 				f1Map.entrySet());
-		// HashMapÅÅÐò
+		// HashMapï¿½ï¿½ï¿½ï¿½
 		Collections.sort(infoIds,
 				new Comparator<Map.Entry<Set<String>, Integer>>() {
 					public int compare(Map.Entry<Set<String>, Integer> o1,
 							Map.Entry<Set<String>, Integer> o2) {
-						return (o2.getValue() - o1.getValue());// °´value£¬o2-o1½µÐò£¬o1-o2ÉýÐò
+						return (o2.getValue() - o1.getValue());// ï¿½ï¿½valueï¿½ï¿½o2-o1ï¿½ï¿½ï¿½ï¿½o1-o2ï¿½ï¿½ï¿½ï¿½
 					}
 				});
 
-		tgFileWriter.append("\r\n" + "**********ÏîÊý£º " + (++ITEMS_COUNT)
+		tgFileWriter.append("\r\n" + "**********ï¿½ï¿½ï¿½ï¿½ " + (++ITEMS_COUNT)
 				+ "**********" + "\r\n");
 		tgFileWriter.flush();
 		for (int i = 0; i < infoIds.size(); i++) {
@@ -294,7 +294,7 @@ public class ModifiedApriori {
 				tgFileWriter.append(p + " ");
 			}
 			
-			//°ÑfeatureÐ´ÈëÎÄ¼þ
+			//ï¿½ï¿½featureÐ´ï¿½ï¿½ï¿½Ä¼ï¿½
 			tgFileWriter.append("\r\n" + "\t");
 			for (String p : ent.getKey()) {
 				tgFileWriter.append("( " + FEATURE_MAP.get(p) + " ) ");
@@ -307,11 +307,11 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * Éú³ÉÆµ·±1Ïî¼¯
+	 * ï¿½ï¿½ï¿½Æµï¿½ï¿½1ï¿½î¼¯
 	 * 
 	 * @param fileDir
-	 *            ÊÂÎñÎÄ¼þÄ¿Â¼
-	 * @return Map<String, Integer> ±£´æÆµ·±1Ïî¼¯µÄÈÝÆ÷<1Ïî¼¯ , Ö§³Ö¶È>
+	 *            ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Ä¿Â¼
+	 * @return Map<String, Integer> ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½1ï¿½î¼¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½<1ï¿½î¼¯ , Ö§ï¿½Ö¶ï¿½>
 	 * @throws IOException
 	 */
 	private Map<String, Integer> findFP1Items(List<Set<String>> recordList) {
@@ -336,11 +336,11 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * ¶ÁÈ¡ÊÂÎñÊý¾Ý¿â
+	 * ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½
 	 * 
 	 * @param fileDir
-	 *            ÊÂÎñÎÄ¼þÄ¿Â¼
-	 * @return List<String> ±£´æÊÂÎñµÄÈÝÆ÷
+	 *            ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Ä¿Â¼
+	 * @return List<String> ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @throws ParseException
 	 * @throws IOException
 	 */
@@ -359,7 +359,7 @@ public class ModifiedApriori {
 				}
 			}
 		} catch (IOException e) {
-			System.out.println("¶ÁÈ¡ÎÄ¼þÊ§°Ü¡£");
+			System.out.println("ï¿½ï¿½È¡ï¿½Ä¼ï¿½Ê§ï¿½Ü¡ï¿½");
 			System.exit(-2);
 		}
 
@@ -371,7 +371,7 @@ public class ModifiedApriori {
 		Date endDate = DATE_TEMPLATE.parse(tmpDate);
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(minDate);
-		cal.add(Calendar.MINUTE, WINDOWN_SIZE);// ÉèÖÃ´°¿Ú×î´óÊ±¼ä
+		cal.add(Calendar.MINUTE, WINDOWN_SIZE);// ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
 		Date maxDate = cal.getTime();
 
 		while (minDate.getTime() < endDate.getTime()) {
@@ -394,7 +394,7 @@ public class ModifiedApriori {
 			}
 
 			cal.setTime(minDate);
-			cal.add(Calendar.MINUTE, STEP_SIZE);// ´°¿Ú×î´ó×îÐ¡Ê±¼äÏÂ»¬Ò»¸ö²½³¤
+			cal.add(Calendar.MINUTE, STEP_SIZE);// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡Ê±ï¿½ï¿½ï¿½Â»ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			minDate = cal.getTime();
 			cal.setTime(maxDate);
 			cal.add(Calendar.MINUTE, STEP_SIZE);

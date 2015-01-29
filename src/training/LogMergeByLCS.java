@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +27,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
 public class LogMergeByLCS {
-	public static double SIMILARITY = 0.6;
+	public static double SIMILARITY = 0.5;
 	public static List<String[]> LABEL_VECTOR_LIST = new ArrayList<String[]>();
 	public static HashMap<String, String> LABEL_DOCIDS_MAP = new HashMap<String, String>();
 	public static int LCS = 0;
@@ -35,7 +36,7 @@ public class LogMergeByLCS {
 	public static boolean[] FLAG;
 
 	static {
-		// ¶ÁLabel vectorÎÄ¼ş
+		// è¯»Label vectoræ–‡ä»¶
 		try {
 			File LabelVectorFile = new File(COMMON_PATH.LABEL_VECTOR_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
@@ -55,7 +56,7 @@ public class LogMergeByLCS {
 			e1.printStackTrace();
 		}
 
-		// ¶Álabel docIdsÎÄ¼ş
+		// è¯»label docIdsæ–‡ä»¶
 		try {
 			File LabelDocIDsFile = new File(COMMON_PATH.LABEL_DOCIDS_PATH);
 			BufferedReader dReader = new BufferedReader(new InputStreamReader(
@@ -78,7 +79,7 @@ public class LogMergeByLCS {
 
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
-		System.out.println("LogMergeByLCS Running...");
+		System.out.println("LogMergeByLCS Running..."+new Date());
 		int[][] LCSArr = new int[LABEL_VECTOR_LIST.size()][LABEL_VECTOR_LIST
 				.size()];
 		for (int i = 0; i < LABEL_VECTOR_LIST.size(); i++) {
@@ -86,7 +87,7 @@ public class LogMergeByLCS {
 			for (int j = 0; j < LABEL_VECTOR_LIST.size(); j++) {
 				String[] colStr = LABEL_VECTOR_LIST.get(j);
 				LCS = LCSLength(rowStr, colStr);
-				double rowStr_lcs = (double) LCS / (rowStr.length - 1);// ÒòÎªÊı×éµÚÒ»¸öÊÇLabel£¬¼ÆËã³¤¶ÈÊ±¾Í²»¼ÆËãlabel£¬²¢ÇÒ¸ÃËã·¨Ò²»áºöÂÔµÚÒ»¸ö×Ö·û¡£
+				double rowStr_lcs = (double) LCS / (rowStr.length - 1);// å› ä¸ºæ•°ç»„ç¬¬ä¸€ä¸ªæ˜¯Labelï¼Œè®¡ç®—é•¿åº¦æ—¶å°±ä¸è®¡ç®—labelï¼Œå¹¶ä¸”è¯¥ç®—æ³•ä¹Ÿä¼šå¿½ç•¥ç¬¬ä¸€ä¸ªå­—ç¬¦ã€‚
 				double colStr_lcs = (double) LCS / (colStr.length - 1);
 				if (rowStr_lcs >= SIMILARITY && colStr_lcs >= SIMILARITY) {
 					LCSArr[i][j] = 1;
@@ -102,16 +103,18 @@ public class LogMergeByLCS {
 		}
 		DFSTraverse(LCSArr.length, vertexs, LCSArr);
 
-		// °ÑLabel SetĞ´ÈëÎÄ¼ş
+		System.out.println("Writing Label Set ...");
+
+		// æŠŠLabel Setå†™å…¥æ–‡ä»¶
 		Directory directory = null;
 		IndexReader reader = null;
-		COMMON_PATH.DELETE_FILE(COMMON_PATH.LABEL_SET_PATH);// Ğ´ÈëLabel_SetÎÄ¼şÇ°ÏÈÉ¾³ıÔ­ÎÄ¼ş
+		COMMON_PATH.DELETE_FILE(COMMON_PATH.LABEL_SET_PATH);// å†™å…¥Label_Setæ–‡ä»¶å‰å…ˆåˆ é™¤åŸæ–‡ä»¶
 
 		try {
 			directory = FSDirectory.open(new File(COMMON_PATH.LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			Document document = null;
-
+			
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
 						new File(COMMON_PATH.LABEL_SET_PATH), true));
@@ -127,7 +130,7 @@ public class LogMergeByLCS {
 				writer.write("***************************");
 				writer.newLine();
 				writer.newLine();
-
+				int labelSetCount = 0;
 				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
 					String[] labelArr = LABEL_SET_LIST.get(i).split(",");
 					writer.write("===========Label_" + i + "===============");
@@ -138,11 +141,14 @@ public class LogMergeByLCS {
 						for (int k = 0; k < docIdArr.length; k++) {
 							document = reader.document(Integer
 									.valueOf(docIdArr[k]));
-							// Message sourceĞ´ÈëÎÄ¼ş
+							// Message sourceå†™å…¥æ–‡ä»¶
 							writer.write("MESSAGE:" + document.get("message")
 									+ " <-- SOURCE:" + document.get("source"));
 							writer.newLine();
 							writer.flush();
+							if(labelSetCount++%(COMMON_PATH.VECTOR_COUNT*0.1) == 0)
+								System.out.println("saving labelSet "
+										+ ((double) (labelSetCount / COMMON_PATH.VECTOR_COUNT)) * 100 + "%");
 						}
 					}
 
@@ -152,10 +158,12 @@ public class LogMergeByLCS {
 				e.printStackTrace();
 			}
 
+			System.out.println("Saving as Lucene File...");
+
 			IndexWriter LLWriter = null;
 			try {
 				// save as Labeled Lucene File
-				COMMON_PATH.INIT_DIR(COMMON_PATH.LABELED_LUCENE_PATH);// ³õÊ¼»¯Labeled_LuceneÎÄ¼ş¼Ğ
+				COMMON_PATH.INIT_DIR(COMMON_PATH.LABELED_LUCENE_PATH);// åˆå§‹åŒ–Labeled_Luceneæ–‡ä»¶å¤¹
 				Directory LLDirectory = FSDirectory.open(new File(
 						COMMON_PATH.LABELED_LUCENE_PATH));
 				IndexWriterConfig LLiwc = new IndexWriterConfig(
@@ -163,8 +171,9 @@ public class LogMergeByLCS {
 				LLiwc.setUseCompoundFile(false);
 				LLWriter = new IndexWriter(LLDirectory, LLiwc);
 				Document LLDocument = null;
-
+				double docCount = 0.0;
 				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
+					double listSize = LABEL_SET_LIST.size();
 					String[] labelArr = LABEL_SET_LIST.get(i).split(",");
 					for (int j = 0; j < labelArr.length; j++) {
 						String docIds = LABEL_DOCIDS_MAP.get(labelArr[j]);
@@ -175,9 +184,12 @@ public class LogMergeByLCS {
 							document.add(new Field("label", "Label_" + i,
 									Field.Store.YES, Field.Index.NOT_ANALYZED));
 							LLWriter.addDocument(document);
+							if(docCount++%(COMMON_PATH.VECTOR_COUNT*0.1) == 0)
+								System.out.println("saving Final Lucene "
+										+ ((double) docCount / COMMON_PATH.VECTOR_COUNT) * 100 + "%");
 						}
 					}
-
+					
 				}
 
 			} catch (IOException e) {
@@ -193,38 +205,44 @@ public class LogMergeByLCS {
 					}
 				}
 			}
-			// Ğ´ÈëTimesTamp_LabelÎÄ¼ş
-			COMMON_PATH.DELETE_FILE(COMMON_PATH.TIMESTAMP_LABEL_PATH);// Ğ´ÈëTimesTamp_LabelÎÄ¼şÇ°ÏÈÉ¾³ıÔ­ÎÄ¼ş
-			try {
-				BufferedWriter tlWriter = new BufferedWriter(new FileWriter(
-						new File(COMMON_PATH.TIMESTAMP_LABEL_PATH), true));
-				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
-					String[] labelArr = LABEL_SET_LIST.get(i).split(",");
-					for (int j = 0; j < labelArr.length; j++) {
-						String docIds = LABEL_DOCIDS_MAP.get(labelArr[j]);
-						String[] docIdArr = docIds.split(",");
-						for (int k = 0; k < docIdArr.length; k++) {
-							document = reader.document(Integer
-									.valueOf(docIdArr[k]));
-							// Message sourceĞ´ÈëÎÄ¼ş
-							tlWriter.write(document.get("timeStamp") + "\t");
-							tlWriter.write("Label_" + i);
-							tlWriter.newLine();
-						}
-					}
-				}
-				tlWriter.flush();
-				tlWriter.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+
+			// TimesTamp_Labelæ–‡ä»¶
+			// åŸæ¥åœ¨æ—¥å¿—åˆå¹¶æ—¶ç”¨åˆ°ï¼Œç°åœ¨çœæ‰è¿™ä¸€æ–‡ä»¶ï¼Œæ—¥å¿—åˆå¹¶æ—¶ç›´æ¥ä»Luceneä¸­è¯»å–ã€‚æ­¤æ—¶ï¼ˆ2015-01-27ï¼‰æ—¥å¿—åˆå¹¶å¤„è¿˜æ²¡æ”¹
+			// // å†™å…¥TimesTamp_Labelæ–‡ä»¶
+			// COMMON_PATH.DELETE_FILE(COMMON_PATH.TIMESTAMP_LABEL_PATH);//
+			// å†™å…¥TimesTamp_Labelæ–‡ä»¶å‰å…ˆåˆ é™¤åŸæ–‡ä»¶
+			// try {
+			// BufferedWriter tlWriter = new BufferedWriter(new FileWriter(
+			// new File(COMMON_PATH.TIMESTAMP_LABEL_PATH), true));
+			// for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
+			// String[] labelArr = LABEL_SET_LIST.get(i).split(",");
+			// for (int j = 0; j < labelArr.length; j++) {
+			// String docIds = LABEL_DOCIDS_MAP.get(labelArr[j]);
+			// String[] docIdArr = docIds.split(",");
+			// for (int k = 0; k < docIdArr.length; k++) {
+			// document = reader.document(Integer
+			// .valueOf(docIdArr[k]));
+			// // Message sourceå†™å…¥æ–‡ä»¶
+			// tlWriter.write(document.get("timeStamp") + "\t");
+			// tlWriter.write("Label_" + i);
+			// tlWriter.newLine();
+			// }
+			// }
+			// }
+			// tlWriter.flush();
+			// tlWriter.close();
+			// } catch (Exception e) {
+			// e.printStackTrace();
+			// }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		// °ÑLabel docIdsĞ´ÈëÎÄ¼ş
-		COMMON_PATH.DELETE_FILE(COMMON_PATH.LABEL_SET_DOCIDS_PATH);// Ğ´ÈëLabel
-																	// docIdsÎÄ¼şÇ°ÏÈÉ¾³ıÔ­ÎÄ¼ş
+		System.out.println("Writing Label docIds...");
+
+		// æŠŠLabel docIdså†™å…¥æ–‡ä»¶
+		COMMON_PATH.DELETE_FILE(COMMON_PATH.LABEL_SET_DOCIDS_PATH);// å†™å…¥Label
+																	// docIdsæ–‡ä»¶å‰å…ˆåˆ é™¤åŸæ–‡ä»¶
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
 					COMMON_PATH.LABEL_SET_DOCIDS_PATH), true));
@@ -245,16 +263,14 @@ public class LogMergeByLCS {
 			e.printStackTrace();
 		}
 
-		// ×îÖÕlabelĞ´ÈëLucene
-
-		System.out.println("Completed.");
+		System.out.println("Completed."+new Date()+"\n\n");
 	}
 
-	// ¼ÆËã×î³¤¹«¹²×Ó´®³¤¶È
+	// è®¡ç®—æœ€é•¿å…¬å…±å­ä¸²é•¿åº¦
 	public static int LCSLength(String[] x, String[] y) {
 		// int[][] b = new
-		// int[x.length][y.length];//b[][]´æ´¢x¡¢yLCSÂ·¾¶£¬ÕâÀïÖ»ĞèÒª³¤¶È£¬²»ĞèÒªµÃµ½LCSÄÚÈİ
-		int[][] c = new int[x.length][y.length];// c[][]´æ´¢x¡¢yLCS³¤¶È
+		// int[x.length][y.length];//b[][]å­˜å‚¨xã€yLCSè·¯å¾„ï¼Œè¿™é‡Œåªéœ€è¦é•¿åº¦ï¼Œä¸éœ€è¦å¾—åˆ°LCSå†…å®¹
+		int[][] c = new int[x.length][y.length];// c[][]å­˜å‚¨xã€yLCSé•¿åº¦
 		for (int i = 1; i < x.length; i++) {
 			for (int j = 1; j < y.length; j++) {
 				if (x[i].equals(y[j])) {
@@ -269,22 +285,22 @@ public class LogMergeByLCS {
 		return c[x.length - 1][y.length - 1];
 	}
 
-	// Í¼µÄÉî¶È±éÀú²Ù×÷(µİ¹é)
+	// å›¾çš„æ·±åº¦éå†æ“ä½œ(é€’å½’)
 	public static void DFSTraverse(int nodeCount, String[] vertexs,
 			int[][] edges) {
 		FLAG = new boolean[nodeCount];
 		for (int i = 0; i < nodeCount; i++) {
 			SIMILAR_LABELS = "";
-			if (FLAG[i] == false) {// µ±Ç°¶¥µãÃ»ÓĞ±»·ÃÎÊ
+			if (FLAG[i] == false) {// å½“å‰é¡¶ç‚¹æ²¡æœ‰è¢«è®¿é—®
 				DFS(i, nodeCount, vertexs, edges);
 				LABEL_SET_LIST.add(SIMILAR_LABELS);
 			}
 		}
 	}
 
-	// Í¼µÄÉî¶ÈÓÅÏÈµİ¹éËã·¨
+	// å›¾çš„æ·±åº¦ä¼˜å…ˆé€’å½’ç®—æ³•
 	public static void DFS(int i, int nodeCount, String[] vertexs, int[][] edges) {
-		FLAG[i] = true;// µÚi¸ö¶¥µã±»·ÃÎÊ
+		FLAG[i] = true;// ç¬¬iä¸ªé¡¶ç‚¹è¢«è®¿é—®
 		SIMILAR_LABELS += vertexs[i] + ",";
 		for (int j = 0; j < nodeCount; j++) {
 			if (FLAG[j] == false && edges[i][j] == 1) {
@@ -295,7 +311,7 @@ public class LogMergeByLCS {
 }
 
 /*
- * try { COMMON_PATH.INIT_DIR(COMMON_PATH.LABELED_LUCENE_PATH);// ³õÊ¼»¯LuceneÎÄ¼ş¼Ğ
+ * try { COMMON_PATH.INIT_DIR(COMMON_PATH.LABELED_LUCENE_PATH);// åˆå§‹åŒ–Luceneæ–‡ä»¶å¤¹
  * Directory LLDirectory = FSDirectory.open(new File(
  * COMMON_PATH.LABELED_LUCENE_PATH)); IndexWriterConfig LLiwc = new
  * IndexWriterConfig( Version.LUCENE_4_10_2, new StandardAnalyzer());
@@ -303,7 +319,7 @@ public class LogMergeByLCS {
  * IndexWriter(LLDirectory, LLiwc); Document LLDocument = null;
  * 
  * String[] recordArr = list.get(i).split(";| "); String regTime =
- * "^([0-9][0-9]:[0-9][0-9]:[0-9][0-9])$";// ÊäÈëÊı¾İÊ±¼ä´ÁÓĞ²îÒì£¬ÔÚÕâÀï¹ıÂËÒ»ÏÂ if
+ * "^([0-9][0-9]:[0-9][0-9]:[0-9][0-9])$";// è¾“å…¥æ•°æ®æ—¶é—´æˆ³æœ‰å·®å¼‚ï¼Œåœ¨è¿™é‡Œè¿‡æ»¤ä¸€ä¸‹ if
  * (!recordArr[4].matches(regTime)) { logCount--; continue; } if
  * (!recordArr[5].equals("BJLTSH-503-DFA-CL-SEV7")) { logCount--; continue; }
  * document = new Document(); document.add(new TextField("serviceName",

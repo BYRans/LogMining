@@ -3,104 +3,114 @@ package training;
 import java.io.File;
 
 /**
- * ¶öººÊ½µ¥ÀıÀàCOMMON_PATH,´æ´¢¸÷²½ÖèÎÄ¼şÂ·¾¶
+ * é¥¿æ±‰å¼å•ä¾‹ç±»COMMON_PATH,å­˜å‚¨å„æ­¥éª¤æ–‡ä»¶è·¯å¾„
  * */
 public class COMMON_PATH {
 
-	/** ´æ´¢ Ô­Ê¼syslog ÎÄ¼ş¼ĞÂ·¾¶ */
-	public final static String RAW_LOG_FILE_PATH = "C:/Users/Administrator/Desktop/LogMining/RawLog";
+	/** å­˜å‚¨ åŸå§‹syslog æ–‡ä»¶å¤¹è·¯å¾„ */
+	public final static String RAW_LOG_FILE_PATH = "/home/iie/LogMining/RawLog";
 
-	/** ´æ´¢ syslogµÄLucene ÎÄ¼şÂ·¾¶ */
-	public final static String LUCENE_PATH = "C:/Users/Administrator/Desktop/testtest";
+	/** å­˜å‚¨ syslogçš„Lucene æ–‡ä»¶è·¯å¾„ */
+	public final static String LUCENE_PATH = "/home/iie/LogMining/LuceneFile";
 
-	/** ´æ´¢ ´øÓĞ×îÖÕ±êÇ©ÓòµÄsyslogµÄLucene ÎÄ¼şÂ·¾¶ */
-	public final static String LABELED_LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/LabeledLuceneFile/";
+	/** å­˜å‚¨ å¸¦æœ‰æœ€ç»ˆæ ‡ç­¾åŸŸçš„syslogçš„Lucene æ–‡ä»¶è·¯å¾„ */
+	public final static String LABELED_LUCENE_PATH = "/home/iie/LogMining/LabeledLuceneFile/";
 
-	/** ´æ´¢ ËùÓĞ·Ö´Ê ÎÄ¼şÂ·¾¶ */
-	public final static String AllTOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/AllTokenSet.txt";
+	/** å­˜å‚¨ æ‰€æœ‰åˆ†è¯ æ–‡ä»¶è·¯å¾„ */
+	public final static String AllTOKEN_SET_PATH = "/home/iie/LogMining/AllTokenSet.txt";
 
-	/** ´æ´¢ ·Ö´Ê¿â ÎÄ¼şÂ·¾¶ */
-	public final static String TOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
+	/** å­˜å‚¨ åˆ†è¯åº“ æ–‡ä»¶è·¯å¾„ */
+	public final static String TOKEN_SET_PATH = "/home/iie/LogMining/TokenSet.txt";
 
-	/** ´æ´¢ syslogµÄMessageÓòÏòÁ¿¼¯ºÏ ÎÄ¼şÂ·¾¶ */
-	public final static String VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
+	/** å­˜å‚¨ syslogçš„MessageåŸŸå‘é‡é›†åˆ æ–‡ä»¶è·¯å¾„ */
+	public final static String VECTOR_PATH = "/home/iie/LogMining/Vector.txt";
 
-	/** ´æ´¢ FPTree ÎÄ¼şÂ·¾¶ */
-	public final static String FPTREE_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/FPTree.txt";
+	/** å­˜å‚¨ FPTree æ–‡ä»¶è·¯å¾„ */
+	public final static String FPTREE_PATH = "/home/iie/LogMining/LogMerge/FPTree.txt";
 
-	/** ´æ´¢ ´øÁÙÊ±±ê¼ÇµÄMessageÓòÏòÁ¿ ÎÄ¼şÂ·¾¶ */
-	public final static String LABEL_VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
+	/** å­˜å‚¨ å¸¦ä¸´æ—¶æ ‡è®°çš„MessageåŸŸå‘é‡ æ–‡ä»¶è·¯å¾„ */
+	public final static String LABEL_VECTOR_PATH = "/home/iie/LogMining/LabelVector.txt";
 
-	/** ´æ´¢ ÑµÁ·syslogÁÙÊ±·ÖÀàÔ­Ê¼Êı¾İ ÎÄ¼şÂ·¾¶ */
-	public final static String LABEL_RAW_DATA_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelRawData.txt";
+	/** å­˜å‚¨ è®­ç»ƒsyslogä¸´æ—¶åˆ†ç±»åŸå§‹æ•°æ® æ–‡ä»¶è·¯å¾„ */
+	public final static String LABEL_RAW_DATA_PATH = "/home/iie/LogMining/LabelRawData.txt";
 
-	/** ´æ´¢ ÁÙÊ±±êÇ©¼°¸Ã±êÇ©°üº¬µÄdocIds ÎÄ¼şÂ·¾¶ */
-	public final static String LABEL_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelDocIds.txt";
+	/** å­˜å‚¨ ä¸´æ—¶æ ‡ç­¾åŠè¯¥æ ‡ç­¾åŒ…å«çš„docIds æ–‡ä»¶è·¯å¾„ */
+	public final static String LABEL_DOCIDS_PATH = "/home/iie/LogMining/LabelDocIds.txt";
 
-	/** ´æ´¢ ×îÖÕ·ÖÀàÇé¿ö ÎÄ¼şÂ·¾¶ */
-	public final static String LABEL_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
+	/** å­˜å‚¨ æœ€ç»ˆåˆ†ç±»æƒ…å†µ æ–‡ä»¶è·¯å¾„ */
+	public final static String LABEL_SET_PATH = "/home/iie/LogMining/LabelSet.txt";
 
-	/** ´æ´¢ syslogÊ±¼ä´Á¼°Àà±ğµÄ ÎÄ¼şÂ·¾¶ */
-	public final static String TIMESTAMP_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/TimeStampLabel.txt";
+	/** å­˜å‚¨ syslogæ—¶é—´æˆ³åŠç±»åˆ«çš„ æ–‡ä»¶è·¯å¾„ */
+	public final static String TIMESTAMP_LABEL_PATH = "/home/iie/LogMining/TimeStampLabel.txt";
 
-	/** ´æ´¢ ×îÖÕ±êÇ©±êÇ©¼°¸Ã±êÇ©°üº¬µÄdocIds ÎÄ¼şÂ·¾¶ */
-	public final static String LABEL_SET_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
+	/** å­˜å‚¨ æœ€ç»ˆæ ‡ç­¾æ ‡ç­¾åŠè¯¥æ ‡ç­¾åŒ…å«çš„docIds æ–‡ä»¶è·¯å¾„ */
+	public final static String LABEL_SET_DOCIDS_PATH = "/home/iie/LogMining/LabelSetDocIds.txt";
 
-	/** ´æ´¢ ÌØÕ÷ ÎÄ¼şÂ·¾¶ */
-	public final static String FEATURE_PATH = "C:/Users/Administrator/Desktop/LogMining/Feature/Feature.txt";
+	/** å­˜å‚¨ ç‰¹å¾ æ–‡ä»¶è·¯å¾„ */
+	public final static String FEATURE_PATH = "/home/iie/LogMining/Feature/Feature.txt";
 
-	/** ¸æ¾¯ÈÕÖ¾ ÎÄ¼şÂ·¾¶ */
-	public static String WARNING_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/WarningLog.txt";
+	/** å‘Šè­¦æ—¥å¿— æ–‡ä»¶è·¯å¾„ */
+	public static String WARNING_LOG_PATH = "/home/iie/LogMining/LogMerge/WarningLog.txt";
 
-	/** ´æ´¢ ºÏ²¢ºóÈÕÖ¾ ÎÄ¼şÂ·¾¶ */
-	public static String MERGE_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/MergeLog.txt";
+	/** å­˜å‚¨ åˆå¹¶åæ—¥å¿— æ–‡ä»¶è·¯å¾„ */
+	public static String MERGE_LOG_PATH = "/home/iie/LogMining/LogMerge/MergeLog.txt";
 
-	/** ´æ´¢ ÒÆ³ıÎŞ¹ØsyslogµÄlabel ÎÄ¼şÂ·¾¶ */
-	public static String REMOVED_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/RemoveLabel.txt";
+	/** å­˜å‚¨ ç§»é™¤æ— å…³syslogçš„label æ–‡ä»¶è·¯å¾„ */
+	public static String REMOVED_LABEL_PATH = "/home/iie/LogMining/LogMerge/RemoveLabel.txt";
 
-	/** ´æ´¢ Æµ·±Ïî¼¯ÎÄ¼ş µÄÎÄ¼ş Â·¾¶ */
-	public static String FREQUENT_ITEM_SETS_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/";
+	/** å­˜å‚¨ é¢‘ç¹é¡¹é›†æ–‡ä»¶ çš„æ–‡ä»¶ è·¯å¾„ */
+	public static String FREQUENT_ITEM_SETS_PATH = "/home/iie/LogMining/LogMerge/";
 
-	/** ´æ´¢ syslog¡¢¸æ¾¯ÈÕÖ¾ÌØÕ÷ ÎÄ¼şÂ·¾¶ */
-	public static String FEATURE_FOLDER_PATH = "C:/Users/Administrator/Desktop/LogMining/Feature/";
+	/** å­˜å‚¨ syslogã€å‘Šè­¦æ—¥å¿—ç‰¹å¾ æ–‡ä»¶è·¯å¾„ */
+	public static String FEATURE_FOLDER_PATH = "/home/iie/LogMining/Feature/";
 
-	/** ´æ´¢ ³ÌĞòÔËĞĞÍ³¼ÆÊı¾İ ÎÄ¼şÂ·¾¶ */
-	public static String STATISTICS_PATH = "C:/Users/Administrator/Desktop/LogMining/STATISTICS.txt";
+	/** å­˜å‚¨ ç¨‹åºè¿è¡Œç»Ÿè®¡æ•°æ® æ–‡ä»¶è·¯å¾„ */
+	public static String STATISTICS_PATH = "/home/iie/LogMining/STATISTICS.txt";
+	
+	/** å­˜å‚¨ Vector Lucene æ–‡ä»¶è·¯å¾„ */
+	public static String VECTOR_LUCENE_PATH = "/home/iie/LogMining/VectorLucene/";
+	
+	
 
+	public static int VECTOR_COUNT = 40506707;
+	public static void SET_VECTOR_COUNT(int count){
+		COMMON_PATH.VECTOR_COUNT = count;
+	}
+	
 	private static final COMMON_PATH single = new COMMON_PATH();
 
-	// ¾²Ì¬¹¤³§·½·¨
+	// é™æ€å·¥å‚æ–¹æ³•
 	public static COMMON_PATH getInstance() {
 		return single;
 	}
 
 	/**
-	 * ³õÊ¼»¯ÎÄ¼ş¼ş¡£ Èç¹ûÎÄ¼ş¼Ğ²»´æÔÚ£¬ÔòĞÂ½¨ÎÄ¼ş¼Ğ£»Èç¹ûÎÄ¼ş¼ĞÒÑ´æÔÚ£¬ÔòÉ¾³ıÂ·¾¶ÏÂËùÓĞÎÄ¼ş£¬²¢±£ÁôÎÄ¼ş¼Ğ¼°×ÓÎÄ¼ş¼Ğ
+	 * åˆå§‹åŒ–æ–‡ä»¶ä»¶ã€‚ å¦‚æœæ–‡ä»¶å¤¹ä¸å­˜åœ¨ï¼Œåˆ™æ–°å»ºæ–‡ä»¶å¤¹ï¼›å¦‚æœæ–‡ä»¶å¤¹å·²å­˜åœ¨ï¼Œåˆ™åˆ é™¤è·¯å¾„ä¸‹æ‰€æœ‰æ–‡ä»¶ï¼Œå¹¶ä¿ç•™æ–‡ä»¶å¤¹åŠå­æ–‡ä»¶å¤¹
 	 * 
 	 * @param sPath
-	 *            ±»³õÊ¼»¯Ä¿Â¼µÄÎÄ¼şÂ·¾¶
-	 * @return Ä¿Â¼³õÊ¼»¯³É¹¦·µ»Øtrue£¬·ñÔò·µ»Øfalse
+	 *            è¢«åˆå§‹åŒ–ç›®å½•çš„æ–‡ä»¶è·¯å¾„
+	 * @return ç›®å½•åˆå§‹åŒ–æˆåŠŸè¿”å›trueï¼Œå¦åˆ™è¿”å›false
 	 */
 	public static boolean INIT_DIR(String sPath) {
-		// Èç¹ûsPath²»ÒÔÎÄ¼ş·Ö¸ô·û½áÎ²£¬×Ô¶¯Ìí¼ÓÎÄ¼ş·Ö¸ô·û
+		// å¦‚æœsPathä¸ä»¥æ–‡ä»¶åˆ†éš”ç¬¦ç»“å°¾ï¼Œè‡ªåŠ¨æ·»åŠ æ–‡ä»¶åˆ†éš”ç¬¦
 		if (!sPath.endsWith(File.separator)) {
 			sPath = sPath + File.separator;
 		}
 		File dirFile = new File(sPath);
-		// Èç¹ûdir¶ÔÓ¦µÄÎÄ¼ş²»´æÔÚ£¬»òÕß²»ÊÇÒ»¸öÄ¿Â¼£¬ÔòÍË³ö
+		// å¦‚æœdirå¯¹åº”çš„æ–‡ä»¶ä¸å­˜åœ¨ï¼Œæˆ–è€…ä¸æ˜¯ä¸€ä¸ªç›®å½•ï¼Œåˆ™é€€å‡º
 		if (!dirFile.exists() || !dirFile.isDirectory()) {
 			dirFile.mkdir();
 			return true;
 		}
 		boolean flag = true;
-		// É¾³ıÎÄ¼ş¼ĞÏÂµÄËùÓĞÎÄ¼ş(°üÀ¨×ÓÄ¿Â¼)
+		// åˆ é™¤æ–‡ä»¶å¤¹ä¸‹çš„æ‰€æœ‰æ–‡ä»¶(åŒ…æ‹¬å­ç›®å½•)
 		File[] files = dirFile.listFiles();
 		for (int i = 0; i < files.length; i++) {
-			if (files[i].isFile()) {// É¾³ı×ÓÎÄ¼ş
+			if (files[i].isFile()) {// åˆ é™¤å­æ–‡ä»¶
 				flag = DELETE_FILE(files[i].getAbsolutePath());
 				if (!flag)
 					break;
-			} else {// É¾³ı×ÓÄ¿Â¼
+			} else {// åˆ é™¤å­ç›®å½•
 				flag = INIT_DIR(files[i].getAbsolutePath());
 				if (!flag)
 					break;
@@ -112,17 +122,17 @@ public class COMMON_PATH {
 	}
 
 	/**
-	 * É¾³ıµ¥¸öÎÄ¼ş
+	 * åˆ é™¤å•ä¸ªæ–‡ä»¶
 	 * 
 	 * @param sPath
-	 *            ±»É¾³ıÎÄ¼şµÄÎÄ¼şÃû
+	 *            è¢«åˆ é™¤æ–‡ä»¶çš„æ–‡ä»¶å
 	 * @return
-	 * @return µ¥¸öÎÄ¼şÉ¾³ı³É¹¦·µ»Øtrue£¬·ñÔò·µ»Øfalse
+	 * @return å•ä¸ªæ–‡ä»¶åˆ é™¤æˆåŠŸè¿”å›trueï¼Œå¦åˆ™è¿”å›false
 	 */
 	public static boolean DELETE_FILE(String sPath) {
 		boolean flag = false;
 		File file = new File(sPath);
-		// Â·¾¶ÎªÎÄ¼şÇÒ²»Îª¿ÕÔò½øĞĞÉ¾³ı
+		// è·¯å¾„ä¸ºæ–‡ä»¶ä¸”ä¸ä¸ºç©ºåˆ™è¿›è¡Œåˆ é™¤
 		if (file.isFile() && file.exists()) {
 			file.delete();
 			flag = true;

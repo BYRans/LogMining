@@ -7,12 +7,21 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.CorruptIndexException;
 import org.apache.lucene.index.DocsAndPositionsEnum;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
@@ -22,7 +31,7 @@ import org.apache.lucene.util.BytesRef;
 import org.apache.lucene.util.Version;
 
 public class Vectorization {
-	
+
 	public static HashMap<String, String> TOKEN_SET_MAP = new HashMap<String, String>();
 
 	static {
@@ -49,7 +58,8 @@ public class Vectorization {
 
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
-		System.out.println("Vectorization Running...");
+		System.out.println("Vectorization Running..."+new Date());
+		long startTime = System.currentTimeMillis();
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
@@ -61,25 +71,28 @@ public class Vectorization {
 			iwc.setUseCompoundFile(false);
 
 			int docCount = reader.maxDoc();
-			COMMON_PATH.DELETE_FILE(COMMON_PATH.VECTOR_PATH);//Ğ´ÈëVECTORÎÄ¼şÇ°ÏÈÉ¾³ıÔ­ÎÄ¼ş
+			COMMON_PATH.SET_VECTOR_COUNT(docCount);//è®¾ç½®VECTOR_COUNTï¼Œä¾›è¾“å‡ºTaggingè¿›åº¦ä½¿ç”¨
+			COMMON_PATH.DELETE_FILE(COMMON_PATH.VECTOR_PATH);// å†™å…¥VECTORæ–‡ä»¶å‰å…ˆåˆ é™¤åŸæ–‡ä»¶
+			int percent = (int)(docCount*0.01);
+			long percentStartTime = System.currentTimeMillis();
 			for (int i = 0; i < docCount; i++) {
 				// Document document = reader.document(i);
 				Terms termVector = reader.getTermVector(i, "message");
 				if (termVector != null && termVector.size() > 0) {
-					TermsEnum termsEnum = termVector.iterator(null); // È¡¸ÃfieldµÄterms
+					TermsEnum termsEnum = termVector.iterator(null); // å–è¯¥fieldçš„terms
 					BytesRef term = null;
-					HashMap<Integer, String> posAndTerMap = new HashMap<Integer, String>();// °Ñterms¼°Æ«ÒÆÁ¿´æµ½hashMapÖĞ,<position,term>.
-					while ((term = termsEnum.next()) != null) {// µü´úterm
+					HashMap<Integer, String> posAndTerMap = new HashMap<Integer, String>();// æŠŠtermsåŠåç§»é‡å­˜åˆ°hashMapä¸­,<position,term>.
+					while ((term = termsEnum.next()) != null) {// è¿­ä»£term
 						DocsAndPositionsEnum positionEnum = termsEnum
-								.docsAndPositions(null, null);// ¸ÃtermÔÚ¸ÃdocumentÏÂµÄÆ«ÒÆÁ¿£¿£¿ÄÄÓĞ¸ÃdocumentµÄ±êÊ¾£¿
+								.docsAndPositions(null, null);// è¯¥termåœ¨è¯¥documentä¸‹çš„åç§»é‡ï¼Ÿï¼Ÿå“ªæœ‰è¯¥documentçš„æ ‡ç¤ºï¼Ÿ
 						positionEnum.nextDoc();
-						int freq = positionEnum.freq();// ¸ÃtermÔÚ¸ÃÎÄµµ³öÏÖ¶àÉÙ´Î£¬³öÏÖ¼¸´Î¾ÍÓĞ¼¸¸öÆ«ÒÆÁ¿¡£
+						int freq = positionEnum.freq();// è¯¥termåœ¨è¯¥æ–‡æ¡£å‡ºç°å¤šå°‘æ¬¡ï¼Œå‡ºç°å‡ æ¬¡å°±æœ‰å‡ ä¸ªåç§»é‡ã€‚
 						for (int j = 0; j < freq; j++) {
 							int position = positionEnum.nextPosition();
 							posAndTerMap.put(position, term.utf8ToString());
 						}
 					}
-					Object[] key_arr = posAndTerMap.keySet().toArray();// °´positionÅÅĞò
+					Object[] key_arr = posAndTerMap.keySet().toArray();// æŒ‰positionæ’åº
 					Arrays.sort(key_arr);
 					@SuppressWarnings("unused")
 					String docContent = "";
@@ -94,7 +107,8 @@ public class Vectorization {
 
 					try {
 						BufferedWriter writer = new BufferedWriter(
-								new FileWriter(new File(COMMON_PATH.VECTOR_PATH), true));
+								new FileWriter(
+										new File(COMMON_PATH.VECTOR_PATH), true));
 						// writer.write(docContent);
 						// writer.newLine();
 
@@ -108,6 +122,12 @@ public class Vectorization {
 						e.printStackTrace();
 					}
 				}
+
+				if (i % percent == 0){
+					System.out.println("Vectorization:"+(double)i/docCount*100+"%");
+					System.out.println("process 1%("+percent+"records)ï¼Œuse "+(System.currentTimeMillis() - percentStartTime)/1000+"S\n");
+					percentStartTime = System.currentTimeMillis();
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -120,6 +140,71 @@ public class Vectorization {
 				}
 			}
 		}
-		System.out.println("Completed.");
+		
+		
+		System.out.println("Saving dcoId Vector txt file into Lucene...");
+		IndexWriter LLWriter = null;
+		try {
+			// save dcoId Vector
+			COMMON_PATH.INIT_DIR(COMMON_PATH.VECTOR_LUCENE_PATH);// åˆå§‹åŒ–Vector
+																	// Luceneæ–‡ä»¶å¤¹
+			Directory LLDirectory = FSDirectory.open(new File(
+					COMMON_PATH.VECTOR_LUCENE_PATH));
+			IndexWriterConfig LLiwc = new IndexWriterConfig(
+					Version.LUCENE_4_10_2, new StandardAnalyzer());
+			LLiwc.setUseCompoundFile(false);
+			LLWriter = new IndexWriter(LLDirectory, LLiwc);
+			Document document = null;
+			double docCount = 0.0;
+			List<String> vectorList = new ArrayList<String>();
+			try {
+				System.out.println("Reading Vector.txt..." + new Date());
+				File vectorFile = new File(COMMON_PATH.VECTOR_PATH);
+				BufferedReader vReader = new BufferedReader(
+						new InputStreamReader(new FileInputStream(vectorFile),
+								"UTF-8"));
+				String vLine = "";
+				int lineCount = 0;
+				int percent = (int)(COMMON_PATH.VECTOR_COUNT*0.1+1);
+				long percentStartTime = System.currentTimeMillis();
+				while ((vLine = vReader.readLine()) != null) {
+					lineCount++;
+					if ("".equals(vLine.trim()))
+						continue;
+					String[] arr = vLine.split("\t");
+					document = new Document();
+					document.add(new TextField("docId", arr[0], Field.Store.YES));
+					document.add(new StringField("vector", arr[1],
+							Field.Store.YES));
+					LLWriter.addDocument(document);
+					if (docCount % percent == 0) {
+						System.out.println("total sava label vector into lucene:" + (double) docCount
+								/ COMMON_PATH.VECTOR_COUNT * 100 + "%");
+						System.out.println("process 1% records)ï¼Œuse "
+								+ (System.currentTimeMillis() - percentStartTime)
+								/ 1000 + "S\n");
+						percentStartTime = System.currentTimeMillis();
+					}
+				}
+				vReader.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (LLWriter != null) {
+				try {
+					LLWriter.close();
+				} catch (CorruptIndexException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+		System.out.println("Completed."+new Date()+"\n"+"process time:"+(System.currentTimeMillis() - startTime)/1000+"S\n\n");
 	}
 }

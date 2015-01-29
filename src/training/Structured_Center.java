@@ -20,13 +20,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Structured_Center {
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("Structured Running...");
+		System.out.println("Structured Running..." + new Date());
+		long startTime = System.currentTimeMillis();
 		IndexWriter writer = null;
 		int logCount = 0;// 统计日志总条数
 		try {
@@ -46,17 +48,18 @@ public class Structured_Center {
 			List<String> list = new ArrayList<String>();
 			File f = new File(COMMON_PATH.RAW_LOG_FILE_PATH);
 			File[] fileList = f.listFiles();
-
+			double fileTotal = fileList.length;
+			double fileCount = 0;
 			for (File file : fileList) {
 				list = getRealDataContent(file);
 				logCount += list.size();
 				System.out.println(logCount);
 				for (int i = 0; i < list.size(); i++) {
 					String[] recordArr = list.get(i).split(";| ");
-					//过滤不符合规则数据
-					String regTimeDay = "^(2014-[0-1]?[0-9]-[0-3]?[0-9])$";				
+					// 过滤不符合规则数据
+					String regTimeDay = "^(2014-[0-1]?[0-9]-[0-3]?[0-9])$";
 					String regTimeSec = "^([0-9][0-9]:[0-9][0-9]:[0-9][0-9])$";
-					String regSegment = "node\\d+";
+					String regSegment = "BJLTSH-503-DFA-CL-SEV\\d+";
 					if (!recordArr[3].matches(regTimeDay)) {
 						continue;
 					}
@@ -66,7 +69,7 @@ public class Structured_Center {
 					if (!recordArr[5].matches(regSegment)) {
 						continue;
 					}
-					
+
 					document = new Document();
 					document.add(new TextField("serviceName", recordArr[0],
 							Field.Store.YES));
@@ -75,7 +78,8 @@ public class Structured_Center {
 					document.add(new Field("ip", recordArr[2], Field.Store.YES,
 							Field.Index.ANALYZED));
 					document.add(new Field("timeStamp", recordArr[3] + " "
-							+ recordArr[4], Field.Store.YES,Field.Index.ANALYZED));
+							+ recordArr[4], Field.Store.YES,
+							Field.Index.ANALYZED));
 					document.add(new TextField("segment", recordArr[5],
 							Field.Store.YES));
 					String source = "";
@@ -97,6 +101,8 @@ public class Structured_Center {
 							Field.TermVector.WITH_POSITIONS_OFFSETS));
 					writer.addDocument(document);
 				}
+				System.out.println("Structured:"
+						+ ((++fileCount) / fileTotal * 100) + "%");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -126,14 +132,14 @@ public class Structured_Center {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("Completed.");
-
+		System.out.println("Completed." + new Date() + "\n" + "process time:"
+				+ (System.currentTimeMillis() - startTime) / 1000 + "S\n\n");
 	}
 
 	// 读日志文件
 	public static List<String> getRealDataContent(File file) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(
-				new FileInputStream(file), "UTF-8"));
+				new FileInputStream(file), "GBK"));
 		String tempLine = "";
 		String curLine = br.readLine();
 		String nextLine = "";

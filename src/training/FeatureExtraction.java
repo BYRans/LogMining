@@ -1,4 +1,5 @@
 package training;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -7,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,6 +30,11 @@ public class FeatureExtraction {
 					continue;
 				}
 				String[] DocIdVectorArr = line.split("\t");
+				if (DocIdVectorArr.length < 2){
+					System.out.println(line);
+					line = vReader.readLine();
+					continue;
+				}
 				DOCID_VECTOR_MAP.put(DocIdVectorArr[0], DocIdVectorArr[1]);
 				line = vReader.readLine();
 			}
@@ -76,11 +83,11 @@ public class FeatureExtraction {
 	}
 
 	public static void main(String[] args) {
-		System.out.println("FeatureExtraction Running...");
-		COMMON_PATH.DELETE_FILE(COMMON_PATH.FEATURE_PATH);//–¥»ÎFeatureŒƒº˛«∞œ»…æ≥˝‘≠Œƒº˛
+		System.out.println("FeatureExtraction Running..."+new Date());
+		COMMON_PATH.DELETE_FILE(COMMON_PATH.FEATURE_PATH);// ÂÜôÂÖ•FeatureÊñá‰ª∂ÂâçÂÖàÂà†Èô§ÂéüÊñá‰ª∂
 		for (int i = 0; i < LABEL_DCOIDS_LIST.size(); i++) {
 			String[] docIdArr = LABEL_DCOIDS_LIST.get(i)[1].split(",");
-			FEATURE = "P," + DOCID_VECTOR_MAP.get(docIdArr[0]);// »°◊Ó≥§π´π≤◊”¥ÆµƒÀ„∑®ª·∫ˆ¬‘µÙµ⁄“ª∏ˆ◊÷∑˚£¨À˘“‘º”∏ˆP,»’÷æ∫œ≤¢“ª≤Ωµ⁄“ª∏ˆ◊÷∑˚…Ë÷√µƒ «Li
+			FEATURE = "P," + DOCID_VECTOR_MAP.get(docIdArr[0]);// ÂèñÊúÄÈïøÂÖ¨ÂÖ±Â≠ê‰∏≤ÁöÑÁÆóÊ≥ï‰ºöÂøΩÁï•ÊéâÁ¨¨‰∏Ä‰∏™Â≠óÁ¨¶ÔºåÊâÄ‰ª•Âä†‰∏™P,Êó•ÂøóÂêàÂπ∂‰∏ÄÊ≠•Á¨¨‰∏Ä‰∏™Â≠óÁ¨¶ËÆæÁΩÆÁöÑÊòØLi
 			for (int j = 1; j < docIdArr.length; j++) {
 				String[] fArr = FEATURE.split(",");
 				String tmp = "P," + DOCID_VECTOR_MAP.get(docIdArr[j]);
@@ -89,11 +96,11 @@ public class FeatureExtraction {
 			}
 
 			String tokenFEATURE = "";
-			// ∞—Feature–¥»ÎŒƒº˛
+			// ÊääFeatureÂÜôÂÖ•Êñá‰ª∂
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
 						new File(COMMON_PATH.FEATURE_PATH), true));
-				if (FEATURE.length() > 2)// »•µÙ"P,"
+				if (FEATURE.length() > 2)// ÂéªÊéâ"P,"
 					FEATURE = FEATURE.substring(2);
 
 				String[] feArr = FEATURE.split(",");
@@ -103,27 +110,27 @@ public class FeatureExtraction {
 						tokenFEATURE += tmp + ",";
 				}
 
-				writer.write(LABEL_DCOIDS_LIST.get(i)[0] + "\t"+tokenFEATURE);
+				writer.write(LABEL_DCOIDS_LIST.get(i)[0] + "\t" + tokenFEATURE);
 				writer.newLine();
-				
-//				writer.write(LABEL_DCOIDS_LIST.get(i)[0] + ":");
-//				writer.newLine();
-//				writer.write(tokenFEATURE);
-//				writer.newLine();
-//				writer.write(FEATURE);
+
+				// writer.write(LABEL_DCOIDS_LIST.get(i)[0] + ":");
+				// writer.newLine();
+				// writer.write(tokenFEATURE);
+				// writer.newLine();
+				// writer.write(FEATURE);
 				writer.newLine();
 				writer.flush();
 				writer.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println(LABEL_DCOIDS_LIST.get(i)[0] + ":\n" + tokenFEATURE
-					+ "\n" + FEATURE+ "\n");
+			System.out.println(LABEL_DCOIDS_LIST.get(i)[0] + ":\n"
+					+ tokenFEATURE + "\n" + FEATURE + "\n");
 		}
-		System.out.println("Completed.");
+		System.out.println("Completed."+new Date()+"\n\n");
 	}
 
-	// ◊Ó≥§π´π≤◊”¥Æ
+	// ÊúÄÈïøÂÖ¨ÂÖ±Â≠ê‰∏≤
 	public static void LCSAlgorithm(String[] x, String[] y) {
 		FEATURE = "P,";
 		int[][] b = getLength(x, y);

@@ -22,7 +22,7 @@ import java.util.Set;
 
 import training.COMMON_PATH;
 
-public class FPTree {
+public class FPTree  {
 	public static int WINDOWN_SIZE = 120;// 窗口大小，分钟为单位
 	public static int STEP_SIZE = 30;// 步长大小，分钟为单位
 	public static SimpleDateFormat DATE_TEMPLATE = new SimpleDateFormat(

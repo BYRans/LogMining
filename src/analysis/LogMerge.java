@@ -24,7 +24,7 @@ public class LogMerge {
 	public static Set<String> REMOVED_LABEL_SET = new HashSet<String>();
 
 	static {
-		try {// removed Label set³õÊ¼»¯
+		try {// removed Label setåˆå§‹åŒ–
 			File rmLabelFile = new File(COMMON_PATH.REMOVED_LABEL_PATH);
 			BufferedReader fReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(rmLabelFile), "UTF-8"));
@@ -44,7 +44,7 @@ public class LogMerge {
 		System.out.println("running...");
 		List<String[]> timeLabelList = new ArrayList<String[]>();
 
-		// ¶ÁÈësyslog time+label
+		// è¯»å…¥syslog time+label
 		try {
 			File syslogFile = new File(COMMON_PATH.TIMESTAMP_LABEL_PATH);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
@@ -66,7 +66,7 @@ public class LogMerge {
 			e1.printStackTrace();
 		}
 
-		// ¶ÁÈëwarning log
+		// è¯»å…¥warning log
 		try {
 			File warningLogFile = new File(COMMON_PATH.WARNING_LOG_PATH);
 			BufferedReader wReader = new BufferedReader(new InputStreamReader(
@@ -138,7 +138,7 @@ public class LogMerge {
 	 * @param a
 	 * @param s
 	 * @param len
-	 *            Ã¿´Î¹é²¢µÄÓĞĞò¼¯ºÏµÄ³¤¶È
+	 *            æ¯æ¬¡å½’å¹¶çš„æœ‰åºé›†åˆçš„é•¿åº¦
 	 * @throws ParseException
 	 **/
 	public static void mergeSort(List<String[]> list, int s, int len)
@@ -146,18 +146,18 @@ public class LogMerge {
 		int size = list.size();
 		int mid = size / (len << 1);
 		int c = size & ((len << 1) - 1);
-		// -------¹é²¢µ½Ö»Ê£Ò»¸öÓĞĞò¼¯ºÏµÄÊ±ºò½áÊøËã·¨-------//
+		// -------å½’å¹¶åˆ°åªå‰©ä¸€ä¸ªæœ‰åºé›†åˆçš„æ—¶å€™ç»“æŸç®—æ³•-------//
 		if (mid == 0)
 			return;
-		// ------½øĞĞÒ»ÌË¹é²¢ÅÅĞò-------//
+		// ------è¿›è¡Œä¸€è¶Ÿå½’å¹¶æ’åº-------//
 		for (int i = 0; i < mid; ++i) {
 			s = i * 2 * len;
 			merge(list, s, s + len, (len << 1) + s - 1);
 		}
-		// -------½«Ê£ÏÂµÄÊıºÍµ¹ÊıÒ»¸öÓĞĞò¼¯ºÏ¹é²¢-------//
+		// -------å°†å‰©ä¸‹çš„æ•°å’Œå€’æ•°ä¸€ä¸ªæœ‰åºé›†åˆå½’å¹¶-------//
 		if (c != 0)
 			merge(list, size - c - 2 * len, size - c, size - 1);
-		// -------µİ¹éÖ´ĞĞÏÂÒ»ÌË¹é²¢ÅÅĞò------//
+		// -------é€’å½’æ‰§è¡Œä¸‹ä¸€è¶Ÿå½’å¹¶æ’åº------//
 		mergeSort(list, 0, 2 * len);
 	}
 }

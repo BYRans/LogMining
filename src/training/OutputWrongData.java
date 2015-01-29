@@ -53,20 +53,20 @@ public class OutputWrongData {
 				// Document document = reader.document(i);
 				Terms termVector = reader.getTermVector(i, "message");
 				if (termVector != null && termVector.size() > 0) {
-					TermsEnum termsEnum = termVector.iterator(null); // È¡¸ÃfieldµÄterms
+					TermsEnum termsEnum = termVector.iterator(null); // È¡ï¿½ï¿½fieldï¿½ï¿½terms
 					BytesRef term = null;
-					HashMap<Integer, String> posAndTerMap = new HashMap<Integer, String>();// °Ñterms¼°Æ«ÒÆÁ¿´æµ½hashMapÖÐ,<position,term>.
-					while ((term = termsEnum.next()) != null) {// µü´úterm
+					HashMap<Integer, String> posAndTerMap = new HashMap<Integer, String>();// ï¿½ï¿½termsï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ï¿½æµ½hashMapï¿½ï¿½,<position,term>.
+					while ((term = termsEnum.next()) != null) {// ï¿½ï¿½ï¿½term
 						DocsAndPositionsEnum positionEnum = termsEnum
-								.docsAndPositions(null, null);// ¸ÃtermÔÚ¸ÃdocumentÏÂµÄÆ«ÒÆÁ¿£¿£¿ÄÄÓÐ¸ÃdocumentµÄ±êÊ¾£¿
+								.docsAndPositions(null, null);// ï¿½ï¿½termï¿½Ú¸ï¿½documentï¿½Âµï¿½Æ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¸ï¿½documentï¿½Ä±ï¿½Ê¾ï¿½ï¿½
 						positionEnum.nextDoc();
-						int freq = positionEnum.freq();// ¸ÃtermÔÚ¸ÃÎÄµµ³öÏÖ¶àÉÙ´Î£¬³öÏÖ¼¸´Î¾ÍÓÐ¼¸¸öÆ«ÒÆÁ¿¡£
+						int freq = positionEnum.freq();// ï¿½ï¿½termï¿½Ú¸ï¿½ï¿½Äµï¿½ï¿½ï¿½ï¿½Ö¶ï¿½ï¿½Ù´Î£ï¿½ï¿½ï¿½ï¿½Ö¼ï¿½ï¿½Î¾ï¿½ï¿½Ð¼ï¿½ï¿½ï¿½Æ«ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 						for (int j = 0; j < freq; j++) {
 							int position = positionEnum.nextPosition();
 							posAndTerMap.put(position, term.utf8ToString());
 						}
 					}
-					Object[] key_arr = posAndTerMap.keySet().toArray();// °´positionÅÅÐò
+					Object[] key_arr = posAndTerMap.keySet().toArray();// ï¿½ï¿½positionï¿½ï¿½ï¿½ï¿½
 					Arrays.sort(key_arr);
 					String docContent = "";
 					String docVectorContent = "";

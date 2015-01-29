@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+
 
 
 
@@ -36,13 +38,18 @@ public class RMNoiseWordByRule {
 	public static String Field = "message";
 
 	public static void main(String[] args) throws Exception {
-		System.out.println("RMNoiseWordByRule Running...");
+		System.out.println("RMNoiseWordByRule Running..."+new Date());
+		long startTime = System.currentTimeMillis();
 		buildTokenSet();
-		// search(LUCENE_PATH, QueryString, Field, Hits);//²éÑ¯¹¦ÄÜ
+		System.out.println("execution time:"+(System.currentTimeMillis() - startTime)/1000+"S");
+		System.out.println("Completed."+new Date()+"\n\n");
+		// search(LUCENE_PATH, QueryString, Field, Hits);//æŸ¥è¯¢åŠŸèƒ½
 	}
 
 	@SuppressWarnings("deprecation")
 	public static void buildTokenSet() {
+		COMMON_PATH.DELETE_FILE(COMMON_PATH.AllTOKEN_SET_PATH);//å†™å…¥AllTokenæ–‡ä»¶å‰å…ˆåˆ é™¤åŸæ–‡ä»¶
+		COMMON_PATH.DELETE_FILE(COMMON_PATH.TOKEN_SET_PATH);//å†™å…¥TokenSetæ–‡ä»¶å‰å…ˆåˆ é™¤åŸæ–‡ä»¶
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
@@ -51,9 +58,10 @@ public class RMNoiseWordByRule {
 			Terms msgTerm = MultiFields.getTerms(reader, "message");
 			TermsEnum msgEnum = msgTerm.iterator(null);
 			int termID = 0;
-			String regNumber = "^[0-9a-fA-F]*$";
+			String regHexadecimal = "^[0-9a-fA-Fx]*$";//16è¿›åˆ¶
+			String regNumber = "^[0-9.,]*$";//10è¿›åˆ¶
+			String regStoreMemory = "(?!^[kmgb]*$)^([0-9kmgb.])*$";//å­˜å‚¨å¤§å°ï¼Œä¸å»é™¤mbï¼Œgb
 			String regIP = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
-			COMMON_PATH.DELETE_FILE(COMMON_PATH.TOKEN_SET_PATH);//Ğ´ÈëTokenSetÎÄ¼şÇ°ÏÈÉ¾³ıÔ­ÎÄ¼ş
 			while (msgEnum.next() != null) {
 				String term = msgEnum.term().utf8ToString();
 				DocsEnum termDocs = msgEnum.docs(null, null,
@@ -64,7 +72,6 @@ public class RMNoiseWordByRule {
 				}
 				
 				try {
-					COMMON_PATH.DELETE_FILE(COMMON_PATH.AllTOKEN_SET_PATH);//Ğ´ÈëAllTokenÎÄ¼şÇ°ÏÈÉ¾³ıÔ­ÎÄ¼ş
 					BufferedWriter writer = new BufferedWriter(new FileWriter(
 							new File(COMMON_PATH.AllTOKEN_SET_PATH), true));
 					writer.write(termCount + "\t" + term);
@@ -77,8 +84,9 @@ public class RMNoiseWordByRule {
 				
 				boolean isNumber = term.matches(regNumber);
 				boolean isIP = term.matches(regIP);
-				
-				if ((!isNumber)&&(!isIP)) {
+				boolean isHexadecimal = term.matches(regHexadecimal);
+				boolean isStoreMemory = term.matches(regStoreMemory);
+				if ((!isNumber)&&(!isIP)&&(!isHexadecimal)&&(!isStoreMemory)) {
 					try {
 						BufferedWriter writer = new BufferedWriter(
 								new FileWriter(new File(COMMON_PATH.TOKEN_SET_PATH), true));
@@ -92,23 +100,23 @@ public class RMNoiseWordByRule {
 				}
 			}
 			
-			System.out.println("×Ü·Ö´ÊÊı:"
-					+ msgTerm.size() + "\n" + "È¥³ı¸ÉÈÅ´ÊÊı:"
-					+ (msgTerm.size() - termID) + "\n" + "ÓĞĞ§´ÊÊı:" + termID
-					+ "\n" + "¸ÉÈÅ´ÊÊı/×Ü·Ö´ÊÊı = "
+			System.out.println("æ€»åˆ†è¯æ•°:"
+					+ msgTerm.size() + "\n" + "å»é™¤å¹²æ‰°è¯æ•°:"
+					+ (msgTerm.size() - termID) + "\n" + "æœ‰æ•ˆè¯æ•°:" + termID
+					+ "\n" + "å¹²æ‰°è¯æ•°/æ€»åˆ†è¯æ•° = "
 					+ ((float) (msgTerm.size() - termID) / msgTerm.size()));
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
 						new File(COMMON_PATH.AllTOKEN_SET_PATH), true));
 				writer.write("****************************");
 				writer.newLine();
-				writer.write("×Ü·Ö´ÊÊı:" + msgTerm.size());
+				writer.write("æ€»åˆ†è¯æ•°:" + msgTerm.size());
 				writer.newLine();
-				writer.write("È¥³ı¸ÉÈÅ´ÊÊı:" + (msgTerm.size() - termID));
+				writer.write("å»é™¤å¹²æ‰°è¯æ•°:" + (msgTerm.size() - termID));
 				writer.newLine();
-				writer.write("ÓĞĞ§´ÊÊı£º" + termID);
+				writer.write("æœ‰æ•ˆè¯æ•°ï¼š" + termID);
 				writer.newLine();
-				writer.write("¸ÉÈÅ´ÊÊı/×Ü·Ö´ÊÊı = "
+				writer.write("å¹²æ‰°è¯æ•°/æ€»åˆ†è¯æ•° = "
 						+ ((float) (msgTerm.size() - termID) / msgTerm.size()));
 				writer.newLine();
 				writer.flush();
@@ -116,7 +124,6 @@ public class RMNoiseWordByRule {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println("Completed.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {

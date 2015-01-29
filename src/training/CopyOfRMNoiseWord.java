@@ -9,6 +9,7 @@ import java.util.List;
 
 
 
+
 //import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.DocsEnum;
@@ -26,14 +27,15 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.queryparser.classic.QueryParser;
 
 public class CopyOfRMNoiseWord {
-	public static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/LabeledLuceneFile/";
+	public static String LUCENE_PATH = "C:/Documents and Settings/js4/桌面/testLucene/";
 	public static String TermSetPath = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
 	public static String AllTOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/AllTokenSet.txt";
 	public static Integer TERM_FREQUENT = 2;// 判定低频词阙值
 
-	public static int Hits = 10;
-	public static String QueryString = "2014-11-18";
-	public static String Field = "timeStampDay";
+	public static int Hits = 21;
+	public static String QueryString = "790,928,707,843,349,1018,";
+	public static String Field = "vector";
+
 
 	public static void main(String[] args) throws Exception {
 		System.out.println("Running...");
