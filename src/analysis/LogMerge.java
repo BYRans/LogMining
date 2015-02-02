@@ -51,13 +51,13 @@ public class LogMerge {
 			// removed Label set初始化
 			initRemovedLabelSet(COMMON_PATH.REMOVED_LABEL_PATH);
 			// 读入syslog time+label
-			readSyslog(COMMON_PATH.LABELED_LUCENE_PATH,ip);
+			readSyslog(COMMON_PATH.LABELED_LUCENE_PATH, ip);
 			// 读入syslog time+label
-			readWarningLog(COMMON_PATH.WARNING_LOG_PATH,ip);
+			readWarningLog(COMMON_PATH.WARNING_LOG_PATH, ip);
 			// 按时间戳归并排序syslog和warning log
 			mergeSort(TIME_LABEL_LIST, 0, 1);
 			// 写入排序后合并日志
-			writeMergeLog(COMMON_PATH.MERGE_LOG_PATH,ip);
+			writeMergeLog(COMMON_PATH.MERGE_LOG_PATH, ip);
 		}
 		System.out.println("Completed.");
 	}
@@ -99,57 +99,32 @@ public class LogMerge {
 	}
 
 	// 读入syslog timeStamp+label
-	private static void readSyslog(String path,String ip) {
+	private static void readSyslog(String path, String ip) {
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
 			directory = FSDirectory.open(new File(path));
 			reader = IndexReader.open(directory);
 			IndexSearcher searcher = new IndexSearcher(reader);
-			Term term1 = new Term("ip",ip);
+			Term term1 = new Term("ip", ip);
 			TermQuery query1 = new TermQuery(term1);
 			BooleanQuery booleanQuery = new BooleanQuery();
 			booleanQuery.add(query1, Occur.MUST);
-			
-			
 			TotalHitCountCollector collector = new TotalHitCountCollector();
 			searcher.search(booleanQuery, collector);
 			int hits = Math.max(1, collector.getTotalHits());
 			TopDocs tds = searcher.search(booleanQuery, 1);
-			
-			
-//			TopDocs tds = searcher.search(booleanQuery, );
 			ScoreDoc[] sds = tds.scoreDocs;
-			System.out.println(tds.totalHits + " total matching documents");
-
-			for (int j = 0; j < sds.length; j++) {
-				System.out.println(sds[j]);
-
-			}
 			int[] docCount = new int[hits];
-			int i = 0;
-			for (ScoreDoc sd : sds) {
-				docCount[i] = sd.doc;
-				System.out.println("docid:"+docCount[i]);
-				
-				System.out.print(searcher.doc(docCount[i]).get("docId") + "\t");
-				System.out.println(searcher.doc(docCount[i]).get("vector"));
-				// System.out.println(searcher.doc(docCount[i]).get("timeStampDay"));
-//				 System.out.println("sd.doc " + sd.doc);
-
-				i++;
-			}
-			
-			
-			System.out.println("*********");
-			Document doc = searcher.doc(1);
-			System.out.print(doc.get("docId") + "\t");
-			System.out.println(doc.get("vector"));
-			
-			List<Integer> list = new ArrayList<Integer>();
-
-			for (int j = 0; j < docCount.length; j++) {
-				list.add(docCount[j]);
+			for (int i = 0; i < sds.length; i++) {
+				docCount[i] = sds[i].doc;
+				Document document = searcher.doc(docCount[i]);
+				String[] timeLabelArr = new String[2];
+				timeLabelArr[0] = document.get("timeStamp");
+				timeLabelArr[1] = document.get("label");
+				if (REMOVED_LABEL_SET.contains(timeLabelArr[1]))
+					continue;
+				TIME_LABEL_LIST.add(timeLabelArr);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -162,10 +137,7 @@ public class LogMerge {
 				}
 			}
 		}
-		
-		
-		
-		
+
 		try {
 			File syslogFile = new File(path);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
@@ -189,9 +161,9 @@ public class LogMerge {
 	}
 
 	// 读入warning log timeStamp+label
-	private static void readWarningLog(String path,String ip) {
+	private static void readWarningLog(String path, String ip) {
 		try {
-			File warningLogFile = new File(path+ip);
+			File warningLogFile = new File(path + ip);
 			BufferedReader wReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(warningLogFile), "UTF-8"));
 			String line = null;
@@ -211,10 +183,10 @@ public class LogMerge {
 	}
 
 	// 写入排序后合并日志
-	private static void writeMergeLog(String path,String ip) {
+	private static void writeMergeLog(String path, String ip) {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-					path+"mergeLog_"+ip), true));
+					path + "mergeLog_" + ip), true));
 			for (int i = 0; i < TIME_LABEL_LIST.size(); i++) {
 				writer.write(TIME_LABEL_LIST.get(i)[0] + "\t"
 						+ TIME_LABEL_LIST.get(i)[1]);
