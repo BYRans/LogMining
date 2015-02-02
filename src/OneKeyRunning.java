@@ -1,5 +1,6 @@
 import analysis.FPTree;
 import analysis.LogMerge;
+import analysis.test;
 import DataFilter.FilterRawLog;
 import DataFilter.FilterAlert;
 import DataFilter.Statistics;

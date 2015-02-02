@@ -50,26 +50,28 @@ public class COMMON_PATH {
 	public final static String FEATURE_PATH = "/home/iie/LogMining/Feature/Feature.txt";
 
 	/** 告警日志 文件路径 */
-	public static String WARNING_LOG_PATH = "/home/iie/LogMining/LogMerge/WarningLog.txt";
+	public final static String WARNING_LOG_PATH = "/home/iie/LogMining/LogMerge/WarningLog/";
 
 	/** 存储 合并后日志 文件路径 */
-	public static String MERGE_LOG_PATH = "/home/iie/LogMining/LogMerge/MergeLog.txt";
+	public final static String MERGE_LOG_PATH = "/home/iie/LogMining/LogMerge/MergeLog/";
 
 	/** 存储 移除无关syslog的label 文件路径 */
-	public static String REMOVED_LABEL_PATH = "/home/iie/LogMining/LogMerge/RemoveLabel.txt";
+	public final static String REMOVED_LABEL_PATH = "/home/iie/LogMining/LogMerge/RemoveLabel.txt";
 
 	/** 存储 频繁项集文件 的文件 路径 */
-	public static String FREQUENT_ITEM_SETS_PATH = "/home/iie/LogMining/LogMerge/";
+	public final static String FREQUENT_ITEM_SETS_PATH = "/home/iie/LogMining/LogMerge/";
 
 	/** 存储 syslog、告警日志特征 文件路径 */
-	public static String FEATURE_FOLDER_PATH = "/home/iie/LogMining/Feature/";
+	public final static String FEATURE_FOLDER_PATH = "/home/iie/LogMining/Feature/";
 
 	/** 存储 程序运行统计数据 文件路径 */
-	public static String STATISTICS_PATH = "/home/iie/LogMining/STATISTICS.txt";
+	public final static String STATISTICS_PATH = "/home/iie/LogMining/STATISTICS.txt";
 	
 	/** 存储 Vector Lucene 文件路径 */
-	public static String VECTOR_LUCENE_PATH = "/home/iie/LogMining/VectorLucene/";
+	public final static String VECTOR_LUCENE_PATH = "/home/iie/LogMining/VectorLucene/";
 	
+	/** 存储 ip列表 文件路径 */
+	public final static String IP_LIST_PATH = "/home/iie/LogMining/LogMerge/IPList";
 	
 
 	public static int VECTOR_COUNT = 40506707;

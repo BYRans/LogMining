@@ -15,17 +15,75 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.TotalHitCountCollector;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+
 import training.COMMON_PATH;
 
 public class LogMerge {
-	
+
 	public static SimpleDateFormat DATE_TEMPLATE = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
 	public static Set<String> REMOVED_LABEL_SET = new HashSet<String>();
+	public static List<String[]> TIME_LABEL_LIST = new ArrayList<String[]>();
+	public static Set<String> IP_SET = new HashSet<String>();
 
-	static {
-		try {// removed Label set初始化
-			File rmLabelFile = new File(COMMON_PATH.REMOVED_LABEL_PATH);
+	public static void main(String[] args) throws ParseException {
+		System.out.println("running...");
+		// 读入ip set
+		readIPs(COMMON_PATH.IP_LIST_PATH);
+
+		for (String ip : IP_SET) {
+
+			// removed Label set初始化
+			initRemovedLabelSet(COMMON_PATH.REMOVED_LABEL_PATH);
+			// 读入syslog time+label
+			readSyslog(COMMON_PATH.LABELED_LUCENE_PATH,ip);
+			// 读入syslog time+label
+			readWarningLog(COMMON_PATH.WARNING_LOG_PATH,ip);
+			// 按时间戳归并排序syslog和warning log
+			mergeSort(TIME_LABEL_LIST, 0, 1);
+			// 写入排序后合并日志
+			writeMergeLog(COMMON_PATH.MERGE_LOG_PATH,ip);
+		}
+		System.out.println("Completed.");
+	}
+
+	// 读入ip列表
+	private static void readIPs(String path) {
+		try {
+			File rmLabelFile = new File(path);
+			BufferedReader fReader = new BufferedReader(new InputStreamReader(
+					new FileInputStream(rmLabelFile), "UTF-8"));
+			String line = null;
+			while ((line = fReader.readLine()) != null) {
+				if ("".equals(line.trim()))
+					continue;
+				IP_SET.add(line.trim());
+			}
+			fReader.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	// removed Label set初始化
+	private static void initRemovedLabelSet(String path) {
+		try {
+			File rmLabelFile = new File(path);
 			BufferedReader fReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(rmLabelFile), "UTF-8"));
 			String line = null;
@@ -40,13 +98,76 @@ public class LogMerge {
 		}
 	}
 
-	public static void main(String[] args) throws ParseException {
-		System.out.println("running...");
-		List<String[]> timeLabelList = new ArrayList<String[]>();
-
-		// 读入syslog time+label
+	// 读入syslog timeStamp+label
+	private static void readSyslog(String path,String ip) {
+		Directory directory = null;
+		IndexReader reader = null;
 		try {
-			File syslogFile = new File(COMMON_PATH.TIMESTAMP_LABEL_PATH);
+			directory = FSDirectory.open(new File(path));
+			reader = IndexReader.open(directory);
+			IndexSearcher searcher = new IndexSearcher(reader);
+			Term term1 = new Term("ip",ip);
+			TermQuery query1 = new TermQuery(term1);
+			BooleanQuery booleanQuery = new BooleanQuery();
+			booleanQuery.add(query1, Occur.MUST);
+			
+			
+			TotalHitCountCollector collector = new TotalHitCountCollector();
+			searcher.search(booleanQuery, collector);
+			int hits = Math.max(1, collector.getTotalHits());
+			TopDocs tds = searcher.search(booleanQuery, 1);
+			
+			
+//			TopDocs tds = searcher.search(booleanQuery, );
+			ScoreDoc[] sds = tds.scoreDocs;
+			System.out.println(tds.totalHits + " total matching documents");
+
+			for (int j = 0; j < sds.length; j++) {
+				System.out.println(sds[j]);
+
+			}
+			int[] docCount = new int[hits];
+			int i = 0;
+			for (ScoreDoc sd : sds) {
+				docCount[i] = sd.doc;
+				System.out.println("docid:"+docCount[i]);
+				
+				System.out.print(searcher.doc(docCount[i]).get("docId") + "\t");
+				System.out.println(searcher.doc(docCount[i]).get("vector"));
+				// System.out.println(searcher.doc(docCount[i]).get("timeStampDay"));
+//				 System.out.println("sd.doc " + sd.doc);
+
+				i++;
+			}
+			
+			
+			System.out.println("*********");
+			Document doc = searcher.doc(1);
+			System.out.print(doc.get("docId") + "\t");
+			System.out.println(doc.get("vector"));
+			
+			List<Integer> list = new ArrayList<Integer>();
+
+			for (int j = 0; j < docCount.length; j++) {
+				list.add(docCount[j]);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+		
+		
+		try {
+			File syslogFile = new File(path);
 			BufferedReader vReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(syslogFile), "UTF-8"));
 			String line = null;
@@ -59,16 +180,18 @@ public class LogMerge {
 					continue;
 				if (REMOVED_LABEL_SET.contains(timeLabelArr[1]))
 					continue;
-				timeLabelList.add(timeLabelArr);
+				TIME_LABEL_LIST.add(timeLabelArr);
 			}
 			vReader.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+	}
 
-		// 读入warning log
+	// 读入warning log timeStamp+label
+	private static void readWarningLog(String path,String ip) {
 		try {
-			File warningLogFile = new File(COMMON_PATH.WARNING_LOG_PATH);
+			File warningLogFile = new File(path+ip);
 			BufferedReader wReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(warningLogFile), "UTF-8"));
 			String line = null;
@@ -79,21 +202,22 @@ public class LogMerge {
 				String[] timeLabelArr = line.split("\t");
 				if (timeLabelArr.length != 2)
 					continue;
-				timeLabelList.add(timeLabelArr);
+				TIME_LABEL_LIST.add(timeLabelArr);
 			}
 			wReader.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+	}
 
-		mergeSort(timeLabelList, 0, 1);
-
+	// 写入排序后合并日志
+	private static void writeMergeLog(String path,String ip) {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-					COMMON_PATH.MERGE_LOG_PATH), true));
-			for (int i = 0; i < timeLabelList.size(); i++) {
-				writer.write(timeLabelList.get(i)[0] + "\t"
-						+ timeLabelList.get(i)[1]);
+					path+"mergeLog_"+ip), true));
+			for (int i = 0; i < TIME_LABEL_LIST.size(); i++) {
+				writer.write(TIME_LABEL_LIST.get(i)[0] + "\t"
+						+ TIME_LABEL_LIST.get(i)[1]);
 				writer.newLine();
 				writer.flush();
 			}
@@ -101,8 +225,6 @@ public class LogMerge {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		System.out.println("Completed.");
 	}
 
 	private static void merge(List<String[]> list, int s, int m, int t)
