@@ -51,14 +51,19 @@ public class Structured {
 					String[] recordArr = list.get(i).split(" |,|: ");
 					document = new Document();
 					document.add(new TextField("id", i + "", Field.Store.YES));
-					document.add(new Field("timeStampDay", recordArr[0], Field.Store.YES,Field.Index.ANALYZED));
-					document.add(new Field("timeStampSec",recordArr[1], Field.Store.YES,Field.Index.NOT_ANALYZED));
+					document.add(new Field("timeStamp", recordArr[0] + " "
+							+ recordArr[1], Field.Store.YES,
+							Field.Index.ANALYZED));
 					document.add(new TextField("processID", recordArr[2],
 							Field.Store.YES));
 					document.add(new TextField("level", recordArr[3],
 							Field.Store.YES));
-					document.add(new Field("ip", "192.168.8.190",
-							Field.Store.YES, Field.Index.ANALYZED));
+					if (i % 2 == 0)
+						document.add(new Field("ip", "192.168.8.190",
+								Field.Store.YES, Field.Index.ANALYZED));
+					if (i % 2 == 1)
+						document.add(new Field("ip", "192.168.8.191",
+								Field.Store.YES, Field.Index.ANALYZED));
 					document.add(new TextField("source", recordArr[4],
 							Field.Store.YES));
 					String message = "";

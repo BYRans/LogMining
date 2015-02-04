@@ -24,20 +24,21 @@ import java.util.Map.Entry;
 
 import training.COMMON_PATH;
 
+
 public class ModifiedApriori {
-	public int minSup;// ��С֧�ֶ�
-	public static List<Set<String>> recordList;// ��List<Set<String>>��ʽ����,����Set��������
+	public int minSup;// 最小支持度
+	public static List<Set<String>> recordList;// 以List<Set<String>>格式保存,利用Set的有序性
 	public static HashMap<String, String> FEATURE_MAP = new HashMap<String, String>();
-	public static int WINDOWN_SIZE = 120;// ���ڴ�С������Ϊ��λ
-	public static int STEP_SIZE = 30;// ������С������Ϊ��λ
+	public static int WINDOWN_SIZE = 120;// 窗口大小，分钟为单位
+	public static int STEP_SIZE = 30;// 步长大小，分钟为单位
 	public static SimpleDateFormat DATE_TEMPLATE = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
-	public static int[] THRESHOLD = { 8 };// ���ִ�����ֵ
+	public static int[] THRESHOLD = { 8 };// 出现次数阈值
 	public static int ITEMS_COUNT = 0;
-	// public static double[] THRESHOLD = { 0.1 };//�ٷֱ���ֵ
+	// public static double[] THRESHOLD = { 0.1 };//百分比阈值
 
 	static {
-		try {// ����feature
+		try {// 读入feature
 			File f = new File(COMMON_PATH.FEATURE_FOLDER_PATH);
 			File[] fileList = f.listFiles();
 			for (File file : fileList) {
@@ -86,14 +87,14 @@ public class ModifiedApriori {
 			FileWriter tgFileWriter = new FileWriter(COMMON_PATH.FREQUENT_ITEM_SETS_PATH
 					+ (THRESHOLD[k] * 100) + ".txt");
 			// apriori.setMinSup((int) (recordList.size() *
-			// THRESHOLD[k]));//����ǰ��ٷֱ�ȡ
-			apriori.setMinSup(THRESHOLD[k]);// �����ִ���
+			// THRESHOLD[k]));//这句是按百分比取
+			apriori.setMinSup(THRESHOLD[k]);// 按出现次数
 			long startTime = System.currentTimeMillis();
 			Map<String, Integer> f1Set = apriori.findFP1Items(recordList);
 			long endTime = System.currentTimeMillis();
 			totalTime += endTime - startTime;
 
-			// Ƶ��1���Ϣ�ü���֧�ֶ�
+			// 频繁1项集信息得加入支持度
 			Map<Set<String>, Integer> f1Map = new HashMap<Set<String>, Integer>();
 			for (Map.Entry<String, Integer> f1Item : f1Set.entrySet()) {
 				Set<String> fs = new HashSet<String>();
@@ -113,26 +114,26 @@ public class ModifiedApriori {
 				tgFileWriter.flush();
 			} while (result.size() != 0);
 			tgFileWriter.close();
-			System.out.println("����ʱ��" + totalTime + "ms");
-			System.out.println("����" + totalItem + "��Ƶ��ģʽ");
+			System.out.println("共用时：" + totalTime + "ms");
+			System.out.println("共有" + totalItem + "项频繁模式");
 		}
 		System.out.println("Completed.");
 	}
 
 	/**
-	 * ��Ƶ��K-1����Ƶ��K�
+	 * 由频繁K-1项集生成频繁K项集
 	 * 
 	 * @param preMap
-	 *            ����Ƶ��K���map
+	 *            保存频繁K项集的map
 	 * @param tgFileWriter
-	 *            ����ļ����
-	 * @return int Ƶ��i�����Ŀ
+	 *            输出文件句柄
+	 * @return int 频繁i项集的数目
 	 * @throws IOException
 	 */
 	private Map<Set<String>, Integer> genNextKItem(
 			Map<Set<String>, Integer> preMap) {
 		Map<Set<String>, Integer> result = new HashMap<Set<String>, Integer>();
-		// ��������k-1����k�
+		// 遍历两个k-1项集生成k项集
 		List<Set<String>> preSetArray = new ArrayList<Set<String>>();
 		for (Map.Entry<Set<String>, Integer> preMapItem : preMap.entrySet()) {
 			preSetArray.add(preMapItem.getKey());
@@ -142,30 +143,30 @@ public class ModifiedApriori {
 			for (int j = i + 1; j < preSetLength; j++) {
 				String[] strA1 = preSetArray.get(i).toArray(new String[0]);
 				String[] strA2 = preSetArray.get(j).toArray(new String[0]);
-				if (isCanLink(strA1, strA2)) { // �ж�����k-1��Ƿ������ӳ�k���������
+				if (isCanLink(strA1, strA2)) { // 判断两个k-1项集是否符合连接成k项集的条件　
 					Set<String> set = new TreeSet<String>();
 					for (String str : strA1) {
 						set.add(str);
 					}
-					set.add((String) strA2[strA2.length - 1]); // ���ӳ�k�
-					// �ж�k��Ƿ���Ҫ���е��������Ҫ��cut��������뵽k��б���
-					if (isNeedCut(preMap, set)) {// ���ڵ����ԣ����뱣֤k�������k-1���Ӽ�����preMap�г��֣�����͸ü��и�k�
+					set.add((String) strA2[strA2.length - 1]); // 连接成k项集
+					// 判断k项集是否需要剪切掉，如果不需要被cut掉，则加入到k项集列表中
+					if (isNeedCut(preMap, set)) {// 由于单调性，必须保证k项集的所有k-1项子集都在preMap中出现，否则就该剪切该k项集
 						result.put(set, 0);
 					}
 				}
 			}
 		}
-		return assertFP(result);// ����������ݿ⣬��֧�ֶȣ�ȷ��ΪƵ���
+		return assertFP(result);// 遍历事物数据库，求支持度，确保为频繁项集
 	}
 
 	/**
-	 * ���k��Ƿ�ü��С����ڵ����ԣ����뱣֤k�������k-1���Ӽ�����preMap�г��֣�����͸ü��и�k�
+	 * 检测k项集是否该剪切。由于单调性，必须保证k项集的所有k-1项子集都在preMap中出现，否则就该剪切该k项集
 	 * 
 	 * @param preMap
-	 *            k-1��Ƶ����map
+	 *            k-1项频繁集map
 	 * @param set
-	 *            �����k�
-	 * @return boolean �Ƿ�ü���
+	 *            待检测的k项集
+	 * @return boolean 是否该剪切
 	 * @throws IOException
 	 */
 	private boolean isNeedCut(Map<Set<String>, Integer> preMap, Set<String> set) {
@@ -180,11 +181,11 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * ��ȡk�set������k-1���Ӽ�
+	 * 获取k项集set的所有k-1项子集
 	 * 
 	 * @param set
-	 *            Ƶ��k�
-	 * @return List<Set<String>> ����k-1���Ӽ�����
+	 *            频繁k项集
+	 * @return List<Set<String>> 所有k-1项子集容器
 	 * @throws IOException
 	 */
 	private List<Set<String>> getSubSets(Set<String> set) {
@@ -202,11 +203,11 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * ����������ݿ⣬��֧�ֶȣ�ȷ��ΪƵ���
+	 * 遍历事物数据库，求支持度，确保为频繁项集
 	 * 
 	 * @param allKItem
-	 *            ��ѡƵ��k�
-	 * @return Map<Set<String>, Integer> ֧�ֶȴ�����ֵ��Ƶ�����֧�ֶ�map
+	 *            候选频繁k项集
+	 * @return Map<Set<String>, Integer> 支持度大于阈值的频繁项集和支持度map
 	 * @throws IOException
 	 */
 	private Map<Set<String>, Integer> assertFP(
@@ -232,13 +233,13 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * �������Ƶ��K��Ƿ�������ӣ�����������ֻ�����һ���ͬ
+	 * 检测两个频繁K项集是否可以连接，连接条件是只有最后一个项不同
 	 * 
 	 * @param strA1
-	 *            k�1
+	 *            k项集1
 	 * @param strA1
-	 *            k�2
-	 * @return boolean �Ƿ��������
+	 *            k项集2
+	 * @return boolean 是否可以连接
 	 * @throws IOException
 	 */
 	private boolean isCanLink(String[] strA1, String[] strA2) {
@@ -260,13 +261,13 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * ��Ƶ��i������ݼ�֧�ֶ�������ļ� ��ʽΪ ģʽ:֧�ֶ�
+	 * 将频繁i项集的内容及支持度输出到文件 格式为 模式:支持度
 	 * 
 	 * @param f1Map
-	 *            ����Ƶ��i�������<i� , ֧�ֶ�>
+	 *            保存频繁i项集的容器<i项集 , 支持度>
 	 * @param tgFileWriter
-	 *            ����ļ����
-	 * @return int Ƶ��i�����Ŀ
+	 *            输出文件句柄
+	 * @return int 频繁i项集的数目
 	 * @throws IOException
 	 */
 	private int printMap(Map<Set<String>, Integer> f1Map,
@@ -274,16 +275,16 @@ public class ModifiedApriori {
 
 		List<Map.Entry<Set<String>, Integer>> infoIds = new ArrayList<Map.Entry<Set<String>, Integer>>(
 				f1Map.entrySet());
-		// HashMap����
+		// HashMap排序
 		Collections.sort(infoIds,
 				new Comparator<Map.Entry<Set<String>, Integer>>() {
 					public int compare(Map.Entry<Set<String>, Integer> o1,
 							Map.Entry<Set<String>, Integer> o2) {
-						return (o2.getValue() - o1.getValue());// ��value��o2-o1����o1-o2����
+						return (o2.getValue() - o1.getValue());// 按value，o2-o1降序，o1-o2升序
 					}
 				});
 
-		tgFileWriter.append("\r\n" + "**********���� " + (++ITEMS_COUNT)
+		tgFileWriter.append("\r\n" + "**********项数： " + (++ITEMS_COUNT)
 				+ "**********" + "\r\n");
 		tgFileWriter.flush();
 		for (int i = 0; i < infoIds.size(); i++) {
@@ -294,7 +295,7 @@ public class ModifiedApriori {
 				tgFileWriter.append(p + " ");
 			}
 			
-			//��featureд���ļ�
+			//把feature写入文件
 			tgFileWriter.append("\r\n" + "\t");
 			for (String p : ent.getKey()) {
 				tgFileWriter.append("( " + FEATURE_MAP.get(p) + " ) ");
@@ -307,11 +308,11 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * ���Ƶ��1�
+	 * 生成频繁1项集
 	 * 
 	 * @param fileDir
-	 *            �����ļ�Ŀ¼
-	 * @return Map<String, Integer> ����Ƶ��1�������<1� , ֧�ֶ�>
+	 *            事务文件目录
+	 * @return Map<String, Integer> 保存频繁1项集的容器<1项集 , 支持度>
 	 * @throws IOException
 	 */
 	private Map<String, Integer> findFP1Items(List<Set<String>> recordList) {
@@ -336,11 +337,11 @@ public class ModifiedApriori {
 	}
 
 	/**
-	 * ��ȡ������ݿ�
+	 * 读取事务数据库
 	 * 
 	 * @param fileDir
-	 *            �����ļ�Ŀ¼
-	 * @return List<String> �������������
+	 *            事务文件目录
+	 * @return List<String> 保存事务的容器
 	 * @throws ParseException
 	 * @throws IOException
 	 */
@@ -359,7 +360,7 @@ public class ModifiedApriori {
 				}
 			}
 		} catch (IOException e) {
-			System.out.println("��ȡ�ļ�ʧ�ܡ�");
+			System.out.println("读取文件失败。");
 			System.exit(-2);
 		}
 
@@ -371,7 +372,7 @@ public class ModifiedApriori {
 		Date endDate = DATE_TEMPLATE.parse(tmpDate);
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(minDate);
-		cal.add(Calendar.MINUTE, WINDOWN_SIZE);// ���ô������ʱ��
+		cal.add(Calendar.MINUTE, WINDOWN_SIZE);// 设置窗口最大时间
 		Date maxDate = cal.getTime();
 
 		while (minDate.getTime() < endDate.getTime()) {
@@ -394,7 +395,7 @@ public class ModifiedApriori {
 			}
 
 			cal.setTime(minDate);
-			cal.add(Calendar.MINUTE, STEP_SIZE);// ���������Сʱ���»�һ������
+			cal.add(Calendar.MINUTE, STEP_SIZE);// 窗口最大最小时间下滑一个步长
 			minDate = cal.getTime();
 			cal.setTime(maxDate);
 			cal.add(Calendar.MINUTE, STEP_SIZE);

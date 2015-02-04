@@ -110,11 +110,11 @@ public class LabelSetFilter {
 
 		System.out.println("Writing Label Set ...");
 
-		// 把Label Set写入文件
-		COMMON_PATH.DELETE_FILE("/home/iie/LogMining/Final_Tmp.txt");// 写入文件前先删除原文件
+		// 把Final Label + temp Label写入文件
+		COMMON_PATH.DELETE_FILE(COMMON_PATH.FINAL_TMP_LABEL_PATH);// 写入文件前先删除原文件
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-					"/home/iie/LogMining/Final_Tmp.txt"), true));
+					COMMON_PATH.FINAL_TMP_LABEL_PATH), true));
 
 			for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
 				writer.write("Label_" + i + "\t");
@@ -152,7 +152,7 @@ public class LabelSetFilter {
 		}
 
 		System.out.println("Writing Final_Label_Set.txt ...");
-		COMMON_PATH.DELETE_FILE("/home/iie/LogMining/Final_Label_Set.txt");// 写入文件前先删除原文件
+		COMMON_PATH.DELETE_FILE(COMMON_PATH.FINAL_LABEL_SET_PATH);// 写入文件前先删除原文件
 		Directory directory = null;
 		IndexReader reader = null;
 		try {
@@ -161,7 +161,7 @@ public class LabelSetFilter {
 			IndexSearcher searcher = new IndexSearcher(reader);
 			try {
 				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File("/home/iie/LogMining/Final_Label_Set.txt"),
+						new File(COMMON_PATH.FINAL_LABEL_SET_PATH),
 						true));
 
 				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {

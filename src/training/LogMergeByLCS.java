@@ -310,33 +310,3 @@ public class LogMergeByLCS {
 	}
 }
 
-/*
- * try { COMMON_PATH.INIT_DIR(COMMON_PATH.LABELED_LUCENE_PATH);// 初始化Lucene文件夹
- * Directory LLDirectory = FSDirectory.open(new File(
- * COMMON_PATH.LABELED_LUCENE_PATH)); IndexWriterConfig LLiwc = new
- * IndexWriterConfig( Version.LUCENE_4_10_2, new StandardAnalyzer());
- * LLiwc.setUseCompoundFile(false); IndexWriter LLWriter = new
- * IndexWriter(LLDirectory, LLiwc); Document LLDocument = null;
- * 
- * String[] recordArr = list.get(i).split(";| "); String regTime =
- * "^([0-9][0-9]:[0-9][0-9]:[0-9][0-9])$";// 输入数据时间戳有差异，在这里过滤一下 if
- * (!recordArr[4].matches(regTime)) { logCount--; continue; } if
- * (!recordArr[5].equals("BJLTSH-503-DFA-CL-SEV7")) { logCount--; continue; }
- * document = new Document(); document.add(new TextField("serviceName",
- * recordArr[0], Field.Store.YES)); document.add(new TextField("netType",
- * recordArr[1], Field.Store.YES)); document.add(new Field("ip", recordArr[2],
- * Field.Store.YES,Field.Index.ANALYZED)); document.add(new
- * TextField("timeStamp", recordArr[3] + " " + recordArr[4], Field.Store.YES));
- * document.add(new TextField("segment", recordArr[5], Field.Store.YES)); String
- * source = ""; String message = ""; for (int k = 6; k < recordArr.length; k++)
- * { message += recordArr[k] + " "; } String[] messArr = message.split(":"); if
- * (messArr.length > 1) { source = messArr[0]; message = ""; for (int j = 1; j <
- * messArr.length; j++) message += messArr[j] + " "; } document.add(new
- * TextField("source", source, Field.Store.YES)); document.add(new
- * Field("message", message, Field.Store.YES, Field.Index.ANALYZED,
- * Field.TermVector.WITH_POSITIONS_OFFSETS)); LLWriter.addDocument(document); }
- * catch (IOException e) { e.printStackTrace(); } finally { if (writer != null)
- * { try { writer.close(); } catch (CorruptIndexException e) {
- * e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); } }
- */
-

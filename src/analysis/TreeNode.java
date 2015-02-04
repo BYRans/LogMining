@@ -21,39 +21,6 @@ public class TreeNode implements Comparable<TreeNode> {
 		this.children = children;
 	}
 
-	public void print() {
-		// for (int i = 0; i < children.size(); i++) {
-		print("", true);
-		// }
-	}
-
-	private void print(String prefix, boolean isTail) {
-		System.out.println(prefix + (isTail ? "└── " : "├── ") + name + " :"
-				+ count);
-		FileWriter FPResFile;
-		try {
-			
-			FPResFile = new FileWriter(new File(COMMON_PATH.FPTREE_PATH
-					),true);
-			FPResFile.append(prefix + (isTail ? "└── " : "├── ") + name + " :"
-					+ count + "\r\n");
-			FPResFile.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		if (children == null)
-			return;
-		for (int i = 0; i < children.size() - 1; i++) {
-			children.get(i).print(prefix + (isTail ? "    " : "│   "), false);
-		}
-		if (children.size() > 0) {
-			children.get(children.size() - 1).print(
-					prefix + (isTail ? "    " : "│   "), true);
-		}
-	}
-
 	public TreeNode() {
 
 	}

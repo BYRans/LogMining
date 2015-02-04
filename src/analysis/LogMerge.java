@@ -43,11 +43,14 @@ public class LogMerge {
 
 	public static void main(String[] args) throws ParseException {
 		System.out.println("running...");
+		
+		COMMON_PATH.INIT_DIR(COMMON_PATH.MERGE_LOG_PATH);// 写入mergeLog文件夹前先初始化文件夹
+		
 		// 读入ip set
 		readIPs(COMMON_PATH.IP_LIST_PATH);
 
 		for (String ip : IP_SET) {
-
+			TIME_LABEL_LIST = new ArrayList<String[]>();
 			// removed Label set初始化
 			initRemovedLabelSet(COMMON_PATH.REMOVED_LABEL_PATH);
 			// 读入syslog time+label
@@ -137,33 +140,12 @@ public class LogMerge {
 				}
 			}
 		}
-
-		try {
-			File syslogFile = new File(path);
-			BufferedReader vReader = new BufferedReader(new InputStreamReader(
-					new FileInputStream(syslogFile), "UTF-8"));
-			String line = null;
-			while ((line = vReader.readLine()) != null) {
-				if ("".equals(line.trim())) {
-					continue;
-				}
-				String[] timeLabelArr = line.split("\t");
-				if (timeLabelArr.length != 2)
-					continue;
-				if (REMOVED_LABEL_SET.contains(timeLabelArr[1]))
-					continue;
-				TIME_LABEL_LIST.add(timeLabelArr);
-			}
-			vReader.close();
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
 	}
 
 	// 读入warning log timeStamp+label
 	private static void readWarningLog(String path, String ip) {
 		try {
-			File warningLogFile = new File(path + ip);
+			File warningLogFile = new File(path + ip + ".txt");
 			BufferedReader wReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(warningLogFile), "UTF-8"));
 			String line = null;
@@ -186,7 +168,7 @@ public class LogMerge {
 	private static void writeMergeLog(String path, String ip) {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-					path + "mergeLog_" + ip), true));
+					path + "mergeLog_" + ip+".txt"), true));
 			for (int i = 0; i < TIME_LABEL_LIST.size(); i++) {
 				writer.write(TIME_LABEL_LIST.get(i)[0] + "\t"
 						+ TIME_LABEL_LIST.get(i)[1]);

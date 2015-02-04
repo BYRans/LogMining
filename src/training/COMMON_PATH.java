@@ -8,72 +8,82 @@ import java.io.File;
 public class COMMON_PATH {
 
 	/** 存储 原始syslog 文件夹路径 */
-	public final static String RAW_LOG_FILE_PATH = "/home/iie/LogMining/RawLog";
+	public final static String RAW_LOG_FILE_PATH = "C:/Users/Administrator/Desktop/LogMining/RawLog";
 
 	/** 存储 syslog的Lucene 文件路径 */
-	public final static String LUCENE_PATH = "/home/iie/LogMining/LuceneFile";
+	public final static String LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/LuceneFile";
 
 	/** 存储 带有最终标签域的syslog的Lucene 文件路径 */
-	public final static String LABELED_LUCENE_PATH = "/home/iie/LogMining/LabeledLuceneFile/";
+	public final static String LABELED_LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/LabeledLuceneFile/";
 
 	/** 存储 所有分词 文件路径 */
-	public final static String AllTOKEN_SET_PATH = "/home/iie/LogMining/AllTokenSet.txt";
+	public final static String AllTOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/AllTokenSet.txt";
 
 	/** 存储 分词库 文件路径 */
-	public final static String TOKEN_SET_PATH = "/home/iie/LogMining/TokenSet.txt";
+	public final static String TOKEN_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/TokenSet.txt";
 
 	/** 存储 syslog的Message域向量集合 文件路径 */
-	public final static String VECTOR_PATH = "/home/iie/LogMining/Vector.txt";
+	public final static String VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/Vector.txt";
 
 	/** 存储 FPTree 文件路径 */
-	public final static String FPTREE_PATH = "/home/iie/LogMining/LogMerge/FPTree.txt";
+	public final static String FPTREE_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/FPTree/";
 
 	/** 存储 带临时标记的Message域向量 文件路径 */
-	public final static String LABEL_VECTOR_PATH = "/home/iie/LogMining/LabelVector.txt";
+	public final static String LABEL_VECTOR_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelVector.txt";
 
 	/** 存储 训练syslog临时分类原始数据 文件路径 */
-	public final static String LABEL_RAW_DATA_PATH = "/home/iie/LogMining/LabelRawData.txt";
+	public final static String LABEL_RAW_DATA_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelRawData.txt";
 
 	/** 存储 临时标签及该标签包含的docIds 文件路径 */
-	public final static String LABEL_DOCIDS_PATH = "/home/iie/LogMining/LabelDocIds.txt";
+	public final static String LABEL_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelDocIds.txt";
 
 	/** 存储 最终分类情况 文件路径 */
-	public final static String LABEL_SET_PATH = "/home/iie/LogMining/LabelSet.txt";
+	public final static String LABEL_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSet.txt";
 
 	/** 存储 syslog时间戳及类别的 文件路径 */
-	public final static String TIMESTAMP_LABEL_PATH = "/home/iie/LogMining/TimeStampLabel.txt";
+	public final static String TIMESTAMP_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/TimeStampLabel.txt";
 
 	/** 存储 最终标签标签及该标签包含的docIds 文件路径 */
-	public final static String LABEL_SET_DOCIDS_PATH = "/home/iie/LogMining/LabelSetDocIds.txt";
+	public final static String LABEL_SET_DOCIDS_PATH = "C:/Users/Administrator/Desktop/LogMining/LabelSetDocIds.txt";
 
 	/** 存储 特征 文件路径 */
-	public final static String FEATURE_PATH = "/home/iie/LogMining/Feature/Feature.txt";
+	public final static String FEATURE_PATH = "C:/Users/Administrator/Desktop/LogMining/Feature/Feature.txt";
 
 	/** 告警日志 文件路径 */
-	public final static String WARNING_LOG_PATH = "/home/iie/LogMining/LogMerge/WarningLog/";
+	public final static String WARNING_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/WarningLog/";
 
 	/** 存储 合并后日志 文件路径 */
-	public final static String MERGE_LOG_PATH = "/home/iie/LogMining/LogMerge/MergeLog/";
+	public final static String MERGE_LOG_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/MergeLog/";
 
 	/** 存储 移除无关syslog的label 文件路径 */
-	public final static String REMOVED_LABEL_PATH = "/home/iie/LogMining/LogMerge/RemoveLabel.txt";
+	public final static String REMOVED_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/RemoveLabel.txt";
 
 	/** 存储 频繁项集文件 的文件 路径 */
-	public final static String FREQUENT_ITEM_SETS_PATH = "/home/iie/LogMining/LogMerge/";
+	public static String FREQUENT_ITEM_SETS_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/";
 
 	/** 存储 syslog、告警日志特征 文件路径 */
-	public final static String FEATURE_FOLDER_PATH = "/home/iie/LogMining/Feature/";
+	public final static String FEATURE_FOLDER_PATH = "C:/Users/Administrator/Desktop/LogMining/Feature/";
 
 	/** 存储 程序运行统计数据 文件路径 */
-	public final static String STATISTICS_PATH = "/home/iie/LogMining/STATISTICS.txt";
+	public final static String STATISTICS_PATH = "C:/Users/Administrator/Desktop/LogMining/STATISTICS.txt";
 	
 	/** 存储 Vector Lucene 文件路径 */
-	public final static String VECTOR_LUCENE_PATH = "/home/iie/LogMining/VectorLucene/";
+	public final static String VECTOR_LUCENE_PATH = "C:/Users/Administrator/Desktop/LogMining/VectorLucene/";
 	
 	/** 存储 ip列表 文件路径 */
-	public final static String IP_LIST_PATH = "/home/iie/LogMining/LogMerge/IPList";
+	public final static String IP_LIST_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/IPList.txt";
 	
+	/** 存储 warning log label列表 文件路径 */
+	public final static String WARNING_LOG_LABEL_LIST_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/WarningLogLabelList.txt";
+	
+	/** 存储 简化后的最终分类情况 文件路径 */
+	public final static String FINAL_LABEL_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/Final_Label_Set.txt";
 
+	/** 存储 简化后的最终分类情况 文件路径 */
+	public final static String FINAL_TMP_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/Final_Tmp_Label.txt";
+
+	
+	
 	public static int VECTOR_COUNT = 40506707;
 	public static void SET_VECTOR_COUNT(int count){
 		COMMON_PATH.VECTOR_COUNT = count;

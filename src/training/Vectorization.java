@@ -73,7 +73,7 @@ public class Vectorization {
 			int docCount = reader.maxDoc();
 			COMMON_PATH.SET_VECTOR_COUNT(docCount);//设置VECTOR_COUNT，供输出Tagging进度使用
 			COMMON_PATH.DELETE_FILE(COMMON_PATH.VECTOR_PATH);// 写入VECTOR文件前先删除原文件
-			int percent = (int)(docCount*0.01);
+			int percent = Math.max(1,(int)(docCount*0.01));
 			long percentStartTime = System.currentTimeMillis();
 			for (int i = 0; i < docCount; i++) {
 				// Document document = reader.document(i);
