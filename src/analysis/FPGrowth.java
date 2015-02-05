@@ -1,6 +1,7 @@
 package analysis;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -16,7 +17,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +33,8 @@ public class FPGrowth {
 			"yyyy-MM-dd HH:mm:ss");
 	public static Stack<TreeNode> STACK = new Stack<TreeNode>();
 	public static HashSet<String> WARNING_LABEL_SET = new HashSet<String>();
+	public static String ROOT_LEAF_PATH = "";
+	public static HashMap<String, String> FINAL_LABEL_SET = new HashMap<String, String>();
 	private int minSup; // 最小支持度
 
 	public int getMinSup() {
@@ -44,8 +46,10 @@ public class FPGrowth {
 	}
 
 	public static void main(String[] args) throws IOException, Exception {
-		
-		initWarningLabelSet();
+		COMMON_PATH.INIT_DIR(COMMON_PATH.FPTREE_PATH);// 初始化FPTree文件夹
+		COMMON_PATH.INIT_DIR(COMMON_PATH.R2L_FOLDER_PATH);// 初始化FPTree根节点到叶节点路径文件的文件夹
+		COMMON_PATH.INIT_DIR(COMMON_PATH.R2L_DETAILS_FOLDER_PATH);// 初始化FPTree根节点到叶节点路径文件详细信息的文件夹
+		initWarningLabelSet();// 读warning log label到set中
 		File f = new File(COMMON_PATH.MERGE_LOG_PATH);
 		File[] fileList = f.listFiles();
 		for (File file : fileList) {
@@ -54,15 +58,101 @@ public class FPGrowth {
 			fptree.setMinSup(0);
 			ArrayList<TreeNode> F1 = fptree.buildF1Items(transRecords);
 			TreeNode treeroot = fptree.buildFPTree(transRecords, F1);
-			printTree(treeroot, "", true, file.getName().split("_")[1]);// 打印FPTree树
-			printTreePaths(treeroot);// 打印FPTree根节点到叶节点路径
+			printTree(treeroot, "", true, "FPTree_"
+					+ file.getName().split("_")[1]);// 打印FPTree树
+			printTreePaths(treeroot,
+					"FPTreeR2LPath_" + file.getName().split("_")[1]);// 打印FPTree根节点到叶节点路径
+		}
+
+		readFinalLabelSet();// 读syslog + warning log 的 label + details 到 hashMap
+							// 中
+
+		File R2LFiles = new File(COMMON_PATH.R2L_FOLDER_PATH);
+		File[] R2LFileList = R2LFiles.listFiles();
+		for (File file : R2LFileList) {
+			List<String[]> R2LList = readR2LFile(file);
+			try {
+				BufferedWriter writer = new BufferedWriter(
+						new FileWriter(new File(
+								COMMON_PATH.R2L_DETAILS_FOLDER_PATH
+										+ "R2LDetails_"
+										+ file.getName().split("_")[1]), true));
+				for (String[] arr : R2LList) {
+					writer.write("● ");
+					for (String str : arr) {
+						writer.write(str + " ");
+					}
+					writer.newLine();
+					String label = "";
+					for (String str : arr) {
+						label = FINAL_LABEL_SET.get(str.split(":")[0]);
+						if (label == null)
+							writer.write("null");
+						else
+							writer.write(FINAL_LABEL_SET.get(str.split(":")[0]));
+						writer.newLine();
+					}
+					writer.newLine();
+				}
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
-	public static void initWarningLabelSet() {
+	public static List<String[]> readR2LFile(File file) {
+		List<String[]> R2LList = new ArrayList<String[]>();
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					new FileInputStream(file), "UTF-8"));
+			String line = null;
+			while ((line = br.readLine()) != null) {
+				if (!"".equals(line.trim())) {
+					String[] R2LArr = line.trim().split(" ");
+					R2LList.add(R2LArr);
+				}
+			}
+		} catch (IOException e) {
+			System.out.println("读取文件失败。");
+			System.exit(-2);
+		}
+		return R2LList;
+	}
+
+	/**
+	 * 读syslog + warning log 的 label + details 到 hashMap 中
+	 * 
+	 */
+	public static void readFinalLabelSet() {
+		try {
+			File file = new File(COMMON_PATH.FINAL_LABEL_SET_PATH);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					new FileInputStream(file), "UTF-8"));
+			String line = null;
+			String tmpLabelStr = "";
+			String tmpConStr = "";
+			while ((line = reader.readLine()) != null) {
+				if ("".equals(line.trim())) {
+					continue;
+				}
+				if (line.contains("===========Label_")) {
+					if (!"".equals(tmpLabelStr))
+						FINAL_LABEL_SET.put(tmpLabelStr, tmpConStr);
+					tmpLabelStr = line.trim().replaceAll("=", "");
+				} else {
+					tmpConStr += "(" + line.trim() + "),";
+				}
+			}
+			FINAL_LABEL_SET.put(tmpLabelStr, tmpConStr);
+			FINAL_LABEL_SET.put("root", "");
+			reader.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 
 		try {
-			File file = new File(COMMON_PATH.WARNING_LOG_LABEL_LIST_PATH);
+			File file = new File(COMMON_PATH.WARNING_LOG_LABEL_DESCRIBE_PATH);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(file), "UTF-8"));
 			String line = null;
@@ -70,34 +160,67 @@ public class FPGrowth {
 				if ("".equals(line.trim())) {
 					continue;
 				}
-				WARNING_LABEL_SET.add(line.trim());
+				FINAL_LABEL_SET.put(line.split(":")[0], line.split(":")[1]);
 			}
 			reader.close();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-
 	}
 
 	/**
-	 * 打印多叉树根节点到叶子节点路径
+	 * 读warning log label到set中
+	 * 
+	 */
+	public static void initWarningLabelSet() {
+		try {
+			File file = new File(COMMON_PATH.WARNING_LOG_LABEL_DESCRIBE_PATH);
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					new FileInputStream(file), "UTF-8"));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				if ("".equals(line.trim())) {
+					continue;
+				}
+				WARNING_LABEL_SET.add(line.trim().split(":")[0]);
+			}
+			reader.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	/**
+	 * 打印多叉树根节点到叶子节点路径(类似后序遍历)
 	 * 
 	 * @param node
 	 *            树根节点
 	 */
-	public static void printTreePaths(TreeNode node) {
+	public static void printTreePaths(TreeNode node, String saveFileName) {
 		if (node != null) {
 			STACK.add(node);
 			if (node.getChildren() == null || node.getChildren().size() == 0) {
 				for (TreeNode n : STACK) {
-					System.out.print(n.getName() + " ");
+					System.out.print(n.getName() + ":" + n.getCount() + " ");
+					ROOT_LEAF_PATH += n.getName() + ":" + n.getCount() + " ";
 				}
 				System.out.print("\n");
+				try {
+					BufferedWriter writer = new BufferedWriter(
+							new FileWriter(new File(COMMON_PATH.R2L_FOLDER_PATH
+									+ saveFileName), true));
+					writer.write(ROOT_LEAF_PATH);
+					writer.newLine();
+					writer.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				ROOT_LEAF_PATH = "";// 初始化路径变量
 				STACK.pop();
 				return;
 			}
 			for (int i = 0; i < node.getChildren().size(); i++) {
-				printTreePaths(node.getChildren().get(i));
+				printTreePaths(node.getChildren().get(i), saveFileName);
 			}
 			STACK.pop();
 		}
@@ -294,7 +417,7 @@ public class FPGrowth {
 	 */
 	public TreeNode buildFPTree(List<List<String>> transRecords,
 			ArrayList<TreeNode> F1) {
-		TreeNode root = new TreeNode(); // 创建树的根节点
+		TreeNode root = new TreeNode("root"); // 创建树的根节点
 		for (List<String> transRecord : transRecords) {
 			LinkedList<String> record = sortByF1(transRecord, F1);
 			TreeNode subTreeRoot = root;

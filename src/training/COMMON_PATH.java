@@ -74,16 +74,22 @@ public class COMMON_PATH {
 	public final static String IP_LIST_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/IPList.txt";
 	
 	/** 存储 warning log label列表 文件路径 */
-	public final static String WARNING_LOG_LABEL_LIST_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/WarningLogLabelList.txt";
 	
 	/** 存储 简化后的最终分类情况 文件路径 */
 	public final static String FINAL_LABEL_SET_PATH = "C:/Users/Administrator/Desktop/LogMining/Final_Label_Set.txt";
 
-	/** 存储 简化后的最终分类情况 文件路径 */
+	/** 存储 最终Label包含TmpLabel对应情况 文件路径 */
 	public final static String FINAL_TMP_LABEL_PATH = "C:/Users/Administrator/Desktop/LogMining/Final_Tmp_Label.txt";
 
-	
-	
+	/** 存储 FPTree根节点到所有叶子节点路径 文件路径 */
+	public final static String R2L_FOLDER_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/FPTreePaths/";
+
+	/** 存储 FPTree根节点到所有叶子节点路径 详细内容 文件路径 */
+	public final static String R2L_DETAILS_FOLDER_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/FPTreePathsDetails/";
+
+	/** 存储 FPTree根节点到所有叶子节点路径 详细内容 文件路径 */
+	public final static String WARNING_LOG_LABEL_DESCRIBE_PATH = "C:/Users/Administrator/Desktop/LogMining/LogMerge/WarningLogLabelDes.txt";
+
 	public static int VECTOR_COUNT = 40506707;
 	public static void SET_VECTOR_COUNT(int count){
 		COMMON_PATH.VECTOR_COUNT = count;
