@@ -1,4 +1,4 @@
-package training;
+package old_training;
 
 import java.io.BufferedWriter;
 import java.io.File;

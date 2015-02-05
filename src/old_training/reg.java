@@ -1,4 +1,4 @@
-package training;
+package old_training;
 public class reg {
 
 	public static void main(String[] args) throws Exception {
