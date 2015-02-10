@@ -26,7 +26,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 
-public class LogMergeByLCS {
+public class LogMergeByLCS_modifyLabelSet {
 	public static double SIMILARITY = 0.5;
 	public static List<String[]> LABEL_VECTOR_LIST = new ArrayList<String[]>();
 	public static HashMap<String, String> LABEL_DOCIDS_MAP = new HashMap<String, String>();
@@ -79,6 +79,7 @@ public class LogMergeByLCS {
 
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) {
+		long startTime = System.currentTimeMillis();
 		System.out.println("LogMergeByLCS Running..." + new Date());
 		int[][] LCSArr = new int[LABEL_VECTOR_LIST.size()][LABEL_VECTOR_LIST
 				.size()];
@@ -106,139 +107,109 @@ public class LogMergeByLCS {
 		// 把Label Set写入文件
 		Directory directory = null;
 		IndexReader reader = null;
-		COMMON_PATH.DELETE_FILE(COMMON_PATH.LABEL_SET_PATH);// 写入Label_Set文件前先删除原文件
-
+//		COMMON_PATH.DELETE_FILE(COMMON_PATH.LABEL_SET_PATH);// 写入Label_Set文件前先删除原文件
+		int maxDoc = 0;
 		try {
 			directory = FSDirectory.open(new File(COMMON_PATH.LUCENE_PATH));
 			reader = IndexReader.open(directory);
 			Document document = null;
-			int maxDoc = reader.maxDoc();
-			System.out.println(maxDoc);
+			maxDoc = reader.maxDoc();
 			System.out.println("Writing Label Set ...");
-			try {
-				BufferedWriter writer = new BufferedWriter(new FileWriter(
-						new File(COMMON_PATH.LABEL_SET_PATH), true));
-
-				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
-					writer.write("===========Label_" + i + "===============");
-					writer.newLine();
-					writer.write(LABEL_SET_LIST.get(i));
-					writer.newLine();
-					writer.newLine();
-					writer.flush();
-				}
-				writer.write("***************************");
-				writer.newLine();
-				writer.newLine();
-				int labelSetCount = 0;
-				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
-					String[] labelArr = LABEL_SET_LIST.get(i).split(",");
-					writer.write("===========Label_" + i + "===============");
-					writer.newLine();
-					for (int j = 0; j < labelArr.length; j++) {
-						String docIds = LABEL_DOCIDS_MAP.get(labelArr[j]);
-						String[] docIdArr = docIds.split(",");
-						for (int k = 0; k < docIdArr.length; k++) {
-							document = reader.document(Integer
-									.valueOf(docIdArr[k]));
-							// Message source写入文件
-							writer.write("MESSAGE:" + document.get("message")
-									+ " <-- SOURCE:" + document.get("source"));
-							writer.newLine();
-							writer.flush();
-							if (labelSetCount++ % ((int) maxDoc * 0.1) == 0)
-								System.out.println("saving labelSet "
-										+ ((double) (labelSetCount / maxDoc))
-										* 100 + "%");
-						}
-					}
-
-				}
-				writer.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			System.out.println("Saving as Lucene File...");
-
-			IndexWriter LLWriter = null;
-			try {
-				// save as Labeled Lucene File
-				COMMON_PATH.INIT_DIR(COMMON_PATH.LABELED_LUCENE_PATH);// 初始化Labeled_Lucene文件夹
-				Directory LLDirectory = FSDirectory.open(new File(
-						COMMON_PATH.LABELED_LUCENE_PATH));
-				IndexWriterConfig LLiwc = new IndexWriterConfig(
-						Version.LUCENE_4_10_2, new StandardAnalyzer());
-				LLiwc.setUseCompoundFile(false);
-				LLWriter = new IndexWriter(LLDirectory, LLiwc);
-				Document LLDocument = null;
-				int docCount = 0;
-				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
-					double listSize = LABEL_SET_LIST.size();
-					String[] labelArr = LABEL_SET_LIST.get(i).split(",");
-					for (int j = 0; j < labelArr.length; j++) {
-						String docIds = LABEL_DOCIDS_MAP.get(labelArr[j]);
-						String[] docIdArr = docIds.split(",");
-						for (int k = 0; k < docIdArr.length; k++) {
-							document = reader.document(Integer
-									.valueOf(docIdArr[k]));
-							document.add(new Field("label", "Label_" + i,
-									Field.Store.YES, Field.Index.NOT_ANALYZED));
-							LLWriter.addDocument(document);
-							++docCount;
-							if (docCount % ((int) maxDoc * 0.05) == 0)
-								System.out.println("saving Final Lucene "
-										+ ((double) docCount / maxDoc) * 100
-										+ "%");
-						}
-					}
-
-				}
-
-			} catch (IOException e) {
-				e.printStackTrace();
-			} finally {
-				if (LLWriter != null) {
-					try {
-						LLWriter.close();
-					} catch (CorruptIndexException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-
-			// TimesTamp_Label文件
-			// 原来在日志合并时用到，现在省掉这一文件，日志合并时直接从Lucene中读取。此时（2015-01-27）日志合并处还没改
-			// // 写入TimesTamp_Label文件
-			// COMMON_PATH.DELETE_FILE(COMMON_PATH.TIMESTAMP_LABEL_PATH);//
-			// 写入TimesTamp_Label文件前先删除原文件
-			// try {
-			// BufferedWriter tlWriter = new BufferedWriter(new FileWriter(
-			// new File(COMMON_PATH.TIMESTAMP_LABEL_PATH), true));
-			// for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
-			// String[] labelArr = LABEL_SET_LIST.get(i).split(",");
-			// for (int j = 0; j < labelArr.length; j++) {
-			// String docIds = LABEL_DOCIDS_MAP.get(labelArr[j]);
-			// String[] docIdArr = docIds.split(",");
-			// for (int k = 0; k < docIdArr.length; k++) {
-			// document = reader.document(Integer
-			// .valueOf(docIdArr[k]));
-			// // Message source写入文件
-			// tlWriter.write(document.get("timeStamp") + "\t");
-			// tlWriter.write("Label_" + i);
-			// tlWriter.newLine();
-			// }
-			// }
-			// }
-			// tlWriter.flush();
-			// tlWriter.close();
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
+//			try {
+//				BufferedWriter writer = new BufferedWriter(new FileWriter(
+//						new File(COMMON_PATH.LABEL_SET_PATH), true));
+//				double labelSetCount = 0;
+//				for (int i = 0; i < LABEL_SET_LIST.size(); i++) {
+//					String[] labelArr = LABEL_SET_LIST.get(i).split(",");
+//					for (int j = 0; j < labelArr.length; j++) {
+//						String docIds = LABEL_DOCIDS_MAP.get(labelArr[j]);
+//						String[] docIdArr = docIds.split(",");
+//						for (int k = 0; k < docIdArr.length; k++) {
+//							document = reader.document(Integer
+//									.valueOf(docIdArr[k]));
+//							// Message source写入文件
+//							writer.write(document.get("ip") + "\t"
+//									+ document.get("timeStamp") + "\t"
+//									+ "Label_" + i);
+//							writer.newLine();
+//							writer.flush();
+//							labelSetCount++;
+//							if (labelSetCount / 1000000.0 == 0.0)
+//								System.out.println(labelSetCount);
+//							if ((int) (labelSetCount % (maxDoc * 0.01)) == 0)
+//								System.out.println("saving labelSet "
+//										+ ((double) (labelSetCount / maxDoc))
+//										* 100 + "%");
+//						}
+//					}
+//
+//				}
+//				writer.close();
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+
+		System.out.println("Saving as Lucene File...");
+
+		IndexWriter LLWriter = null;
+		try {
+			// save as Labeled Lucene File
+			COMMON_PATH.INIT_DIR(COMMON_PATH.LABELED_LUCENE_PATH);// 初始化Labeled_Lucene文件夹
+			Directory LLDirectory = FSDirectory.open(new File(
+					COMMON_PATH.LABELED_LUCENE_PATH));
+			IndexWriterConfig LLiwc = new IndexWriterConfig(
+					Version.LUCENE_4_10_2, new StandardAnalyzer());
+			LLiwc.setUseCompoundFile(false);
+			LLWriter = new IndexWriter(LLDirectory, LLiwc);
+			Document LLDocument = null;
+			double docCount = 0;
+
+			try {
+				File termSetFile = new File(COMMON_PATH.LABEL_SET_PATH);
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						new FileInputStream(termSetFile), "UTF-8"));
+				String curLine = "";
+				Document document = new Document();
+				while ((curLine = br.readLine()) != null) {
+					if ("".equals(curLine.trim())) {
+						continue;
+					}
+					String[] termArr = curLine.split("\t");
+					if (termArr.length < 3)
+						continue;
+					document = new Document();
+					document.add(new TextField("ip", termArr[0], Field.Store.YES));
+					document.add(new Field("timeStamp", termArr[1],
+							Field.Store.YES, Field.Index.ANALYZED));
+					document.add(new Field("label", termArr[2],
+							Field.Store.YES, Field.Index.NOT_ANALYZED));
+					LLWriter.addDocument(document);
+					docCount++;
+					if (docCount / 1000000.0 == 0)
+						System.out.println(docCount);
+					if ((int) (docCount % (maxDoc * 0.1)) == 0)
+						System.out.println("saving labelSet "
+								+ ((double) (docCount / maxDoc)) * 100 + "%");
+				}
+				br.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (LLWriter != null) {
+				try {
+					LLWriter.close();
+				} catch (CorruptIndexException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		System.out.println("Writing Label docIds...");
@@ -267,6 +238,8 @@ public class LogMergeByLCS {
 		}
 
 		System.out.println("Completed." + new Date() + "\n\n");
+		System.out.println("process time: "
+				+ (System.currentTimeMillis() - startTime) / 1000 + "S\n");
 	}
 
 	// 计算最长公共子串长度
