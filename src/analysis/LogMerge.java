@@ -43,26 +43,31 @@ public class LogMerge {
 
 	public static void main(String[] args) throws ParseException {
 		System.out.println("running...");
-		
+		long startTime = System.currentTimeMillis();
 		COMMON_PATH.INIT_DIR(COMMON_PATH.MERGE_LOG_PATH);// 写入mergeLog文件夹前先初始化文件夹
-		
+
 		// 读入ip set
 		readIPs(COMMON_PATH.IP_LIST_PATH);
-
+		int i = 0;
+		long percentStartTime = System.currentTimeMillis();
 		for (String ip : IP_SET) {
 			TIME_LABEL_LIST = new ArrayList<String[]>();
 			// removed Label set初始化
 			initRemovedLabelSet(COMMON_PATH.REMOVED_LABEL_PATH);
 			// 读入syslog time+label
 			readSyslog(COMMON_PATH.LABELED_LUCENE_PATH, ip);
-			// 读入syslog time+label
+			// 读入warning log time+label
 			readWarningLog(COMMON_PATH.WARNING_LOG_PATH, ip);
 			// 按时间戳归并排序syslog和warning log
 			mergeSort(TIME_LABEL_LIST, 0, 1);
 			// 写入排序后合并日志
 			writeMergeLog(COMMON_PATH.MERGE_LOG_PATH, ip);
+			System.out.println("Merged" + (i++) + "/" + IP_SET.size() + "use"
+					+ (System.currentTimeMillis() - percentStartTime) / 1000
+					+ "S\n");
+			percentStartTime = System.currentTimeMillis();
 		}
-		System.out.println("Completed.");
+		System.out.println("LogMerge Completed.used "+(System.currentTimeMillis() - startTime)/1000+"S\n");
 	}
 
 	// 读入ip列表
@@ -110,13 +115,15 @@ public class LogMerge {
 			reader = IndexReader.open(directory);
 			IndexSearcher searcher = new IndexSearcher(reader);
 			Term term1 = new Term("ip", ip);
+			System.out.println(ip);
 			TermQuery query1 = new TermQuery(term1);
 			BooleanQuery booleanQuery = new BooleanQuery();
 			booleanQuery.add(query1, Occur.MUST);
 			TotalHitCountCollector collector = new TotalHitCountCollector();
 			searcher.search(booleanQuery, collector);
+			System.out.println(collector.getTotalHits());
 			int hits = Math.max(1, collector.getTotalHits());
-			TopDocs tds = searcher.search(booleanQuery, 1);
+			TopDocs tds = searcher.search(booleanQuery, hits);
 			ScoreDoc[] sds = tds.scoreDocs;
 			int[] docCount = new int[hits];
 			for (int i = 0; i < sds.length; i++) {
@@ -145,15 +152,20 @@ public class LogMerge {
 	// 读入warning log timeStamp+label
 	private static void readWarningLog(String path, String ip) {
 		try {
-			File warningLogFile = new File(path + ip + ".txt");
+			File warningLogFile = new File(path + ip);
 			BufferedReader wReader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(warningLogFile), "UTF-8"));
 			String line = null;
 			while ((line = wReader.readLine()) != null) {
+
 				if ("".equals(line.trim())) {
 					continue;
 				}
-				String[] timeLabelArr = line.split("\t");
+				String[] logArr = line.split(",");
+				if (logArr.length < 15)
+					continue;
+				String[] timeLabelArr = { logArr[3].replace("/", "-"),
+						logArr[13] };
 				if (timeLabelArr.length != 2)
 					continue;
 				TIME_LABEL_LIST.add(timeLabelArr);
@@ -168,7 +180,7 @@ public class LogMerge {
 	private static void writeMergeLog(String path, String ip) {
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(new File(
-					path + "mergeLog_" + ip+".txt"), true));
+					path + "mergeLog_" + ip + ".txt"), true));
 			for (int i = 0; i < TIME_LABEL_LIST.size(); i++) {
 				writer.write(TIME_LABEL_LIST.get(i)[0] + "\t"
 						+ TIME_LABEL_LIST.get(i)[1]);

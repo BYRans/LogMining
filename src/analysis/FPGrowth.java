@@ -27,8 +27,8 @@ import java.util.Set;
 import training.COMMON_PATH;
 
 public class FPGrowth {
-	public static int WINDOWN_SIZE = 120;// 窗口大小，分钟为单位
-	public static int STEP_SIZE = 30;// 步长大小，分钟为单位
+	public static int WINDOWN_SIZE = 30;// 窗口大小，分钟为单位
+	public static int STEP_SIZE = 10;// 步长大小，分钟为单位
 	public static SimpleDateFormat DATE_TEMPLATE = new SimpleDateFormat(
 			"yyyy-MM-dd HH:mm:ss");
 	public static Stack<TreeNode> STACK = new Stack<TreeNode>();
@@ -46,12 +46,16 @@ public class FPGrowth {
 	}
 
 	public static void main(String[] args) throws IOException, Exception {
+		System.out.println("FP-Growth running...");
+		long startTime = System.currentTimeMillis();
 		COMMON_PATH.INIT_DIR(COMMON_PATH.FPTREE_PATH);// 初始化FPTree文件夹
 		COMMON_PATH.INIT_DIR(COMMON_PATH.R2L_FOLDER_PATH);// 初始化FPTree根节点到叶节点路径文件的文件夹
 		COMMON_PATH.INIT_DIR(COMMON_PATH.R2L_DETAILS_FOLDER_PATH);// 初始化FPTree根节点到叶节点路径文件详细信息的文件夹
 		initWarningLabelSet();// 读warning log label到set中
 		File f = new File(COMMON_PATH.MERGE_LOG_PATH);
 		File[] fileList = f.listFiles();
+		System.out.println("Building FPTree...");
+		int i = 0;
 		for (File file : fileList) {
 			FPGrowth fptree = new FPGrowth();
 			List<List<String>> transRecords = fptree.readFile(file);
@@ -62,13 +66,15 @@ public class FPGrowth {
 					+ file.getName().split("_")[1]);// 打印FPTree树
 			printTreePaths(treeroot,
 					"FPTreeR2LPath_" + file.getName().split("_")[1]);// 打印FPTree根节点到叶节点路径
+			System.out.println("Building " + (++i) + "/" + fileList.length);
 		}
 
 		readFinalLabelSet();// 读syslog + warning log 的 label + details 到 hashMap
 							// 中
-
+		System.out.println("Generating FPTree branchs details...");
 		File R2LFiles = new File(COMMON_PATH.R2L_FOLDER_PATH);
 		File[] R2LFileList = R2LFiles.listFiles();
+		i = 0;
 		for (File file : R2LFileList) {
 			List<String[]> R2LList = readR2LFile(file);
 			try {
@@ -98,7 +104,10 @@ public class FPGrowth {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			System.out.println("Building " + (++i) + "/" + fileList.length);
 		}
+		System.out.println("FP-Growth Completed.used "
+				+ (System.currentTimeMillis() - startTime) / 1000 + "S\n\n");
 	}
 
 	public static List<String[]> readR2LFile(File file) {
@@ -137,8 +146,10 @@ public class FPGrowth {
 					continue;
 				}
 				if (line.contains("===========Label_")) {
-					if (!"".equals(tmpLabelStr))
+					if (!"".equals(tmpLabelStr)){
 						FINAL_LABEL_SET.put(tmpLabelStr, tmpConStr);
+						tmpConStr = "";
+					}
 					tmpLabelStr = line.trim().replaceAll("=", "");
 				} else {
 					tmpConStr += "(" + line.trim() + "),";
@@ -150,7 +161,7 @@ public class FPGrowth {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
-
+		
 		try {
 			File file = new File(COMMON_PATH.WARNING_LOG_LABEL_DESCRIBE_PATH);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -160,7 +171,7 @@ public class FPGrowth {
 				if ("".equals(line.trim())) {
 					continue;
 				}
-				FINAL_LABEL_SET.put(line.split(":")[0], line.split(":")[1]);
+				FINAL_LABEL_SET.put(line.split("\t")[0], line.split("\t")[1]);
 			}
 			reader.close();
 		} catch (IOException e1) {
@@ -182,7 +193,7 @@ public class FPGrowth {
 				if ("".equals(line.trim())) {
 					continue;
 				}
-				WARNING_LABEL_SET.add(line.trim().split(":")[0]);
+				WARNING_LABEL_SET.add(line.trim().split("\t")[0]);
 			}
 			reader.close();
 		} catch (IOException e1) {
@@ -201,10 +212,10 @@ public class FPGrowth {
 			STACK.add(node);
 			if (node.getChildren() == null || node.getChildren().size() == 0) {
 				for (TreeNode n : STACK) {
-					System.out.print(n.getName() + ":" + n.getCount() + " ");
+					// System.out.print(n.getName() + ":" + n.getCount() + " ");
 					ROOT_LEAF_PATH += n.getName() + ":" + n.getCount() + " ";
 				}
-				System.out.print("\n");
+				// System.out.print("\n");
 				try {
 					BufferedWriter writer = new BufferedWriter(
 							new FileWriter(new File(COMMON_PATH.R2L_FOLDER_PATH
@@ -240,8 +251,8 @@ public class FPGrowth {
 	 * */
 	public static void printTree(TreeNode treeNode, String prefix,
 			boolean isTail, String saveFileName) {
-		System.out.println(prefix + (isTail ? "└── " : "├── ")
-				+ treeNode.getName() + " :" + treeNode.getCount());
+		// System.out.println(prefix + (isTail ? "└── " : "├── ")
+		// + treeNode.getName() + " :" + treeNode.getCount());
 		FileWriter FPResFile;
 		try {
 			FPResFile = new FileWriter(new File(COMMON_PATH.FPTREE_PATH
@@ -336,15 +347,19 @@ public class FPGrowth {
 		cal.setTime(minDate);
 		cal.add(Calendar.MINUTE, WINDOWN_SIZE);// 设置窗口最大时间
 		Date maxDate = cal.getTime();
+		int curIndex = 0;
 		while (minDate.getTime() < endDate.getTime()) {
 			List<String[]> tmpDataList = new ArrayList<String[]>();
-			for (int i = 0; i < dataList.size(); i++) {
+			for (int i = curIndex; i < dataList.size(); i++) {
 				tmpDate = (dataList.get(i))[0];
 				Date timeStamp = DATE_TEMPLATE.parse(tmpDate);
 				if (timeStamp.getTime() >= minDate.getTime()
 						&& timeStamp.getTime() < maxDate.getTime()) {
 					tmpDataList.add(dataList.get(i));
+				} else if (timeStamp.getTime() >= maxDate.getTime()) {
+					break;
 				}
+				curIndex++;
 			}
 
 			List<String> record = new ArrayList<String>();
