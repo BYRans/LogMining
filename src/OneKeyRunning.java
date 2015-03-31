@@ -1,9 +1,9 @@
+import dataFilter.FilterAlert;
+import dataFilter.FilterRawLog;
+import dataFilter.LabelSetFilter;
+import dataFilter.Statistics;
 import analysis.FPGrowth;
 import analysis.LogMerge;
-import DataFilter.FilterRawLog;
-import DataFilter.FilterAlert;
-import DataFilter.Statistics;
-import DataFilter.LabelSetFilter;
 import training.FeatureExtraction;
 import training.LogMergeByLCS;
 import training.RMNoiseWordByRule;

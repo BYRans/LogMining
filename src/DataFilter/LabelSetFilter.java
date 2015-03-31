@@ -1,4 +1,4 @@
-package DataFilter;
+package dataFilter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
